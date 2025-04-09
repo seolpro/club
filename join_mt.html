@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link
+            href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"
+            rel="stylesheet"/>
+        <title>📝산악회 동아리 가입신청서</title>
+        <style>
+            body {
+                max-width: 1200px;
+                margin: 5px;
+                padding: 10px;
+            }
+            .center {
+                display: flex;
+                text-align: center;
+            }
+            iframe {
+                border-radius: 10px;
+            }
+            a {
+                font-size: medium;
+                font-weight: 600;
+            }
+            #close,
+            #detail {
+                display: none;
+            }
+            button {
+                font-size: 15px;
+                margin-top: 10px;
+                font-weight: 600;
+                border: none;
+                border-radius: 10px;
+                padding: 10px;
+                margin-right: 10px;
+                box-shadow: 0 3px 6px grey;
+            }
+            #icon_call {
+                border: none;
+                width: auto;
+                height: 55px;
+                padding-top: 12px;
+                padding-left: 10px;
+                padding-right: 10px;
+                font-size: 20px;
+                color: black;
+                border-radius: 35px;
+                box-shadow: 1px 3px 3px 1px slategray;
+                background: rgb(205, 235, 223);
+                text-align: center;
+                font-weight: bold;
+            }
+            #icon_call a {
+                color: black;
+                font-size: 20px;
+                font-weight: 600;
+                font-family: Verdana, Geneva, Tahoma, sans-serif;
+            }
+            .space_around {
+                display: flex;
+                justify-content: space-around;
+            }
+            #cancel,
+            #docu {
+                display: none;
+                font-size: 15px;
+            }
+            #close {
+                font-weight: 600;
+            }
+            p {
+                border: solid 1px;
+                box-shadow: opx 2x 4px grey;
+                padding: 10px;
+                border-radius: 5px;
+                font-size: medium;
+            }
+            #loading-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                /* 배경 색상과 투명도를 조정하세요 */
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 9999;
+            }
+            #loading-message {
+                font-size: 24px;
+                color: white;
+            }
+            #loading-spinner {
+                border: 16px solid #f3f3f3;
+                border-top: 16px solid #3498db;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                animation: spin 2s linear infinite;
+            }
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+            img {
+                width: 100%;
+            }
+            #shownotice {
+                display: none;
+            }
+            /* 모달 스타일 */
+            .modal {
+                display: none;
+                /* 초기에는 모달을 숨깁니다. */
+                position: fixed;
+                /* 위치를 고정합니다. */
+                z-index: 1;
+                /* 다른 요소들보다 위에 표시합니다. */
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+                /* 모달이 화면보다 큰 경우 스크롤이 가능하도록 합니다. */
+                background-color: rgba(0,0,0,0.4);
+                /* 반투명한 배경색을 지정합니다. */
+            }
+
+            /* 모달 콘텐츠 스타일 */
+            .modal-content {
+                background-color: #fefefe;
+                margin: auto;
+                /* 모달을 수직 가운데로 위치시킵니다. */
+                padding: 20px;
+                margin-top: 20px;
+                border: 1px solid #888;
+                width: 80%;
+                /* 모달 너비를 조정합니다. */
+                position: relative;
+            }
+
+            /* 모달 닫기 버튼 스타일 */
+            .close {
+                color: #aaa;
+                float: right;
+                font-size: 28px;
+                font-weight: bold;
+            }
+
+            .close:focus,
+            .close:hover {
+                color: black;
+                text-decoration: none;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <iframe
+            src="https://script.google.com/macros/s/AKfycby_Tx0iqMKFjCbbdciqQtzgFU73O1P36zt7jn1GYjPy2LfdaA9vCiVQkJk5B9YimxOtaQ/exec"
+            width="100%"
+            height="650"
+            frameborder="0"
+            marginheight="0"
+            marginwidth="0">로드 중…</iframe>
+    </div>
+    <div class="space_around">
+        <!-- <span onclick="callon()">📞회장에게전화하기 </span> -->
+        <button onclick="openContactModal()">📞운영진에게 문의하기</button>
+
+        <div id="contactModal" class="modal">
+            <div class="modal-content">
+
+                <h4>🤷🏽‍♀️누구에게 연결하실까요?</h4>
+                <button onclick="callChairman()">🤵회장(참가/운영)</button>
+                <button onclick="callSecretary()">🤷회계(회비관련)</button>
+                <hr>
+                <span class="close" onclick="closeContactModal()">❌</span>
+                <br>
+            </div>
+        </div>
+        <br>
+        <div id="loading-overlay">
+            <div id="loading-spinner"></div>
+            <div id="loading-message">로딩 중입니다...
+                <br>
+                <small>🏕아주대병원 산악회</small>
+            </div>
+        </div>
+        <script>
+            // 페이지 로딩이 완료되면 로딩 스피너를 숨깁니다.
+            window.addEventListener('load', function () {
+                var spinner = document.getElementById('loading-spinner');
+                spinner.style.display = 'none';
+            });
+        </script>
+        <script>
+            window.addEventListener('load', function () {
+                var loadingOverlay = document.getElementById('loading-overlay');
+                loadingOverlay.style.display = 'none';
+            });
+        </script>
+        <script>
+
+            // 모달 열기
+            function openContactModal() {
+                var modal = document.getElementById("contactModal");
+                modal.style.display = "block";
+            }
+
+            // 모달 닫기
+            function closeContactModal() {
+                var modal = document.getElementById("contactModal");
+                modal.style.display = "none";
+            }
+
+            // 회장에게 전화
+            function callChairman() {
+                if (window.confirm("☏ 회장(김설호)에게 📞전화앱으로 연결할까요?")) {
+                    document.location.href = "tel:010-7118-6639";
+                } else {
+                    alert("취소 되었습니다!!");
+                }
+            }
+
+            // 총무에게 전화
+            function callSecretary() {
+                if (window.confirm("☏ 회계(이세민)에게 📞전화앱으로 연결할까요?")) {
+                    document.location.href = "tel:010-2378-1287";
+                } else {
+                    alert("취소 되었습니다!!");
+                }
+            }
+        </script>
+    </body>
+</html>
