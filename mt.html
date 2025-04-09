@@ -3,158 +3,504 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>산악회 참가 신청</title>
+  <title>🏞 산악회 참가 신청서</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- jQuery (필수) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- jQuery UI (autocomplete 기능 포함) -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
   <style>
-    .banner {
-      position: relative;
-      height: 300px;
-      overflow: hidden;
+    .form-label { width: 120px; }
+    .form-inline .form-control, .form-inline select {
+      flex: 1;
     }
-    .banner img {
-      position: absolute;
+    img {
+      width: 100%;
+      border-radius: 10px;
+  }
+  #shownotice {
+      display: none;
+  }
+  .slideshow-container {
+      position: relative;
+      width: 100%;
+      height: 350px;
+      /* 이 값은 이미지 크기에 맞게 조정하세요 */
+      max-width: 600px;
+      margin: auto;
+      overflow: hidden;
+      opacity: 1;
+      transition: opacity 2s ease-in-out;
+  }
+  .slideshow-image {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
       opacity: 0;
-      transition: opacity 1s ease-in-out;
-    }
-    .banner img.active {
+      transition: opacity 2s ease-in-out;
+  }
+  .visible {
       opacity: 1;
-      z-index: 1;
-    }
+  }
+  .watermark {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 21px;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+      z-index: 10;
+  }
+  @media (max-width: 600px) {
+      .watermark {
+          font-size: 18px;
+      }
+  }
+  .carousel-item img { height: 400px; object-fit: cover; 
+  } 
+  .fade-image {
+    opacity: 0;
+    transition: opacity 2s ease-in-out;
+  }
+  .fade-image.show {
+    opacity: 1;
+  }
+  .carousel-inner img {
+    width: 100%;
+    height: auto;
+  }
+  .carousel {
+    padding-bottom: 0;
+  } 
+  #entryList td {
+    font-weight: normal;
+    font-size: 0.9rem; /* 기본보다 살짝 작게 */
+  }
   </style>
 </head>
 <body class="bg-light">
-  <div class="banner" id="banner">
-    <img src="https://cdn.cctoday.co.kr/news/photo/202206/2164062_596894_2628.jpg" alt="banner1">
-    <img src="https://san.chosun.com/news/photo/200707/2820_3736_5620.jpg" alt="banner2">
-    <img src="https://t1.daumcdn.net/cfile/blog/226AB14458E83A4904" alt="banner3">
-    <img src="https://koreahike.com/wp-content/uploads/%EC%A1%B0%EB%A0%B9%EC%82%B0-%EC%A0%95%EC%83%81%EC%97%90%EC%84%9C%EC%9D%98-%ED%92%8D%EA%B2%BD.jpg" alt="banner4">
-    <img src="https://i.ytimg.com/vi/MgczqZ5TBQ8/hqdefault.jpg" alt="banner5">
+<!-- <div class="mb-4 position-relative" style="height: 400px; overflow: hidden;">
+  <img id="randomImage" class="position-absolute w-90 h-90 object-fit-cover fade-image" src="" alt="랜덤 산 이미지" />
+</div> -->
+<div class="container py-3">
+  <h4>
+    <b>📢산악회 4월 산행 및 트래킹 안내.</b>
+</h4><br>
+<p>
+    4월 산행 일정을 아래와 같이 안내 드립니다.  일정 참고하시어 신청해 주세요. <br><br>
+    📅 일시: 2025.4.12(토) 7시  ~ 18시<br>
+    🏕 장소 : 백두대간 조령산 및 연풍새재 ~ 문경새재 옛길 트래킹<br> 
+       A코스(산행) : 이화령휴게소(해발 568M/원점회귀) ~ 조령산 정상(1,017M) 상승고도:450M / 난이도 :중(광교산 종주코스 비슷)<br>
+       B코스(트래킹) : 충북 연풍(조령산휴양림) ~ 문경새재(입구) 약 10KM / 난이도:하 <br><br>
+
+    💳 참가비: 회원 2만원 / 비회원: 4만원 [하산식: 문경 약돌돼지 석쇠구이(더덕구이) 정식]<br>
+    🥪 생수 및 간식은 준비해 주세요<br>
+    📅신청기간: ~ 4.6(일)까지 (⚠️코스변경은 당일에도 가능합니다)<b>
+    <br>
+   <!--  <a href="https://ajou9770.github.io/trip" target="_blank">✔️문탐동아리 10월 12일(토) 영주(풍기)탐방 일정(신청)▶️</a> -->
+</p>  
+<hr>
+  <h5 class="text-center mb-3">⛰ 참가 신청서</h5>
+
+  <div class="card p-4 shadow">
+    <div class="mb-2 d-flex align-items-center form-inline">
+      <label class="form-label">👤 성명*</label>
+      <input type="text" class="form-control" id="name">
+    </div>
+
+    <div class="mb-2 d-flex align-items-center form-inline">
+      <label class="form-label">📱 연락처*</label>
+      <input type="tel" class="form-control" id="contact" placeholder="숫자만 입력" required>
+    </div>
+
+    <div class="mb-2 d-flex align-items-center form-inline">
+      <label class="form-label">👥 참가인원*</label>
+      <select class="form-select" id="participants" required>
+        <option value="">✔선택</option>
+        <option>1명</option><option>2명</option><option>3명</option><option>4명</option><option>5명</option>
+      </select>
+    </div>
+
+    <div class="mb-2 d-flex align-items-center form-inline">
+      <label class="form-label">✨예(비)회원</label>
+      <select class="form-select" id="nonMembers">
+        <option value="">✔선택</option>
+        <option>1명</option><option>2명</option><option>3명</option><option>4명</option><option>5명</option>
+      </select>
+    </div>
+
+    <div class="mb-2 d-flex align-items-center form-inline" id="memberNamesGroup" style="display: none;">
+        <label class="form-label">👬 동반회원</label>
+        <input type="text" class="form-control" id="memberNames" placeholder="동반회원(쉼표로 구분)">
+      </div>
+      
+
+    <div class="mb-2 d-flex align-items-center form-inline">
+      <label class="form-label">🗺 코스 선택*</label>
+      <select class="form-select" id="course">
+        <option value="">✔선택하세요</option>
+        <option>조령산 산행 코스</option>
+        <option>새재길 트래킹 코스</option>
+      </select>
+    </div>
+
+    <div class="mb-3 align-items-center">
+      <label class="form-label">💬코멘트</label>
+      <input type="text" class="form-control" id="comment">
+    </div>
+
+    <button class="btn btn-primary w-100" onclick="submitForm()">📥 신청하기</button>
   </div>
+  <span class="mt-3"><mark>
+    💬변경 신청시는 아래 내역에서 삭제 후 다시 신청해 주세요
+    <br> (※취소는 삭제 처리)
+  </mark>
+  </span>
+  <h5 class="mt-3">
+    📋 신청 내역 
+    <span id="totalCount" class="text-primary ms-2" style="font-size: medium;"></span>
+  </h5>
+  
+  <table class="table table-bordered text-center mt-2">
+    <thead class="table-dark">
+      <tr>
+        <th>성명</th>
+        <th>인원</th>
+        <th>코스</th>
+        <th>삭제</th>
+      </tr>
+    </thead>
+    <tbody id="entryList"></tbody>
+  </table>
+</div>
+<script>
+  const imageList = [
+    "https://img1.daumcdn.net/thumb/R720x0.q80/?scode=mtistory2&fname=https%3A%2F%2Ft1.daumcdn.net%2Fcfile%2Ftistory%2F276B033757E72E7420",
+    "https://lh5.googleusercontent.com/proxy/TDwMVPR9dC6CSjxDh8s2CRkIZLqAaPMrknppB6Wz_k5fPw3YMIvyJt8vlbI7DEiNM7BDB41YHC5e5BnsXqrcrMHybQ",
+    "https://cdn.sansan.co.kr/news/photo/202309/21421_24313_3927.jpeg",
+    "https://cdn.visitkorea.or.kr/img/call?cmd=VIEW&id=a04d8d60-dcc2-4384-8097-82068be0813a",
+    "https://www.yeongnam.com/mnt/file/202410/2024100401000147000004791.jpg"
+  ];
 
-  <div class="container mt-5">
-    <h2 class="text-center mb-4">산악회 참가 신청서</h2>
-    <form id="signupForm">
-      <div class="mb-3">
-        <label for="name" class="form-label">성명</label>
-        <input type="text" id="name" name="name" class="form-control" required>
-      </div>
-      <div class="mb-3">
-        <label for="contact" class="form-label">연락처</label>
-        <input type="text" id="contact" name="contact" class="form-control" required>
-      </div>
-      <div class="mb-3">
-        <label for="participants" class="form-label">참가인원</label>
-        <select id="participants" name="participants" class="form-select">
-          <option value="1">1명</option>
-          <option value="2">2명</option>
-          <option value="3">3명</option>
-          <option value="4">4명</option>
-          <option value="5">5명</option>
-        </select>
-      </div>
-      <div class="mb-3">
-        <label for="nonMembers" class="form-label">비회원 인원</label>
-        <select id="nonMembers" name="nonMembers" class="form-select">
-          <option value="0">0명</option>
-          <option value="1">1명</option>
-          <option value="2">2명</option>
-          <option value="3">3명</option>
-          <option value="4">4명</option>
-          <option value="5">5명</option>
-        </select>
-      </div>
-      <div class="mb-3">
-        <label for="memberNames" class="form-label">동반회원명</label>
-        <input type="text" id="memberNames" name="memberNames" class="form-control">
-      </div>
-      <div class="mb-3">
-        <label for="course" class="form-label">신청코스</label>
-        <select id="course" name="course" class="form-select">
-          <option value="코스 A">코스 A</option>
-          <option value="코스 B">코스 B</option>
-        </select>
-      </div>
-      <div class="mb-3">
-        <label for="remarks" class="form-label">기타 남기실 말씀</label>
-        <textarea id="remarks" name="remarks" class="form-control"></textarea>
-      </div>
-      <div class="text-end">
-        <button type="submit" class="btn btn-primary">제출하기</button>
-      </div>
-    </form>
+  const imageElement = document.getElementById("randomImage");
 
-    <hr>
-    <!-- <iframe src="https://script.google.com/macros/s/AKfycbwyjxAw_6WDPK2XAfo4wanHw-q8sPq-Bd4L2m9211COpvhQ7R-y6h4peDbJh-fMffk7/exec" width="100%" height="600" frameborder="0"></iframe> -->
+  let currentImage = -1;
 
-    <h4 class="mt-5">신청 내역</h4>
-    <div id="entryList" class="mt-3"></div>
-  </div>
+  function showNextImage() {
+    let nextIndex;
+    do {
+      nextIndex = Math.floor(Math.random() * imageList.length);
+    } while (nextIndex === currentImage);
 
-  <script>
-    // 배너 랜덤 이미지 fade
-    const images = document.querySelectorAll('#banner img');
-    let current = 0;
-    function showRandomImage() {
-      images[current].classList.remove('active');
-      let next;
-      do {
-        next = Math.floor(Math.random() * images.length);
-      } while (next === current);
-      images[next].classList.add('active');
-      current = next;
-    }
-    images[0].classList.add('active');
-    setInterval(showRandomImage, 4000);
+    currentImage = nextIndex;
+    imageElement.classList.remove("show"); // 페이드 아웃
 
-    // 신청서 제출
-    document.getElementById('signupForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const form = new FormData(this);
-      const data = Object.fromEntries(form);
-      const confirmed = confirm("제출하시겠습니까?");
-      if (!confirmed) return;
-      const res = await fetch('https://script.google.com/macros/s/AKfycbyhIglOxd3UZjxt73RtExWzigw0wkdnTZ4lT4HDEb56__sqv6yAdjeST_71LY751xcg/exec', {
-        method: 'POST',
-        mode: "no-cors",
-        body: JSON.stringify(data),
-        headers: { 'Content-Type': 'application/json' }
-      });
-      if (res.ok) {
-        alert("신청이 완료되었습니다.");
-        this.reset();
-        loadEntries();
+    setTimeout(() => {
+      imageElement.src = imageList[currentImage];
+      imageElement.classList.add("show"); // 페이드 인
+    }, 300); // 페이드 아웃 시간과 연동
+  }
+
+  // 초기 이미지 표시
+  showNextImage();
+
+  // 일정 시간마다 이미지 교체 (5초 간격)
+  setInterval(showNextImage, 5000);
+</script>
+
+<script>
+    const participantsSelect = document.getElementById("participants");
+    const nonMembersSelect = document.getElementById("nonMembers");
+    const memberNamesGroup = document.getElementById("memberNamesGroup");
+    const memberNamesInput = document.getElementById("memberNames");
+  
+    // 조건 체크 함수
+    function checkMemberNameRequirement() {
+      const participants = parseInt(participantsSelect.value) || 0;
+      const nonMembers = parseInt(nonMembersSelect.value) || 0;
+  
+      if (!participants || !nonMembers) {
+        // 선택되지 않은 상태에서는 아무 처리하지 않음
+        memberNamesGroup.style.display = "none";
+        memberNamesInput.removeAttribute("required");
+        memberNamesInput.value = '';
+        return;
       }
-    });
-
-    async function loadEntries() {
-      const res = await fetch('https://script.google.com/macros/s/AKfycbyhIglOxd3UZjxt73RtExWzigw0wkdnTZ4lT4HDEb56__sqv6yAdjeST_71LY751xcg/exec');
-      const entries = await res.json();
-      const container = document.getElementById('entryList');
-      container.innerHTML = '';
-      entries.forEach(entry => {
-        const div = document.createElement('div');
-        div.className = 'border p-3 mb-2 rounded bg-white';
-        div.innerHTML = `
-          <strong>${entry.name}</strong> - ${entry.participants}명 - 연락처 ${entry.contact}
-          <button class="btn btn-sm btn-danger float-end" onclick="cancelEntry('${entry.name}', '${entry.contact}')">취소하기</button>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    async function cancelEntry(name, contact) {
-      if (!confirm("정말 취소하시겠습니까?")) return;
-      const res = await fetch(`https://script.google.com/macros/s/AKfycbyhIglOxd3UZjxt73RtExWzigw0wkdnTZ4lT4HDEb56__sqv6yAdjeST_71LY751xcg/exec?name=${encodeURIComponent(name)}&contact=${encodeURIComponent(contact)}`);
-      if (res.ok) {
-        alert("취소되었습니다.");
-        loadEntries();
+  
+      const diff = participants - nonMembers;
+  
+      if (diff >= 2) {
+        alert("👬 동반회원을 입력해 주세요.");
+        memberNamesGroup.style.display = "flex";
+        memberNamesInput.setAttribute("required", "required");
+      } else {
+        memberNamesGroup.style.display = "none";
+        memberNamesInput.removeAttribute("required");
+        memberNamesInput.value = '';
       }
     }
-
-    window.onload = loadEntries;
+  
+    // 비회원 선택 시만 확인 실행
+    nonMembersSelect.addEventListener("change", checkMemberNameRequirement);
   </script>
+  
+<script>
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbzXAhyAtzbodLAHxab0ZjOP6VyvlHiuvPbuL1xCMBAG5Ajj2gIVSkdhXGu4cCDontZb/exec";
+
+function submitForm() {
+    const submitBtn = document.querySelector('button.btn-primary');
+    submitBtn.disabled = true;
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '🔄 제출중...';
+  
+    const data = {
+      name: document.getElementById("name").value.trim(),
+      contact: document.getElementById("contact").value.trim(),
+      participants: document.getElementById("participants").value,
+      nonMembers: document.getElementById("nonMembers").value,
+      memberNames: document.getElementById("memberNames").value.trim(),
+      course: document.getElementById("course").value,
+      comment: document.getElementById("comment").value.trim()
+    };
+
+ 
+    // ✅ 필수 입력 체크
+    if (!data.name || !data.contact || !data.participants || !data.course) {
+      alert("🤷‍♂️필수 항목(*)을 모두 입력해 주세요.");
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+      return;
+    }
+        // 연락처 유효성 검사 추가
+if (!/^\d{11}$/.test(data.contact)) {
+    alert("📱 연락처는 11자리여야 합니다. 확인해 주세요.");
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = originalText;
+    return;
+  }
+
+    // ✅ 제출 전 확인 메시지 구성
+    const confirmMsg = `
+  ✅ 신청 내역을 확인해 주세요:
+  
+  성  명: ${data.name}
+  연락처: ${data.contact}
+  참가인원: ${data.participants}
+  예(비)회원: ${data.nonMembers || '0명'}
+  동반회원: ${data.memberNames || '없음'}
+  선택코스: ${data.course}
+  
+  이대로 제출할까요?
+    `;
+  
+    if (!confirm(confirmMsg)) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+      return;
+    }
+  
+    // ✅ 진동 (Haptic feedback, 지원되는 디바이스에서만 작동)
+    if (navigator.vibrate) {
+      navigator.vibrate(100); // 100ms 진동
+    }
+  
+    fetch(SHEET_URL, {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: { "Content-Type": "application/json" },
+      mode: "no-cors"
+    })
+      .then(() => {
+        alert("✅ 신청이 완료되었습니다!");
+        window.scrollBy({ top: 150, behavior: 'smooth' });
+
+        loadEntries();
+  
+        // 입력값 초기화
+        document.getElementById("name").value = '';
+        document.getElementById("contact").value = '';
+        document.getElementById("participants").value = '';
+        document.getElementById("nonMembers").value = '';
+        document.getElementById("memberNames").value = '';
+        document.getElementById("course").value = '';
+        document.getElementById("comment").value = '';
+      })
+      .catch(err => {
+        alert("❌ 신청 실패: " + err);
+      })
+      .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      });
+  } 
+
+// 신청내역 불러오기
+function loadEntries() {
+  fetch(SHEET_URL)
+    .then(res => res.json())
+    .then(data => {
+      const tbody = document.getElementById("entryList");
+      tbody.innerHTML = '';
+      data.reverse().forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+  <td style="min-width: 90px; font-weight: normal; font-size: 0.9rem;">${row.name}</td>
+  <td style="font-weight: normal; font-size: 0.9rem;">${row.participants}</td>
+  <td style="font-weight: normal; font-size: 0.9rem;">${row.course}</td>
+  <td><button class="btn btn-sm btn-danger" onclick="deleteEntry('${row.time}', '${row.name}')">Del</button></td>
+`;
+        tbody.appendChild(tr);
+      });
+    });
+}
+
+ 
+function deleteEntry(time, name) {
+    if (!confirm(`${name}님의 신청을 삭제하시겠습니까?`)) return;
+  
+    // ✅ 이름 재입력 받기
+    const inputName = prompt("🤷‍♂️ 삭제를 위해 [이름]을 입력해 주세요:");
+    if (!inputName || inputName.trim() !== name.trim()) {
+      alert("⚠삭제취소. 이름이 미입력되었거나 일치하지 않습니다.");
+      return;
+    }
+  
+    const formattedTime = new Date(time).toLocaleString('sv-SE').replace('T', ' ');
+  
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '🔄 삭제중...';
+  
+    fetch(SHEET_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "delete", time: formattedTime, name })
+    })
+    .then(() => {
+      alert("✅ 삭제되었습니다.\n다시 신청해 주세요.");
+      location.reload(); // 새로고침으로 반영
+      setTimeout(() => {
+        window.scrollBy({ top: 150, behavior: 'smooth' });
+      }, 3000);      
+    })
+    .catch(err => {
+      alert("❌ 삭제 실패: " + err);
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    });
+  }
+   
+  function loadEntries() {
+    fetch(SHEET_URL)
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.getElementById("entryList");
+        const totalCountEl = document.getElementById("totalCount");
+        tbody.innerHTML = '';
+  
+        let totalParticipants = 0;
+  
+        data.reverse().forEach(row => {
+          const participants = parseInt(row.participants) || 0;
+          totalParticipants += participants;
+  
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${row.name}</td>
+            <td>${row.participants}</td>
+            <td>${row.course}</td>
+            <td><button class="btn btn-sm btn-danger" onclick="deleteEntry('${row.time}', '${row.name}')">del</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
+         // ✅ 로딩 후 스크롤 약간 내리기
+      setTimeout(() => {
+        window.scrollBy({ top: 200, behavior: 'smooth' });
+      }, 300); // 살짝 딜레이를 줘야 그려진 후 스크롤됨
+        totalCountEl.textContent = `|총 신청 인원: ${totalParticipants}명|`;
+      });
+  }
+   
+window.onload = loadEntries;
+</script>
+<script>
+    $( function() {
+      var availableTags = [
+        "김주연",
+"유주희",
+"김도형",
+"남상수",
+"박지영",
+"조완섭",
+"이상진",
+"이기명",
+"최명훈",
+"김설호",
+"차운정",
+"이경래",
+"서천호",
+"최지웅",
+"임원현",
+"강성은",
+"이선영",
+"백금옥",
+"박은혜",
+"이형구",
+"김재신",
+"최상희",
+"김선목",
+"성시연",
+"박순엽",
+"정혜진",
+"구희숙",
+"정준화",
+"이세민",
+"김희훈",
+"정민석",
+"황윤익",
+"이종필",
+"김동민",
+"이광철",
+"이윤정",
+"이정신",
+"이희정",
+"우정희",
+"김옥섭",
+"김유경",
+"조혜정",
+"박경미",
+"이현서",
+"허다솜",
+"박혜정",
+"윤지영",
+"김경미",
+"박소라",
+"박주헌",
+"한인옥",
+"윤연숙",
+"윤일심",
+"우혜진",
+"조영자",
+"최정순",
+"이수경",
+"최혜진",
+"이지연",
+"김미선",
+"노미숙",
+"송은주"
+      ];
+      $( "#name" ).autocomplete({
+        source: availableTags
+      });
+    } );
+    </script> 
 </body>
 </html>
