@@ -123,7 +123,7 @@
       <label class="form-label">👥 참가인원*</label>
       <select class="form-select" id="participants" required>
         <option value="">✔선택</option>
-        <option>1명</option><option>2명</option><option>3명</option><option>4명</option><option>5명</option>
+        <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
       </select>
     </div>
 
@@ -132,7 +132,7 @@
 
       <select class="form-select" id="nonMembers">
         <option value="">✔선택</option>
-        <option>0명</option><option>1명</option><option>2명</option><option>3명</option><option>4명</option><option>5명</option>
+        <option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
       </select>
     </div>
 
@@ -256,91 +256,104 @@
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbzXAhyAtzbodLAHxab0ZjOP6VyvlHiuvPbuL1xCMBAG5Ajj2gIVSkdhXGu4cCDontZb/exec";
 
 function submitForm() {
-    const submitBtn = document.querySelector('button.btn-primary');
-    submitBtn.disabled = true;
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '🔄 제출중...';
-  
-    const data = {
-      name: document.getElementById("name").value.trim(),
-      contact: document.getElementById("contact").value.trim(),
-      participants: document.getElementById("participants").value,
-      nonMembers: document.getElementById("nonMembers").value,
-      memberNames: document.getElementById("memberNames").value.trim(),
-      course: document.getElementById("course").value,
-      comment: document.getElementById("comment").value.trim()
-    };
+  const submitBtn = document.querySelector('button.btn-primary');
+  submitBtn.disabled = true;
+  const originalText = submitBtn.innerHTML;
+  submitBtn.innerHTML = '🔄 제출중...';
 
- 
-    // ✅ 필수 입력 체크
-    if (!data.name || !data.contact || !data.participants || !data.course) {
-      alert("🤷‍♂️필수 항목(*)을 모두 입력해 주세요.");
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = originalText;
-      return;
-    }
-        // 연락처 유효성 검사 추가
-if (!/^\d{11}$/.test(data.contact)) {
+  const data = {
+    name: document.getElementById("name").value.trim(),
+    contact: document.getElementById("contact").value.trim(),
+    participants: document.getElementById("participants").value,
+    nonMembers: document.getElementById("nonMembers").value || '0',
+    memberNames: document.getElementById("memberNames").value.trim(),
+    course: document.getElementById("course").value,
+    comment: document.getElementById("comment").value.trim()
+  };
+
+  // ✅ 필수 입력 체크
+  if (!data.name || !data.contact || !data.participants || !data.course) {
+    alert("🤷‍♂️필수 항목(*)을 모두 입력해 주세요.");
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = originalText;
+    return;
+  }
+
+  // 연락처 유효성 검사
+  if (!/^\d{11}$/.test(data.contact)) {
     alert("📱 연락처는 11자리여야 합니다. 확인해 주세요.");
     submitBtn.disabled = false;
     submitBtn.innerHTML = originalText;
     return;
   }
 
-    // ✅ 제출 전 확인 메시지 구성
-    const confirmMsg = `
-  ✅ 신청 내역을 확인해 주세요:
-  
-  성  명: ${data.name}
-  연락처: ${data.contact}
-  참가인원: ${data.participants}
-  예(비)회원: ${data.nonMembers || '0명'}
-  동반회원: ${data.memberNames || '없음'}
-  선택코스: ${data.course}
-  
-  이대로 제출할까요?
-    `;
-  
-    if (!confirm(confirmMsg)) {
+  // ✅ 동반회원 입력 필수 조건 검사
+  const total = parseInt(data.participants);
+  const nonMembers = parseInt(data.nonMembers);
+  const memberCount = total - nonMembers;
+
+  if (memberCount >= 2 && !data.memberNames) {
+    alert("👥 참가인원 중 동반회원이 있으시네요.\n동반회원을 입력해 주세요.");
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = originalText;
+    return;
+  }
+
+  // ✅ 제출 전 확인 메시지
+  const confirmMsg = `
+✅ 신청 내역을 확인해 주세요:
+
+성  명: ${data.name}
+연락처: ${data.contact}
+참가인원: ${data.participants}
+예(비)회원: ${data.nonMembers || '0명'}
+동반회원: ${data.memberNames || '없음'}
+선택코스: ${data.course}
+
+이대로 제출할까요?
+  `;
+
+  if (!confirm(confirmMsg)) {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = originalText;
+    return;
+  }
+
+  // ✅ 진동
+  if (navigator.vibrate) {
+    navigator.vibrate(100);
+  }
+
+  fetch(SHEET_URL, {
+    method: "POST",
+    body: JSON.stringify(data),
+    headers: { "Content-Type": "application/json" },
+    mode: "no-cors"
+  })
+    .then(() => {
+      alert("✅ 신청이 완료되었습니다!");
+      window.scrollBy({ top: 150, behavior: 'smooth' });
+
+      loadEntries();
+
+      // 입력값 초기화
+      document.getElementById("name").value = '';
+      document.getElementById("contact").value = '';
+      document.getElementById("participants").value = '';
+      document.getElementById("nonMembers").value = '';
+      document.getElementById("memberNames").value = '';
+      document.getElementById("course").value = '';
+      document.getElementById("comment").value = '';
+    })
+    .catch(err => {
+      alert("❌ 신청 실패: " + err);
+    })
+    .finally(() => {
       submitBtn.disabled = false;
       submitBtn.innerHTML = originalText;
-      return;
-    }
-  
-    // ✅ 진동 (Haptic feedback, 지원되는 디바이스에서만 작동)
-    if (navigator.vibrate) {
-      navigator.vibrate(100); // 100ms 진동
-    }
-  
-    fetch(SHEET_URL, {
-      method: "POST",
-      body: JSON.stringify(data),
-      headers: { "Content-Type": "application/json" },
-      mode: "no-cors"
-    })
-      .then(() => {
-        alert("✅ 신청이 완료되었습니다!");
-        window.scrollBy({ top: 150, behavior: 'smooth' });
+    });
+}
 
-        loadEntries();
-  
-        // 입력값 초기화
-        document.getElementById("name").value = '';
-        document.getElementById("contact").value = '';
-        document.getElementById("participants").value = '';
-        document.getElementById("nonMembers").value = '';
-        document.getElementById("memberNames").value = '';
-        document.getElementById("course").value = '';
-        document.getElementById("comment").value = '';
-      })
-      .catch(err => {
-        alert("❌ 신청 실패: " + err);
-      })
-      .finally(() => {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
-      });
-  } 
 
 // 신청내역 불러오기
 function loadEntries() {
