@@ -201,40 +201,41 @@
     </table>
   </div>
 
-  <!-- 삭제 사유 모달 -->
+<!-- 삭제 사유 모달 -->
 <div class="modal fade" id="reasonModal" tabindex="-1" aria-labelledby="reasonModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="reasonModalLabel">📝 삭제 사유 선택</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form id="reasonForm">
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="deleteReason" value="잘못 신청함" required>
-            <label class="form-check-label">잘못 신청함</label>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="deleteReason" value="일정 변경">
-            <label class="form-check-label">인원 변경</label>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="deleteReason" value="참여 불가">
-            <label class="form-check-label">개인 사정</label>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="deleteReason" value="기타">
-            <label class="form-check-label">국가비상사태</label>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button id="confirmDelete" class="btn btn-danger">✔ 삭제 확정</button>
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="reasonModalLabel">📝 삭제 사유 선택</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="reasonForm">
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="deleteReason" value="잘못 신청함" required>
+              <label class="form-check-label">잘못 신청함</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="deleteReason" value="일정 변경">
+              <label class="form-check-label">일정 변경</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="deleteReason" value="참여 불가">
+              <label class="form-check-label">참여 불가</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="deleteReason" value="기타">
+              <label class="form-check-label">기타</label>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button id="confirmDelete" class="btn btn-danger">✔ 삭제 확정</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
+  
 
 <script>
 document.getElementById("toggleEntryListBtn").addEventListener("click", function () {
@@ -334,7 +335,7 @@ document.getElementById("toggleEntryListBtn").addEventListener("click", function
   </script>
   
 <script>
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbzXAhyAtzbodLAHxab0ZjOP6VyvlHiuvPbuL1xCMBAG5Ajj2gIVSkdhXGu4cCDontZb/exec";
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbyp6cUrQrzURvNJyKUCZdPb0agfcfR_XtxaK1EBesc2yfYrdbjhDjqQy1o3tNjFgbiRTA/exec";
 
 function submitForm() {
   const submitBtn = document.querySelector('button.btn-primary');
@@ -513,6 +514,8 @@ function deleteEntry(time, name) {
         btn.innerHTML = originalText;
       });
   });
+ 
+ 
    
   function loadEntries() {
     fetch(SHEET_URL)
