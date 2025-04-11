@@ -211,6 +211,7 @@
     const isVisible = tableWrapper.style.display === "block";
 
     tableWrapper.style.display = isVisible ? "none" : "block";
+    window.scrollBy({ top: 150, behavior: 'smooth' });
     /* totalCount.style.display = isVisible ? "none" : "inline"; */
 
     this.textContent = isVisible ? "🔎 신청현황보기" : "🔼신청현황 닫기";
