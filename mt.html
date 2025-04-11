@@ -82,6 +82,19 @@
     font-weight: normal;
     font-size: 0.9rem; /* 기본보다 살짝 작게 */
   }
+  #entryTableWrapper {
+  max-height: 1000px;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  display: none;
+}
+
+#entryTableWrapper.show {
+  display: block;
+  opacity: 1;
+}
+
   </style>
 </head>
 <body class="bg-light">
@@ -205,17 +218,29 @@
   </table>
 </div> -->
 <script>
-  document.getElementById("toggleEntryListBtn").addEventListener("click", function () {
-    const tableWrapper = document.getElementById("entryTableWrapper");
-    const totalCount = document.getElementById("totalCount");
-    const isVisible = tableWrapper.style.display === "block";
+document.getElementById("toggleEntryListBtn").addEventListener("click", function () {
+  const wrapper = document.getElementById("entryTableWrapper");
+  const totalCount = document.getElementById("totalCount");
+  const isVisible = wrapper.classList.contains("show");
 
-    tableWrapper.style.display = isVisible ? "none" : "block";
-    window.scrollBy({ top: 150, behavior: 'smooth' });
-    /* totalCount.style.display = isVisible ? "none" : "inline"; */
+  if (isVisible) {
+    wrapper.classList.remove("show");
+    setTimeout(() => { wrapper.style.display = "none"; }, 500); // opacity 전환 후 display 제거
+    this.textContent = "🔎 신청현황보기";
+  } else {
+    wrapper.style.display = "block";
+    setTimeout(() => {
+      wrapper.classList.add("show");
+      totalCount.style.display = "inline";
+    }, 10); // display:block 직후 class 추가 (자연스러운 전환을 위해)
+    this.textContent = "🔼 신청현황 닫기";
+     // ✅ 테이블로 자연스럽게 스크롤 이동
+     setTimeout(() => {
+      wrapper.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 600); // fade-in 완료 후 이동 (0.6초 뒤)
+  }
+});
 
-    this.textContent = isVisible ? "🔎 신청현황보기" : "🔼신청현황 닫기";
-  });
 </script>
 
 <script>
