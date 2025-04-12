@@ -201,7 +201,7 @@
           <th>성명</th>
           <th>인원</th>
           <th>코스</th>
-          <th>삭제</th>
+          <th>취소</th>
         </tr>
       </thead>
       <tbody id="entryList"></tbody>
@@ -213,8 +213,8 @@
 <div class="modal fade" id="reasonModal" tabindex="-1" aria-labelledby="reasonModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header bg-danger text-white">
-        <h5 class="modal-title" id="reasonModalLabel">📝 삭제 사유를 선택해 주세요</h5>
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title" id="reasonModalLabel">📝 취소 사유를 선택해 주세요</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
       </div>
       <div class="modal-body">
@@ -226,12 +226,12 @@
           </div>
 
           <div class="form-check p-3 rounded border shadow-sm bg-light reason-option">
-            <input class="form-check-input" type="radio" name="deleteReason" id="reason2" value="일정 변경">
+            <input class="form-check-input" type="radio" name="deleteReason" id="reason2" value="인원 변경">
             <label class="form-check-label fw-bold" for="reason2">🤵인원 변경</label>
           </div>
 
           <div class="form-check p-3 rounded border shadow-sm bg-light reason-option">
-            <input class="form-check-input" type="radio" name="deleteReason" id="reason3" value="참여 불가">
+            <input class="form-check-input" type="radio" name="deleteReason" id="reason3" value="개인 사정">
             <label class="form-check-label fw-bold" for="reason3">🤷‍♀️개인 사정</label>
           </div>
 
@@ -242,7 +242,7 @@
         </form>
       </div>
       <div class="modal-footer">
-        <button id="confirmDelete" class="btn btn-danger w-100 fw-bold">✔ 삭제 확정</button>
+        <button id="confirmDelete" class="btn btn-info w-100 fw-bold">✔신청하기</button>
       </div>
     </div>
   </div>
@@ -470,12 +470,12 @@ function loadEntries() {
 }
 
  
-let deleteData = {}; // 삭제 관련 데이터 저장용 전역 변수
+let deleteData = {}; // 취소(삭제) 관련 데이터 저장용 전역 변수
 
 function deleteEntry(time, name) {
-    if (!confirm(`${name}님의 신청을 삭제하시겠습니까?`)) return;
+    if (!confirm(`${name}님의 신청을 취소 하시겠습니까?`)) return;
   
-    const inputName = prompt("🤷‍♂️ 삭제를 위해 [이름]을 입력해 주세요:");
+    const inputName = prompt("🤷‍♂️ 취소(삭제)를 위해 [이름]을 입력해 주세요:");
     if (!inputName || inputName.trim() !== name.trim()) {
       alert("⚠삭제취소. 이름이 미입력되었거나 일치하지 않습니다.");
       return;
@@ -491,7 +491,7 @@ function deleteEntry(time, name) {
     const reason = form.deleteReason.value;
   
     if (!reason) {
-      alert("삭제 사유를 선택해 주세요.");
+      alert("🤷‍♀️취소 사유를 선택해 주세요.");
       return;
     }
   
@@ -501,7 +501,7 @@ function deleteEntry(time, name) {
     const btn = event.target;
     const originalText = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = '🔄 삭제중...';
+    btn.innerHTML = '🔄 취소 신청중...';
   
     fetch(SHEET_URL, {
       method: "POST",
@@ -516,7 +516,7 @@ function deleteEntry(time, name) {
   
         // ✅ alert 후 약간의 시간 후 리로드 → 버튼 상태 반영됨
         setTimeout(() => {
-          alert("✅ 삭제되었습니다.\n다시 신청해 주세요.");
+          alert("✅ 취소(삭제)되었습니다.\n다시 신청해 주세요.");
           location.reload();
         }, 300); // 약간의 딜레이를 줘야 UI가 먼저 반영됨
       })
