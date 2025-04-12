@@ -99,9 +99,10 @@
   background-color: #f8d7da !important;
   border-color: #dc3545 !important;
 }
-.form-check-input:checked ~ .form-check-label {
-  color: #dc3545;
-  font-weight: bold;
+.form-check-input:checked + .form-check-label {
+  background-color: #d0ebff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.4rem;
 }
   </style>
 </head>
@@ -243,7 +244,7 @@
       </div>
       <div class="modal-footer">
         <button id="confirmDelete" class="btn btn-info w-100 fw-bold">✔신청하기</button>
-      </div>
+      </div>      
     </div>
   </div>
 </div>
