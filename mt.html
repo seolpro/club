@@ -134,16 +134,16 @@
   <!-- 슬라이드 이미지 영역 -->
   <div class="carousel-inner rounded shadow">
     <div class="carousel-item active">
-      <img src="https://img.freepik.com/free-vector/copy-space-spring-floral-background-blue-sky_52683-55621.jpg" class="d-block w-100" alt="슬라이드1">
+      <img src="https://file.sportsseoul.com/news/legacy/2019/10/29/news/2019102901002614700187451.jpg" class="d-block w-100" alt="슬라이드1">
     </div>
     <div class="carousel-item">
-      <img src="https://i.namu.wiki/i/y1YdsLpT6C5sfbOzPiNIsjl90hDpnEKFbxl7gGT2DmPtTfGqrsOQMfVOoI23Is2_gbi87xDQfI4tkp2yUCSVqA.webp" class="d-block w-100" alt="슬라이드2">
+      <img src="https://img.khan.co.kr/news/2022/08/31/news-p.v1.20220831.eb45dcf1aef5462385322834f298d197_P1.jpg" class="d-block w-100" alt="슬라이드2">
     </div>
     <div class="carousel-item">
-      <img src="https://img.lovepik.com/background/20211021/large/lovepik-spring-floral-background-image_401686078.jpg" class="d-block w-100" alt="슬라이드3">
+      <img src="https://www.hapt.co.kr/news/photo/202310/160352_30866_1012.jpg" class="d-block w-100" alt="슬라이드3">
     </div>
     <div class="carousel-item">
-      <img src="https://onsabo.daesang.co.kr:8443/file/75fb40869409437186f8bde01d0ad1e0.jpg" class="d-block w-100" alt="슬라이드4">
+      <img src="https://www.korea.kr/newsWeb/resources/attaches/2022.09/26/moun12.jpg" class="d-block w-100" alt="슬라이드4">
     </div>
   </div>
 
@@ -306,6 +306,15 @@
     </div>
   </div>
 </div>
+<!-- Bootstrap JS Bundle (body 맨 아래에 삽입) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const carouselElement = document.querySelector('#mainCarousel');
+  const carousel = new bootstrap.Carousel(carouselElement, {
+    interval: 3000, // 3초마다 슬라이드
+    ride: 'carousel'
+  });
+</script>
 
 <script>
 document.getElementById("toggleEntryListBtn").addEventListener("click", function () {
