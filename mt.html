@@ -334,41 +334,6 @@ document.getElementById("toggleEntryListBtn").addEventListener("click", function
 </script>
 
 <script>
-  const imageList = [
-    "https://img1.daumcdn.net/thumb/R720x0.q80/?scode=mtistory2&fname=https%3A%2F%2Ft1.daumcdn.net%2Fcfile%2Ftistory%2F276B033757E72E7420",
-    "https://lh5.googleusercontent.com/proxy/TDwMVPR9dC6CSjxDh8s2CRkIZLqAaPMrknppB6Wz_k5fPw3YMIvyJt8vlbI7DEiNM7BDB41YHC5e5BnsXqrcrMHybQ",
-    "https://cdn.sansan.co.kr/news/photo/202309/21421_24313_3927.jpeg",
-    "https://cdn.visitkorea.or.kr/img/call?cmd=VIEW&id=a04d8d60-dcc2-4384-8097-82068be0813a",
-    "https://www.yeongnam.com/mnt/file/202410/2024100401000147000004791.jpg"
-  ];
-
-  const imageElement = document.getElementById("randomImage");
-
-  let currentImage = -1;
-
-  function showNextImage() {
-    let nextIndex;
-    do {
-      nextIndex = Math.floor(Math.random() * imageList.length);
-    } while (nextIndex === currentImage);
-
-    currentImage = nextIndex;
-    imageElement.classList.remove("show"); // 페이드 아웃
-
-    setTimeout(() => {
-      imageElement.src = imageList[currentImage];
-      imageElement.classList.add("show"); // 페이드 인
-    }, 300); // 페이드 아웃 시간과 연동
-  }
-
-  // 초기 이미지 표시
-  showNextImage();
-
-  // 일정 시간마다 이미지 교체 (5초 간격)
-  setInterval(showNextImage, 5000);
-</script>
-
-<script>
     const participantsSelect = document.getElementById("participants");
     const nonMembersSelect = document.getElementById("nonMembers");
     const memberNamesGroup = document.getElementById("memberNamesGroup");
