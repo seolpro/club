@@ -514,7 +514,7 @@ function loadEntries() {
 let deleteData = {}; // 취소(삭제) 관련 데이터 저장용 전역 변수
 
 function deleteEntry(time, name) {
-    if (!confirm(`${name}님의 신청을 취소 하시겠습니까?`)) return;
+    if (!confirm(`${name}님의 신청을 삭제 하시겠습니까?`)) return;
   
     const inputName = prompt("🤷‍♂️ 취소(삭제)를 위해 [이름]을 입력해 주세요:");
     if (!inputName || inputName.trim() !== name.trim()) {
