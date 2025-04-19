@@ -249,8 +249,8 @@
    <span id="totalCount" class="text-primary" style="font-size: medium;"></span>
   </div>
   <br>
-   <button id="toggleEntryListBtn" class="btn btn-outline-info">🔎최근신청현황보기</button>
-   <button id="toggleallSeeBtn" class="btn btn-outline-warning">
+   <button id="toggleEntryListBtn" class="btn btn-outline-primary">🔎최근신청현황보기</button>
+   <button id="toggleallSeeBtn" class="btn btn-outline-dark">
     🔎전체신청현황보기
   </button>
   
@@ -501,27 +501,6 @@ function submitForm() {
 }
 
 
-// 신청내역 불러오기
-/* function loadEntries() {
-  fetch(SHEET_URL)
-    .then(res => res.json())
-    .then(data => {
-      const tbody = document.getElementById("entryList");
-      tbody.innerHTML = '';
-      data.reverse().forEach(row => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-  <td style="min-width: 90px; font-weight: normal; font-size: 0.9rem;">${row.name}</td>
-  <td style="font-weight: normal; font-size: 0.9rem;">${row.participants}</td>
-  <td style="font-weight: normal; font-size: 0.9rem;">${row.course}</td>
-  <td><button class="btn btn-sm btn-danger" onclick="deleteEntry('${row.time}', '${row.name}')">Del</button></td>
-`;
-        tbody.appendChild(tr);
-      });
-    });
-} */
-
- 
 let deleteData = {}; // 취소(삭제) 관련 데이터 저장용 전역 변수
 
 function deleteEntry(time, name) {
@@ -603,9 +582,9 @@ function deleteEntry(time, name) {
           tbody.appendChild(tr);
         });
          // ✅ 로딩 후 스크롤 약간 내리기
-      setTimeout(() => {
-        window.scrollBy({ top: 200, behavior: 'smooth' });
-      }, 300); // 살짝 딜레이를 줘야 그려진 후 스크롤됨
+        setTimeout(() => {
+         window.scrollBy({ top: 200, behavior: 'smooth' });
+        }, 300); // 살짝 딜레이를 줘야 그려진 후 스크롤됨
         totalCountEl.textContent = `| 👥총 신청 인원: ${totalParticipants}명 |`;
       });
   }
