@@ -579,8 +579,11 @@ function deleteEntry(time, name) {
             <td>${row.name}</td>
             <td>${row.participants}</td>
             <td>${row.course}</td>
-            <td><button class="btn btn-sm btn-warning" onclick="deleteEntry('${row.time}', '${row.name}')">⛔</button></td>
-          `;
+            <td>
+  <button class="btn btn-sm btn-warning" style="box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);" onclick="deleteEntry('${row.time}', '${row.name}')">
+    ⛔
+  </button>
+</td>`;
           tbody.appendChild(tr);
         });
          // ✅ 로딩 후 스크롤 약간 내리기
