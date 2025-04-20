@@ -579,7 +579,7 @@ function deleteEntry(time, name) {
             <td>${row.name}</td>
             <td>${row.participants}</td>
             <td>${row.course}</td>
-            <td><button class="btn btn-sm btn-danger" onclick="deleteEntry('${row.time}', '${row.name}')">del</button></td>
+            <td><button class="btn btn-sm btn-warning" onclick="deleteEntry('${row.time}', '${row.name}')">⛔</button></td>
           `;
           tbody.appendChild(tr);
         });
