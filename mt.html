@@ -458,9 +458,9 @@ function submitForm() {
 
   // ✅ 필수 입력 체크
   if (!data.name || !data.contact || !data.participants || !data.course) {
-    // ✅ 진동 - 모바일에서만 작동
+// ✅ 진동 - 약간 지연해서 alert와 충돌 방지
 if ("vibrate" in navigator) {
-  navigator.vibrate(100); // 100ms 진동
+  setTimeout(() => navigator.vibrate(100), 50);
 }
     alert("🤷‍♂️필수 항목(*)을 모두 입력해 주세요.");
     submitBtn.disabled = false;
@@ -470,9 +470,9 @@ if ("vibrate" in navigator) {
 
   // 연락처 유효성 검사
   if (!/^\d{11}$/.test(data.contact)) {
-    // ✅ 진동 - 모바일에서만 작동
+// ✅ 진동 - 약간 지연해서 alert와 충돌 방지
 if ("vibrate" in navigator) {
-  navigator.vibrate(100); // 100ms 진동
+  setTimeout(() => navigator.vibrate(100), 50);
 }
     alert("📱 연락처는 11자리여야 합니다. 확인해 주세요.");
     submitBtn.disabled = false;
