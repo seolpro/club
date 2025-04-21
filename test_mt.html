@@ -84,7 +84,7 @@
     font-size: 0.9rem; /* 기본보다 살짝 작게 */
   }
   #entryTableWrapper {
-  max-height: 1000px;
+  max-height: 2500px;
   overflow: hidden;
   opacity: 0;
   transition: opacity 0.5s ease-in-out;
@@ -95,44 +95,108 @@
   display: block;
   opacity: 1;
 }
+.reason-option:hover {
+  background-color: #f8d7da !important;
+  border-color: #a92011 !important;
+}
+  /* 선택된 버튼 배경 강조 */
+  .form-check-input:checked + .form-check-label.btn {
+    background-color: #0dcaf0;
+    color: white;
+    border-color: #0dcaf0;
+  }
 
+  .form-check-label.btn {
+    transition: all 0.2s ease;
+    padding: 1rem;
+    border-radius: 0.5rem;
+  }
+  .carousel-inner img {
+    height: 300px;
+    object-fit: cover;
+  }
   </style>
 </head>
 <body class="bg-light">
 <!-- <div class="mb-4 position-relative" style="height: 400px; overflow: hidden;">
   <img id="randomImage" class="position-absolute w-90 h-90 object-fit-cover fade-image" src="" alt="랜덤 산 이미지" />
 </div> -->
-<div class="container py-3">
-  <h4>
-    <b>📢산악회 4월 산행 및 트래킹 안내.</b>
-</h4><br>
-<p>
-    4월 산행 일정을 아래와 같이 안내 드립니다.  일정 참고하시어 신청해 주세요. <br><br>
-    📅 일시: 2025.4.12(토) 7시  ~ 18시<br>
-    🏕 장소 : 백두대간 조령산 및 연풍새재 ~ 문경새재 옛길 트래킹<br> 
-       A코스(산행) : 이화령휴게소(해발 568M/원점회귀) ~ 조령산 정상(1,017M) 상승고도:450M / 난이도 :중(광교산 종주코스 비슷)<br>
-       B코스(트래킹) : 충북 연풍(조령산휴양림) ~ 문경새재(입구) 약 10KM / 난이도:하 <br><br>
+<!-- 이미지 슬라이드 -->
+<div id="mainCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
+  <!-- 슬라이드 인디케이터 (동그라미) -->
+  <div class="carousel-indicators">
+    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
+    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="1"></button>
+    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="2"></button>
+    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="3"></button>
+    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="4"></button>
+    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="5"></button>
+  </div>
 
-    💳 참가비: 회원 2만원 / 비회원: 4만원 [하산식: 문경 약돌돼지 석쇠구이(더덕구이) 정식]<br>
+  <!-- 슬라이드 이미지 영역 -->
+  <div class="carousel-inner rounded shadow">
+    <div class="carousel-item active">
+      <img src="https://file.sportsseoul.com/news/legacy/2019/10/29/news/2019102901002614700187451.jpg" class="d-block w-100" alt="슬라이드1">
+    </div>
+    <div class="carousel-item">
+      <img src="https://img.khan.co.kr/news/2022/08/31/news-p.v1.20220831.eb45dcf1aef5462385322834f298d197_P1.jpg" class="d-block w-100" alt="슬라이드2">
+    </div>
+    <div class="carousel-item">
+      <img src="https://www.hapt.co.kr/news/photo/202310/160352_30866_1012.jpg" class="d-block w-100" alt="슬라이드3">
+    </div>
+    <div class="carousel-item">
+      <img src="https://www.korea.kr/newsWeb/resources/attaches/2022.09/26/moun12.jpg" class="d-block w-100" alt="슬라이드4">
+    </div>
+    <div class="carousel-item">
+      <img src="https://img6.yna.co.kr/etc/inner/KR/2022/12/12/AKR20221212005400805_01_i_P4.jpg" class="d-block w-100" alt="슬라이드5">
+    </div>
+    <div class="carousel-item">
+      <img src="https://blog.kakaocdn.net/dn/bzVaLQ/btrOqDPReyy/LSKGeS5ZLh0dIiAt8Wkch1/img.jpg" class="d-block w-100" alt="슬라이드6">
+    </div>
+  </div>
+
+  <!-- 좌우 이동 버튼 -->
+  <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">이전</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#mainCarousel" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">다음</span>
+  </button>
+</div>
+<div class="container py-3">
+  <h5><b>📢산악회주관 문화탐방 초청 5월 10일 남설악 트래킹 안내</b>
+</h5><br>
+<p>
+    초록초록 5월 남설악 및 동해바다 트래킹 일정을 아래와 같이 안내 드립니다. 일정 참고하시어 신청해 주세요. <br><br>
+    📅 일시: 2025. 5. 10(토) 6시  ~ 20시<br>
+    🏕 장소 : 남설악(한계령 경유 등선대, 흘림골~오색약수) + 속초 해파랑길<br> 
+       A코스(등선대) : 흘림골탐방센타(683M)  ~ 등선대(1,035M) ~ 주전골 ~ 오색약수 / 난이도 :중(등반고도352M)<br>
+       B코스(주전골) : 용소폭포탐방센타 ~ 주전골 ~ 오색약수 /  난이도:하(남녀노소누구나 코스) <br><br>
+
+    💳 참가비: 회원 2만원 / 비회원: 4만원 [하산식: 속초 현지식(물회/덮밥 등) ]<br>
     🥪 생수 및 간식은 준비해 주세요<br>
-    📅신청기간: ~ 4.6(일)까지 (⚠️코스변경은 당일에도 가능합니다)<b>
-    <br>
-   <!--  <a href="https://ajou9770.github.io/trip" target="_blank">✔️문탐동아리 10월 12일(토) 영주(풍기)탐방 일정(신청)▶️</a> -->
-</p>  
-  <!-- 현지 날씨씨-->
-  <div id="weather" class="text-center-left">
-    <!-- <p id="location-name">📍 현지날씨 (강원도 양양 서면)</p> -->
-    <ul class="list-group list-group-horizontal justify-content-center">
-      <li class="list-group-item border-0" id="temperature">🌡️ 현재 온도: </li>
+    📅신청기간: 4.18(금) ~ 5.4(일)까지 (⚠️코스변경은 당일에도 가능합니다)<br>
+    📌선착순 40명까지 참석 가능합니다.(🌧️우천시 취소될 수 있습니다.) 
+    <br> 
+    <!-- <p id="location-name">📍 현지날씨 (강원도 양양 서면)</p> 
+    <ul class="list-group list-group-horizontal justify-content-left">
+      <li class="list-group-item border-0" id="temperature" style="color: #813705;">🌡️ 강원양양(서면) 온도: </li>
     </ul>
     <a href="https://www.weather.go.kr/w/index.do#dong/5121060000/38.11912517931733/128.4653615314634/%EA%B0%95%EC%9B%90%ED%8A%B9%EB%B3%84%EC%9E%90%EC%B9%98%EB%8F%84%20%EC%96%91%EC%96%91%EA%B5%B0%20%EC%84%9C%EB%A9%B4/SCH/%EC%84%A4%EC%95%85%EC%82%B0">
-     <button class="btn btn-outline-primary btn-sm">⛅현지날씨 자세히보기</button> 
-    </a>
-  </div>
-  
+     <button class="btn btn-outline-secondary btn-sm">⛅현지날씨 자세히보기</button> 
+    </a>-->
+ 
+   <!--  <a href="https://ajou9770.github.io/trip" target="_blank">✔️문탐동아리 10월 12일(토) 영주(풍기)탐방 일정(신청)▶️</a> -->
+</p>  
 <hr>
   <h5 class="text-center mb-3">⛰ 참가 신청서</h5>
-
+  <!--미신청기간안내
+  <h6 class="text-center bg-dark text-white rounded-2 my-4 py-2 px-3 shadow-sm">
+    📢 지금은 신청기간이 아닙니다.
+  </h6>-->
+  
   <div class="card p-4 shadow">
     <div class="mb-2 d-flex align-items-center form-inline">
       <label class="form-label">👤 성명*</label>
@@ -148,18 +212,27 @@
       <label class="form-label">👥 참가인원*</label>
       <select class="form-select" id="participants" required>
         <option value="">✔선택</option>
-        <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+        <option value="1">1명</option>
+        <option value="2">2명</option>
+        <option value="3">3명</option>
+        <option value="4">4명</option>
+        <option value="5">5명</option>
       </select>
     </div>
-
+    
     <div class="mb-3 align-items-center">
-      <label class="form-label" style="min-width: 250px;">✨참가인원중 예(비)회원은?</label>
-
+      <label class="form-label" style="min-width: 250px;">✨참가인원중 가족(비)회원은?</label>
       <select class="form-select" id="nonMembers">
         <option value="">✔선택</option>
-        <option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+        <option value="0">0명</option>
+        <option value="1">1명</option>
+        <option value="2">2명</option>
+        <option value="3">3명</option>
+        <option value="4">4명</option>
+        <option value="5">5명</option>
       </select>
     </div>
+    
 
     <div class="mb-2 d-flex align-items-center form-inline" id="memberNamesGroup" style="display: none;">
         <label class="form-label">👬 동반회원</label>
@@ -171,136 +244,142 @@
       <label class="form-label">🗺 코스 선택*</label>
       <select class="form-select" id="course">
         <option value="">✔선택하세요</option>
-        <option>조령산 산행 코스</option>
-        <option>새재길 트래킹 코스</option>
+        <option>A코스(등선대 코스)</option>
+        <option>B코스(주전골 코스)</option>
       </select>
     </div>
 
     <div class="mb-3 align-items-center">
-      <label class="form-label">💬코멘트</label>
-      <input type="text" class="form-control" id="comment">
+      <label class="form-label">💬코멘트(선택)</label>
+      <input type="text" class="form-control" placeholder="필수입력아님" id="comment">
     </div>
-
-    <button class="btn btn-primary w-100" onclick="submitForm()">📥 신청하기</button>
+    <button class="btn btn-primary w-100" onclick="submitForm()" >📥 신청하기</button> 
   </div>
-  <br>
+    <br>
   <span class="mt-3"><mark>
-    💬변경 신청시는 아래 [🔎신청현황보기]에서 삭제 후 다시 신청해 주세요
-    <br> (※취소는 삭제 처리만)
+    💬취소 또는 변경(취소 후 재신청)은 아래
+    <button class="btn btn-outline-primary btn-sm" onclick="alert('🤷‍♂️신청내역 ⬇⬇아래  버튼을 터치해 주세요')">🔎신청현황보기</button>
+    에서 진행해 주세요.
+    <br>
   </mark>
   </span>
-
   <div class="d-flex justify-content-between align-items-center mt-4">
-    <h5 class="mb-0">📋 신청 내역</h5>
+    <h6 class="mb-0">📋 신청 내역(*신청역순)</h6>
    <span id="totalCount" class="text-primary" style="font-size: medium;"></span>
   </div>
   <br>
-   <button id="toggleEntryListBtn" class="btn btn-outline-secondary btn-sm">🔎 신청현황보기</button>
-  
- 
-  
+   <button id="toggleEntryListBtn" class="btn btn-outline-primary">🔎신청현황보기</button>
+   <!-- <button id="toggleallSeeBtn" class="btn btn-outline-dark">
+    🔎신청현황보기
+  </button> -->
+
+  <hr>
   <div id="entryTableWrapper" style="display: none;">
+     <!--신청내역검색창창-->
+  <div class="mb-3">
+    <input type="text" id="searchInput" class="form-control" placeholder="🔍 이름으로 검색 (일부만 입력해도 돼요)">
+  </div>
+
     <table class="table table-bordered text-center mt-2">
       <thead class="table-dark">
         <tr>
           <th>성명</th>
           <th>인원</th>
           <th>코스</th>
-          <th>삭제</th>
+          <th>취소하기</th>
         </tr>
       </thead>
       <tbody id="entryList"></tbody>
     </table>
   </div>
 
-<!-- 삭제 사유 모달 -->
+<!-- 삭제 사유 선택 모달 -->
 <div class="modal fade" id="reasonModal" tabindex="-1" aria-labelledby="reasonModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="reasonModalLabel">📝 삭제 사유 선택</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form id="reasonForm">
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="deleteReason" value="잘못 신청함" required>
-              <label class="form-check-label">잘못 신청함</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="deleteReason" value="일정 변경">
-              <label class="form-check-label">일정 변경</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="deleteReason" value="참여 불가">
-              <label class="form-check-label">참여 불가</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="deleteReason" value="기타">
-              <label class="form-check-label">기타</label>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button id="confirmDelete" class="btn btn-danger">✔ 삭제 확정</button>
-        </div>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title" id="reasonModalLabel">📝 취소 사유를 선택해 주세요</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+      </div>
+      <div class="modal-body">
+        <form id="reasonForm" class="d-grid gap-2">
+
+          <!-- 각 항목은 버튼처럼 보이는 라디오 -->
+          <div class="form-check">
+            <input class="form-check-input d-none" type="radio" name="deleteReason" id="reason1" value="잘못 신청함" required>
+            <label class="form-check-label btn btn-outline-danger w-100 text-start fw-bold" for="reason1">
+              ❌ 잘못 신청함
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input class="form-check-input d-none" type="radio" name="deleteReason" id="reason2" value="인원 변경">
+            <label class="form-check-label btn btn-outline-warning w-100 text-start fw-bold" for="reason2">
+              🤵 인원 변경
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input class="form-check-input d-none" type="radio" name="deleteReason" id="reason3" value="개인 사정">
+            <label class="form-check-label btn btn-outline-secondary w-100 text-start fw-bold" for="reason3">
+              🤷‍♀️ 개인 사정
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input class="form-check-input d-none" type="radio" name="deleteReason" id="reason4" value="기타">
+            <label class="form-check-label btn btn-outline-primary w-100 text-start fw-bold" for="reason4">
+              💬 기타
+            </label>
+          </div>
+
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button id="confirmDelete" class="btn btn-info w-100 fw-bold">✔ 신청하기</button>
       </div>
     </div>
   </div>
-   
-<!--   <div id="temperature"></div>
-  <div id="weekly-forecast" class="mt-3"></div> -->
-  
-  <script>
-    const API_KEY = "5cb4f4a8cabfb7ea5c72264e6a5fd43d";
-    const LAT = 38.0756;
-    const LON = 128.6200;
-  
-    // 현재 날씨
-    const currentUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=metric&lang=kr`;
-  
-    // 7일 주간예보
-    const forecastUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${LAT}&lon=${LON}&exclude=hourly,minutely,alerts&units=metric&lang=kr&appid=${API_KEY}`;
-  
-    // 현재 날씨 불러오기
-    fetch(currentUrl)
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('temperature').innerText = `🌡️ 강원 양양(서면)의 현재 기온은 ${data.main.temp}°C이며, 날씨는 ${data.weather[0].description} 상태입니다.`;
-      })
-      .catch(err => {
-        document.getElementById('temperature').innerText = "❌ 현재 날씨 정보를 가져올 수 없습니다.";
-        console.error(err);
-      });
-  
-    // 주간예보 불러오기
-    fetch(forecastUrl)
-      .then(res => res.json())
-      .then(data => {
-        const forecastDiv = document.getElementById('weekly-forecast');
-        let html = "<h5>📆 주간 예보</h5><ul class='list-group'>";
-  
-        data.daily.slice(1, 8).forEach(day => {
-          const date = new Date(day.dt * 1000).toLocaleDateString("ko-KR", { weekday: "short", month: "numeric", day: "numeric" });
-          const description = day.weather[0].description;
-          const tempMin = Math.round(day.temp.min);
-          const tempMax = Math.round(day.temp.max);
-  
-          html += `<li class='list-group-item d-flex justify-content-between'>
-                     <span>${date}</span>
-                     <span>${description} / 🌡️ ${tempMin}° ~ ${tempMax}°C</span>
-                   </li>`;
-        });
-  
-        html += "</ul>";
-        forecastDiv.innerHTML = html;
-      })
-      .catch(err => {
-        document.getElementById('weekly-forecast').innerHTML = "❌ 주간예보 정보를 불러오는 데 실패했습니다.";
-        console.error(err);
-      });
-  </script>
+</div>
+<!--날씨정보JS-->
+<script>
+  const API_KEY = "5cb4f4a8cabfb7ea5c72264e6a5fd43d";
+  const LAT = 38.0756;
+  const LON = 128.6200;
+  const url = `https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=metric&lang=kr`;
 
+  fetch(url)
+    .then(response => {
+      if (!response.ok) throw new Error("HTTP 오류: " + response.status);
+      return response.json();
+    })
+    .then(data => {
+      document.getElementById('temperature').innerText = `🌡️ 강원 양양(서면)의 현재 기온은 ${data.main.temp}°C이며, 날씨는 ${data.weather[0].description} 상태 입니다.`;
+    })
+    .catch(error => {
+      document.getElementById('weather').innerHTML = `<p>❌ 날씨 정보를 불러오는 데 실패했습니다.</p>`;
+      console.error("Error fetching weather:", error);
+    });
+</script>
+
+<script>
+  document.getElementById("toggleallSeeBtn").addEventListener("click", function () {
+    if (confirm("📋 시트를 열어 전체 신형현황을 보시겠어요?")) {
+      window.open("https://docs.google.com/spreadsheets/d/1O5Rag6vpDlhmye9RdG-hqAaXOf-dR24h2UNWPlKCXsI/edit?usp=sharing", "_blank");
+    }
+  });
+</script>
+
+<!-- Bootstrap JS Bundle (body 맨 아래에 삽입) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  const carouselElement = document.querySelector('#mainCarousel');
+  const carousel = new bootstrap.Carousel(carouselElement, {
+    interval: 3000, // 3초마다 슬라이드
+    ride: 'carousel'
+  });
+</script>
 
 <script>
 document.getElementById("toggleEntryListBtn").addEventListener("click", function () {
@@ -311,7 +390,7 @@ document.getElementById("toggleEntryListBtn").addEventListener("click", function
   if (isVisible) {
     wrapper.classList.remove("show");
     setTimeout(() => { wrapper.style.display = "none"; }, 500); // opacity 전환 후 display 제거
-    this.textContent = "🔎 신청현황보기";
+    this.textContent = "🔎신청현황 보기";
   } else {
     wrapper.style.display = "block";
     setTimeout(() => {
@@ -326,41 +405,6 @@ document.getElementById("toggleEntryListBtn").addEventListener("click", function
   }
 });
 
-</script>
-
-<script>
-  const imageList = [
-    "https://img1.daumcdn.net/thumb/R720x0.q80/?scode=mtistory2&fname=https%3A%2F%2Ft1.daumcdn.net%2Fcfile%2Ftistory%2F276B033757E72E7420",
-    "https://lh5.googleusercontent.com/proxy/TDwMVPR9dC6CSjxDh8s2CRkIZLqAaPMrknppB6Wz_k5fPw3YMIvyJt8vlbI7DEiNM7BDB41YHC5e5BnsXqrcrMHybQ",
-    "https://cdn.sansan.co.kr/news/photo/202309/21421_24313_3927.jpeg",
-    "https://cdn.visitkorea.or.kr/img/call?cmd=VIEW&id=a04d8d60-dcc2-4384-8097-82068be0813a",
-    "https://www.yeongnam.com/mnt/file/202410/2024100401000147000004791.jpg"
-  ];
-
-  const imageElement = document.getElementById("randomImage");
-
-  let currentImage = -1;
-
-  function showNextImage() {
-    let nextIndex;
-    do {
-      nextIndex = Math.floor(Math.random() * imageList.length);
-    } while (nextIndex === currentImage);
-
-    currentImage = nextIndex;
-    imageElement.classList.remove("show"); // 페이드 아웃
-
-    setTimeout(() => {
-      imageElement.src = imageList[currentImage];
-      imageElement.classList.add("show"); // 페이드 인
-    }, 300); // 페이드 아웃 시간과 연동
-  }
-
-  // 초기 이미지 표시
-  showNextImage();
-
-  // 일정 시간마다 이미지 교체 (5초 간격)
-  setInterval(showNextImage, 5000);
 </script>
 
 <script>
@@ -400,7 +444,7 @@ document.getElementById("toggleEntryListBtn").addEventListener("click", function
   </script>
   
 <script>
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbyp6cUrQrzURvNJyKUCZdPb0agfcfR_XtxaK1EBesc2yfYrdbjhDjqQy1o3tNjFgbiRTA/exec";
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbzXAhyAtzbodLAHxab0ZjOP6VyvlHiuvPbuL1xCMBAG5Ajj2gIVSkdhXGu4cCDontZb/exec";
 
 function submitForm() {
   const submitBtn = document.querySelector('button.btn-primary');
@@ -502,33 +546,12 @@ function submitForm() {
 }
 
 
-// 신청내역 불러오기
-function loadEntries() {
-  fetch(SHEET_URL)
-    .then(res => res.json())
-    .then(data => {
-      const tbody = document.getElementById("entryList");
-      tbody.innerHTML = '';
-      data.reverse().forEach(row => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-  <td style="min-width: 90px; font-weight: normal; font-size: 0.9rem;">${row.name}</td>
-  <td style="font-weight: normal; font-size: 0.9rem;">${row.participants}</td>
-  <td style="font-weight: normal; font-size: 0.9rem;">${row.course}</td>
-  <td><button class="btn btn-sm btn-danger" onclick="deleteEntry('${row.time}', '${row.name}')">Del</button></td>
-`;
-        tbody.appendChild(tr);
-      });
-    });
-}
-
- 
-let deleteData = {}; // 삭제 관련 데이터 저장용 전역 변수
+let deleteData = {}; // 취소(삭제) 관련 데이터 저장용 전역 변수
 
 function deleteEntry(time, name) {
-    if (!confirm(`${name}님의 신청을 삭제하시겠습니까?`)) return;
+    if (!confirm(`${name}님의 신청을 삭제 하시겠습니까? 삭제 => 확인`)) return;
   
-    const inputName = prompt("🤷‍♂️ 삭제를 위해 [이름]을 입력해 주세요:");
+    const inputName = prompt("🤷‍♂️ 취소(삭제)를 위해 기존에 (오기)입력된 이름 그대로 입력해 주세요:");
     if (!inputName || inputName.trim() !== name.trim()) {
       alert("⚠삭제취소. 이름이 미입력되었거나 일치하지 않습니다.");
       return;
@@ -544,7 +567,7 @@ function deleteEntry(time, name) {
     const reason = form.deleteReason.value;
   
     if (!reason) {
-      alert("삭제 사유를 선택해 주세요.");
+      alert("🤷‍♀️취소 사유를 선택해 주세요.");
       return;
     }
   
@@ -554,7 +577,7 @@ function deleteEntry(time, name) {
     const btn = event.target;
     const originalText = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = '🔄 삭제중...';
+    btn.innerHTML = '🔄 취소 신청중...';
   
     fetch(SHEET_URL, {
       method: "POST",
@@ -569,7 +592,7 @@ function deleteEntry(time, name) {
   
         // ✅ alert 후 약간의 시간 후 리로드 → 버튼 상태 반영됨
         setTimeout(() => {
-          alert("✅ 삭제되었습니다.\n다시 신청해 주세요.");
+          alert("✅ 취소(삭제)되었습니다.\n다시 신청해 주세요.");
           location.reload();
         }, 300); // 약간의 딜레이를 줘야 UI가 먼저 반영됨
       })
@@ -579,42 +602,57 @@ function deleteEntry(time, name) {
         btn.innerHTML = originalText;
       });
   });
- 
- 
    
-  function loadEntries() {
-    fetch(SHEET_URL)
-      .then(res => res.json())
-      .then(data => {
-        const tbody = document.getElementById("entryList");
-        const totalCountEl = document.getElementById("totalCount");
-        tbody.innerHTML = '';
-  
-        let totalParticipants = 0;
-  
-        data.reverse().forEach(row => {
-          const participants = parseInt(row.participants) || 0;
-          totalParticipants += participants;
-  
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${row.name}</td>
-            <td>${row.participants}</td>
-            <td>${row.course}</td>
-            <td><button class="btn btn-sm btn-danger" onclick="deleteEntry('${row.time}', '${row.name}')">del</button></td>
-          `;
-          tbody.appendChild(tr);
-        });
-         // ✅ 로딩 후 스크롤 약간 내리기
-      setTimeout(() => {
-        window.scrollBy({ top: 200, behavior: 'smooth' });
-      }, 300); // 살짝 딜레이를 줘야 그려진 후 스크롤됨
-        totalCountEl.textContent = `|총 신청 인원: ${totalParticipants}명|`;
-      });
-  }
-   
+
+  let allData = []; // 전체 데이터를 전역 변수로 저장
+
+function loadEntries() {
+  fetch(SHEET_URL)
+    .then(res => res.json())
+    .then(data => {
+      allData = data.reverse(); // 나중에 검색에 재활용할 수 있도록 저장
+      renderTable(allData);     // 초기 렌더링
+    });
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById("entryList");
+  const totalCountEl = document.getElementById("totalCount");
+  tbody.innerHTML = '';
+
+  let totalParticipants = 0;
+
+  data.forEach(row => {
+    const participants = parseInt(row.participants) || 0;
+    totalParticipants += participants;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${row.name}</td>
+      <td>${row.participants}</td>
+      <td>${row.course}</td>
+      <td>
+        <button class="btn btn-sm btn-warning" style="box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);" onclick="deleteEntry('${row.time}', '${row.name}')">
+          ⛔
+        </button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+
+  totalCountEl.textContent = `| 👥총 신청 인원: ${totalParticipants}명 |`;
+}
 window.onload = loadEntries;
+
+// ✅ 이름 검색 기능
+document.getElementById("searchInput").addEventListener("input", function () {
+  const keyword = this.value.trim().toLowerCase();
+  const filtered = allData.filter(row =>
+    row.name.toLowerCase().includes(keyword)
+  );
+  renderTable(filtered);
+});
 </script>
+
 <script>
     $( function() {
       var availableTags = [
@@ -625,7 +663,6 @@ window.onload = loadEntries;
 "박지영",
 "조완섭",
 "이상진",
-"이기명",
 "최명훈",
 "김설호",
 "차운정",
@@ -644,22 +681,18 @@ window.onload = loadEntries;
 "성시연",
 "박순엽",
 "정혜진",
-"구희숙",
 "정준화",
 "이세민",
 "김희훈",
 "정민석",
-"황윤익",
 "이종필",
 "김동민",
 "이광철",
-"이윤정",
 "이정신",
 "이희정",
 "우정희",
 "김옥섭",
 "김유경",
-"조혜정",
 "박경미",
 "이현서",
 "허다솜",
@@ -686,5 +719,19 @@ window.onload = loadEntries;
       });
     } );
     </script> 
+<script>
+  $( function() {
+    var availableTags = [
+      "서영미",
+"우정희",
+"김옥섭",
+"윤연숙",
+"김유경"
+    ];
+    $( "#memberNames" ).autocomplete({
+      source: availableTags
+    });
+  } );
+  </script> 
 </body>
 </html>
