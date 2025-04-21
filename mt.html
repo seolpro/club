@@ -272,8 +272,14 @@
    <!-- <button id="toggleallSeeBtn" class="btn btn-outline-dark">
     🔎신청현황보기
   </button> -->
-  
+
+  <hr>
   <div id="entryTableWrapper" style="display: none;">
+     <!--신청내역검색창창-->
+  <div class="mb-3">
+    <input type="text" id="searchInput" class="form-control" placeholder="🔍 이름으로 검색 (일부만 입력해도 돼요)">
+  </div>
+
     <table class="table table-bordered text-center mt-2">
       <thead class="table-dark">
         <tr>
@@ -458,10 +464,6 @@ function submitForm() {
 
   // ✅ 필수 입력 체크
   if (!data.name || !data.contact || !data.participants || !data.course) {
-// ✅ 진동 - 약간 지연해서 alert와 충돌 방지
-if ("vibrate" in navigator) {
-  setTimeout(() => navigator.vibrate(100), 50);
-}
     alert("🤷‍♂️필수 항목(*)을 모두 입력해 주세요.");
     submitBtn.disabled = false;
     submitBtn.innerHTML = originalText;
@@ -470,10 +472,6 @@ if ("vibrate" in navigator) {
 
   // 연락처 유효성 검사
   if (!/^\d{11}$/.test(data.contact)) {
-// ✅ 진동 - 약간 지연해서 alert와 충돌 방지
-if ("vibrate" in navigator) {
-  setTimeout(() => navigator.vibrate(100), 50);
-}
     alert("📱 연락처는 11자리여야 합니다. 확인해 주세요.");
     submitBtn.disabled = false;
     submitBtn.innerHTML = originalText;
@@ -551,11 +549,6 @@ if ("vibrate" in navigator) {
 let deleteData = {}; // 취소(삭제) 관련 데이터 저장용 전역 변수
 
 function deleteEntry(time, name) {
-// ✅ 진동 - 모바일에서만 작동
-if ("vibrate" in navigator) {
-  navigator.vibrate(100); // 100ms 진동
-}
-
     if (!confirm(`${name}님의 신청을 삭제 하시겠습니까? 삭제 => 확인`)) return;
   
     const inputName = prompt("🤷‍♂️ 취소(삭제)를 위해 기존에 (오기)입력된 이름 그대로 입력해 주세요:");
@@ -610,42 +603,56 @@ if ("vibrate" in navigator) {
       });
   });
    
-  function loadEntries() {
-    fetch(SHEET_URL)
-      .then(res => res.json())
-      .then(data => {
-        const tbody = document.getElementById("entryList");
-        const totalCountEl = document.getElementById("totalCount");
-        tbody.innerHTML = '';
-  
-        let totalParticipants = 0;
-  
-        data.reverse().forEach(row => {
-          const participants = parseInt(row.participants) || 0;
-          totalParticipants += participants;
-  
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${row.name}</td>
-            <td>${row.participants}</td>
-            <td>${row.course}</td>
-            <td>
-  <button class="btn btn-sm btn-warning" style="box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);" onclick="deleteEntry('${row.time}', '${row.name}')">
-    ⛔
-  </button>
-</td>`;
-          tbody.appendChild(tr);
-        });
-         // ✅ 로딩 후 스크롤 약간 내리기
-        setTimeout(() => {
-         window.scrollBy({ top: 200, behavior: 'smooth' });
-        }, 300); // 살짝 딜레이를 줘야 그려진 후 스크롤됨
-        totalCountEl.textContent = `| 👥총 신청 인원: ${totalParticipants}명 |`;
-      });
-  }
-   
+
+  let allData = []; // 전체 데이터를 전역 변수로 저장
+
+function loadEntries() {
+  fetch(SHEET_URL)
+    .then(res => res.json())
+    .then(data => {
+      allData = data.reverse(); // 나중에 검색에 재활용할 수 있도록 저장
+      renderTable(allData);     // 초기 렌더링
+    });
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById("entryList");
+  const totalCountEl = document.getElementById("totalCount");
+  tbody.innerHTML = '';
+
+  let totalParticipants = 0;
+
+  data.forEach(row => {
+    const participants = parseInt(row.participants) || 0;
+    totalParticipants += participants;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${row.name}</td>
+      <td>${row.participants}</td>
+      <td>${row.course}</td>
+      <td>
+        <button class="btn btn-sm btn-warning" style="box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);" onclick="deleteEntry('${row.time}', '${row.name}')">
+          ⛔
+        </button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+
+  totalCountEl.textContent = `| 👥총 신청 인원: ${totalParticipants}명 |`;
+}
 window.onload = loadEntries;
+
+// ✅ 이름 검색 기능
+document.getElementById("searchInput").addEventListener("input", function () {
+  const keyword = this.value.trim().toLowerCase();
+  const filtered = allData.filter(row =>
+    row.name.toLowerCase().includes(keyword)
+  );
+  renderTable(filtered);
+});
 </script>
+
 <script>
     $( function() {
       var availableTags = [
@@ -712,5 +719,19 @@ window.onload = loadEntries;
       });
     } );
     </script> 
+<script>
+  $( function() {
+    var availableTags = [
+      "서영미",
+"우정희",
+"김옥섭",
+"윤연숙",
+"김유경"
+    ];
+    $( "#memberNames" ).autocomplete({
+      source: availableTags
+    });
+  } );
+  </script> 
 </body>
 </html>
