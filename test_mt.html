@@ -120,14 +120,13 @@
    <!--  <a href="https://ajou9770.github.io/trip" target="_blank">✔️문탐동아리 10월 12일(토) 영주(풍기)탐방 일정(신청)▶️</a> -->
 </p>  
   <!-- 현지 날씨씨-->
-  <div id="weather" class="text-center">
-    <p id="location-name">📍 현지날씨 (강원도 양양 서면)</p>
+  <div id="weather" class="text-center-left">
+    <!-- <p id="location-name">📍 현지날씨 (강원도 양양 서면)</p> -->
     <ul class="list-group list-group-horizontal justify-content-center">
       <li class="list-group-item border-0" id="temperature">🌡️ 현재 온도: </li>
-      <li class="list-group-item border-0" id="description">🌥️ 날씨: </li>
     </ul>
     <a href="https://www.weather.go.kr/w/index.do#dong/5121060000/38.11912517931733/128.4653615314634/%EA%B0%95%EC%9B%90%ED%8A%B9%EB%B3%84%EC%9E%90%EC%B9%98%EB%8F%84%20%EC%96%91%EC%96%91%EA%B5%B0%20%EC%84%9C%EB%A9%B4/SCH/%EC%84%A4%EC%95%85%EC%82%B0">
-     <button class="btn btn-outline-info btn-sm">⛅자세히보기</button> 
+     <button class="btn btn-outline-primary btn-sm">⛅현지날씨 자세히보기</button> 
     </a>
   </div>
   
@@ -249,27 +248,58 @@
     </div>
   </div>
    
-<script>
-  const API_KEY = "5cb4f4a8cabfb7ea5c72264e6a5fd43d";
-  const LAT = 38.0756;
-  const LON = 128.6200;
-  const url = `https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=metric&lang=kr`;
-
-  fetch(url)
-    .then(response => {
-      if (!response.ok) throw new Error("HTTP 오류: " + response.status);
-      return response.json();
-    })
-    .then(data => {
-      document.getElementById('temperature').innerText = `🌡️ 현재 온도: ${data.main.temp}°C`;
-      document.getElementById('description').innerText = `🌥️ 날씨: ${data.weather[0].description}`;
-    })
-    .catch(error => {
-      document.getElementById('weather').innerHTML = `<p>❌ 날씨 정보를 불러오는 데 실패했습니다.</p>`;
-      console.error("Error fetching weather:", error);
-    });
-</script>
-
+<!--   <div id="temperature"></div>
+  <div id="weekly-forecast" class="mt-3"></div> -->
+  
+  <script>
+    const API_KEY = "5cb4f4a8cabfb7ea5c72264e6a5fd43d";
+    const LAT = 38.0756;
+    const LON = 128.6200;
+  
+    // 현재 날씨
+    const currentUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=metric&lang=kr`;
+  
+    // 7일 주간예보
+    const forecastUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${LAT}&lon=${LON}&exclude=hourly,minutely,alerts&units=metric&lang=kr&appid=${API_KEY}`;
+  
+    // 현재 날씨 불러오기
+    fetch(currentUrl)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('temperature').innerText = `🌡️ 강원 양양(서면)의 현재 기온은 ${data.main.temp}°C이며, 날씨는 ${data.weather[0].description} 상태입니다.`;
+      })
+      .catch(err => {
+        document.getElementById('temperature').innerText = "❌ 현재 날씨 정보를 가져올 수 없습니다.";
+        console.error(err);
+      });
+  
+    // 주간예보 불러오기
+    fetch(forecastUrl)
+      .then(res => res.json())
+      .then(data => {
+        const forecastDiv = document.getElementById('weekly-forecast');
+        let html = "<h5>📆 주간 예보</h5><ul class='list-group'>";
+  
+        data.daily.slice(1, 8).forEach(day => {
+          const date = new Date(day.dt * 1000).toLocaleDateString("ko-KR", { weekday: "short", month: "numeric", day: "numeric" });
+          const description = day.weather[0].description;
+          const tempMin = Math.round(day.temp.min);
+          const tempMax = Math.round(day.temp.max);
+  
+          html += `<li class='list-group-item d-flex justify-content-between'>
+                     <span>${date}</span>
+                     <span>${description} / 🌡️ ${tempMin}° ~ ${tempMax}°C</span>
+                   </li>`;
+        });
+  
+        html += "</ul>";
+        forecastDiv.innerHTML = html;
+      })
+      .catch(err => {
+        document.getElementById('weekly-forecast').innerHTML = "❌ 주간예보 정보를 불러오는 데 실패했습니다.";
+        console.error(err);
+      });
+  </script>
 
 
 <script>
