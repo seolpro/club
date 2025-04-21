@@ -548,7 +548,7 @@ function deleteEntry(time, name) {
       navigator.vibrate(100);
       }
 
-      if (!confirm(`${name}님의 신청을 삭제 하시겠습니까? 삭제 => 확인`)) return;
+    if (!confirm(`${name}님의 신청을 삭제 하시겠습니까? 삭제 => 확인`)) return;
   
     const inputName = prompt("🤷‍♂️ 취소(삭제)를 위해 기존에 (오기)입력된 이름 그대로 입력해 주세요:");
     if (!inputName || inputName.trim() !== name.trim()) {
