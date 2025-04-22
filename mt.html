@@ -549,18 +549,21 @@ function submitForm() {
 let deleteData = {}; // 취소(삭제) 관련 데이터 저장용 전역 변수
 
 function deleteEntry(time, name) {
-    if (!confirm(`${name}님의 신청을 삭제 하시겠습니까? 삭제 => 확인`)) return;
-  
-    const inputName = prompt("🤷‍♂️ 취소(삭제)를 위해 기존에 (오기)입력된 이름 그대로 입력해 주세요:");
-    if (!inputName || inputName.trim() !== name.trim()) {
-      alert("⚠삭제취소. 이름이 미입력되었거나 일치하지 않습니다.");
-      return;
-    }
-  
-    deleteData = { time, name, inputName };
-    const modal = new bootstrap.Modal(document.getElementById('reasonModal'));
-    modal.show();
+  // ✅ (대기) 라벨 제거
+  const cleanName = name.replace(/\(대기\)/g, '').trim();
+
+  if (!confirm(`${cleanName}님의 신청을 삭제 하시겠습니까? 삭제 => 확인`)) return;
+
+  const inputName = prompt("🤷‍♂️ 취소(삭제)를 위해 기존에 (오기)입력된 이름 그대로 입력해 주세요:");
+  if (!inputName || inputName.trim() !== cleanName) {
+    alert("⚠삭제취소. 이름이 미입력되었거나 일치하지 않습니다.");
+    return;
   }
+
+  deleteData = { time, name: cleanName, inputName };
+  const modal = new bootstrap.Modal(document.getElementById('reasonModal'));
+  modal.show();
+}
   
   document.getElementById("confirmDelete").addEventListener("click", function (event) {
     const form = document.getElementById("reasonForm");
@@ -602,7 +605,8 @@ function deleteEntry(time, name) {
         btn.innerHTML = originalText;
       });
   });
-   
+
+  //신청내역확인 (검색)코드
 
   let allData = []; // 전체 데이터를 전역 변수로 저장
 
@@ -610,10 +614,12 @@ function loadEntries() {
   fetch(SHEET_URL)
     .then(res => res.json())
     .then(data => {
-      allData = data.reverse(); // 나중에 검색에 재활용할 수 있도록 저장
-      renderTable(allData);     // 초기 렌더링
+      allData = data; // ✅ reverse 제거
+      renderTable(allData);
     });
 }
+
+const MAX_CAPACITY = 40;
 
 function renderTable(data) {
   const tbody = document.getElementById("entryList");
@@ -621,35 +627,60 @@ function renderTable(data) {
   tbody.innerHTML = '';
 
   let totalParticipants = 0;
+  let accumulated = 0;
 
-  data.forEach(row => {
-    const participants = parseInt(row.participants) || 0;
-    totalParticipants += participants;
+  // ✅ 먼저 원본 순서대로 isWaiting 계산
+  const markedData = data.map(row => {
+    const participants = Number(row.participants);
+    const validParticipants = isNaN(participants) ? 0 : participants;
 
+    const isWaiting = accumulated >= MAX_CAPACITY;
+    accumulated += validParticipants;
+
+    return { ...row, validParticipants, isWaiting };
+  });
+
+  // ✅ 최신순으로 표시 (역순)
+  markedData.reverse().forEach(row => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${row.name}</td>
-      <td>${row.participants}</td>
+      <td>${row.name}${row.isWaiting ? ' <span class="text-danger fw-bold">(대기)</span>' : ''}</td>
+      <td>${row.validParticipants}</td>
       <td>${row.course}</td>
       <td>
         <button class="btn btn-sm btn-warning" style="box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);" onclick="deleteEntry('${row.time}', '${row.name}')">
           ⛔
         </button>
       </td>`;
+
+      if (row.isWaiting) {
+  tr.querySelectorAll('td').forEach(td => {
+    td.style.backgroundColor = '#fff4cc';  // ✅ 연한 노랑
+    td.style.fontWeight = 'bold';
+    td.style.color = '#6b4700'; // 텍스트는 부드러운 진한 색
+  });
+}
     tbody.appendChild(tr);
+
+    totalParticipants += row.validParticipants;
   });
 
   totalCountEl.textContent = `| 👥총 신청 인원: ${totalParticipants}명 |`;
 }
-window.onload = loadEntries;
 
 // ✅ 이름 검색 기능
+
 document.getElementById("searchInput").addEventListener("input", function () {
   const keyword = this.value.trim().toLowerCase();
   const filtered = allData.filter(row =>
     row.name.toLowerCase().includes(keyword)
   );
   renderTable(filtered);
+});
+
+// ✅ 페이지 로드 후 자동 실행
+document.addEventListener("DOMContentLoaded", function () {
+  loadEntries();
 });
 </script>
 
