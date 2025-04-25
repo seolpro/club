@@ -14,7 +14,7 @@
 </head>
 <body>
 <div class="container py-5">
-  <h3 class="mb-4 text-center">📝 승선자 목록</h3>
+  <h3 class="mb-4 text-center">📝 승선자 등록</h3>
   <form id="boardingForm" class="form-section">
     <div class="mb-3">
       <label class="form-label">📍대표회원 성명</label>
@@ -26,11 +26,9 @@
     </div>
 
     <hr>
-    <h5 class="mt-4">👥 승선자 명단(대표회원 포함)</h5>
-   <a href="https://dpaper.kr/deepLinkList.do" target="_blank">🔗주민등록정보검색(전자증명)</a>
-   <br>
-   <br> 
-   <div id="passengerList">
+    <h5 class="mt-4">👥 승선자(대표회원 포함) 명단</h5>
+   
+    <div id="passengerList">
         <!-- 기본 2개 입력창 -->
         ${[1, 2].map(i => `
           <div class="passenger-group row gx-2">
@@ -50,12 +48,37 @@
       <label class="form-label">📝기타 코멘트</label>
       <textarea class="form-control" id="comment" rows="2"></textarea>
     </div>
-
+ <!-- 개인정보 수집 및 활용 동의 섹션 -->
+ <div class="mb-3">
+    <button class="btn btn-outline-warning w-100" type="button" data-bs-toggle="collapse" data-bs-target="#consentDetails" aria-expanded="false" aria-controls="consentDetails">
+      📌 개인정보 수집 및 활용 동의 내용 보기⬇️/닫기⬆️
+    </button>
+    <div class="collapse mt-2" id="consentDetails">
+      <div class="card card-body bg-light">
+        본 신청서에서는 승선자 명단 제출을 위해 다음의 개인정보를 수집·활용합니다.
+        <ul class="mt-2 mb-1">
+          <li>성명</li>
+          <li>연락처</li>
+          <li>주민등록번호</li>
+        </ul>
+        수집된 정보는 해당 목적 외에는 사용되지 않으며, 처리 후 파기됩니다.
+      </div>
+    </div>
+  </div>
+  <!-- 동의 체크박스 -->
+<div class="form-check mb-4">
+    <input class="form-check-input" type="checkbox" id="consentCheck" required>
+    <label class="form-check-label" for="consentCheck">
+      트래킹참여 승선명단 제출관련 개인정보 수집 및 활용에 동의합니다.
+    </label>
+  </div>
     <button type="submit" class="btn btn-primary w-100" id="submitBtn">📤 제출 하기</button>
-  </form>
+  </form> 
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+
 const form = document.getElementById("boardingForm");
 const submitBtn = document.getElementById("submitBtn");
 const passengerList = document.getElementById("passengerList");
@@ -127,6 +150,12 @@ form.addEventListener("submit", async (e) => {
     alert("❗ 승선자 정보를 1명 이상 정확히 입력해 주세요.");
     return;
   }
+
+  const consentCheck = document.getElementById("consentCheck");
+if (!consentCheck.checked) {
+  alert("⚠ 개인정보 수집 및 활용 동의에 체크해 주세요.");
+  return;
+} 
 
   // 📋 사용자 확인 (승선자 목록 표시)
   const confirmText = `🧾 입력된 승선자 명단을 확인해 주세요:\n\n${passengerSummary}\n제출하시겠습니까?`;
