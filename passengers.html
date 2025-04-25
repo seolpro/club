@@ -102,7 +102,7 @@ function addPassenger(name = "", rrn = "") {
       <input type="text" class="form-control rrn" placeholder="주민등록번호 입력예=> 000000-0000000" pattern="\\d{6}-\\d{7}" value="${rrn}">
     </div>
     <div class="col-md-2 mb-2">
-      <button type="button" class="btn btn-outline-danger w-100" onclick="this.closest('.passenger-group').remove()">❌ 삭제</button>
+      <button type="button" class="btn btn-outline-danger w-100" onclick="this.closest('.passenger-group').remove()">⛔폼삭제</button>
     </div>`;
   passengerList.appendChild(group);
 }
