@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>🚢 승선자 등록 폼</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f8f9fa; }
+    .form-section { background: white; padding: 2rem; border-radius: 1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    .form-label { font-weight: 600; }
+    .passenger-group:not(:first-child) { margin-top: 1rem; }
+  </style>
+</head>
+<body>
+<div class="container py-5">
+  <h3 class="mb-4 text-center">📝 승선자 목록</h3>
+  <form id="boardingForm" class="form-section">
+    <div class="mb-3">
+      <label class="form-label">📍대표회원 성명</label>
+      <input type="text" class="form-control" id="leaderName" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">📞연락처</label>
+      <input type="tel" class="form-control" id="leaderContact" placeholder="숫자만" required>
+    </div>
+
+    <hr>
+    <h5 class="mt-4">👥 승선자 명단(대표회원 포함)</h5>
+   <a href="https://dpaper.kr/deepLinkList.do" target="_blank">🔗주민등록정보검색(전자증명)</a>
+   <br>
+   <br> 
+   <div id="passengerList">
+        <!-- 기본 2개 입력창 -->
+        ${[1, 2].map(i => `
+          <div class="passenger-group row gx-2">
+            <div class="col-md-6 mb-2">
+              <input type="text" class="form-control passenger-name" placeholder="성명">
+            </div>
+            <div class="col-md-6 mb-2">
+              <input type="text" class="form-control rrn" placeholder="주민등록번호 입력예 => 000000-0000000" pattern="\\d{6}-\\d{7}">
+            </div>
+          </div>`).join('')}
+      </div>
+      
+
+    <button type="button" class="btn btn-outline-secondary mb-3" onclick="addPassenger()">➕ 승선자 추가</button>
+
+    <div class="mb-3">
+      <label class="form-label">📝기타 코멘트</label>
+      <textarea class="form-control" id="comment" rows="2"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100" id="submitBtn">📤 제출 하기</button>
+  </form>
+</div>
+
+<script>
+const form = document.getElementById("boardingForm");
+const submitBtn = document.getElementById("submitBtn");
+const passengerList = document.getElementById("passengerList");
+
+function resetPassengersToDefault() {
+  passengerList.innerHTML = '';
+  for (let i = 0; i < 2; i++) addPassenger();
+}
+
+// ➕ 승선자 입력 행 추가 함수
+function addPassenger(name = "", rrn = "") {
+  const group = document.createElement("div");
+  group.className = "passenger-group row gx-2 align-items-center";
+  group.innerHTML = `
+    <div class="col-md-5 mb-2">
+      <input type="text" class="form-control passenger-name" placeholder="성명" value="${name}">
+    </div>
+    <div class="col-md-5 mb-2">
+      <input type="text" class="form-control rrn" placeholder="주민등록번호 입력예=> 000000-0000000" pattern="\\d{6}-\\d{7}" value="${rrn}">
+    </div>
+    <div class="col-md-2 mb-2">
+      <button type="button" class="btn btn-outline-danger w-100" onclick="this.closest('.passenger-group').remove()">❌ 삭제</button>
+    </div>`;
+  passengerList.appendChild(group);
+}
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    return;
+  }
+
+  const data = {
+    leaderName: document.getElementById("leaderName").value.trim(),
+    leaderContact: document.getElementById("leaderContact").value.trim(),
+    passengers: [],
+    comment: document.getElementById("comment").value.trim()
+  };
+
+  const rrnRegex = /^\d{6}-\d{7}$/;
+  let validPassengerCount = 0;
+  let passengerSummary = "";
+
+  document.querySelectorAll(".passenger-group").forEach(group => {
+    const nameEl = group.querySelector(".passenger-name");
+    const rrnEl = group.querySelector(".rrn");
+
+    const name = nameEl.value.trim();
+    const rrn = rrnEl.value.trim();
+
+    if (name && rrnRegex.test(rrn)) {
+      data.passengers.push({ name, rrn });
+      passengerSummary += `- ${name} (${rrn})\n`;
+      validPassengerCount++;
+      nameEl.classList.remove('is-invalid');
+      rrnEl.classList.remove('is-invalid');
+    } else if (name || rrn) {
+      nameEl.classList.add('is-invalid');
+      rrnEl.classList.add('is-invalid');
+    } else {
+      nameEl.classList.remove('is-invalid');
+      rrnEl.classList.remove('is-invalid');
+    }
+  });
+
+  if (validPassengerCount < 1) {
+    alert("❗ 승선자 정보를 1명 이상 정확히 입력해 주세요.");
+    return;
+  }
+
+  // 📋 사용자 확인 (승선자 목록 표시)
+  const confirmText = `🧾 입력된 승선자 명단을 확인해 주세요:\n\n${passengerSummary}\n제출하시겠습니까?`;
+  if (!confirm(confirmText)) {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = "📤 제출하기";
+    return;
+  }
+
+  // 📨 제출 처리
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = "⏳ 제출중...";
+
+  try {
+    await fetch("https://script.google.com/macros/s/AKfycbzzAHbqXbKvUtIVaQ6VH3Mo9hOGBSfib5DzqDuJRCFdsHk7BjgOEZ_M550EAHskasBA/exec", {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+
+    alert("✅ 제출이 완료되었습니다!");
+    form.reset();
+    resetPassengersToDefault();
+  } catch (err) {
+    alert("⚠ 오류 발생: 다시 시도해주세요.");
+    console.error(err);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = "📤 제출하기";
+  }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  resetPassengersToDefault();
+});
+</script>
+</body>
+</html>
