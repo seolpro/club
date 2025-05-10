@@ -264,19 +264,19 @@
     <br>
   </mark>
   </span>
-  <div class="d-flex justify-content-between align-items-center mt-4">
+  <!-- <div class="d-flex justify-content-between align-items-center mt-4">
+    <h6 class="mb-0">📋 신청 내역(*신청역순)</h6>
+   <span id="totalCount" class="text-primary" style="font-size: medium;"></span>
+  </div> -->
+  <br>
+   <button id="toggleEntryListBtn" class="btn btn-outline-primary">🔎신청현황보기</button> 
+     <div class="d-flex justify-content-between align-items-center mt-4">
     <h6 class="mb-0">📋 신청 내역(*신청역순)</h6>
    <span id="totalCount" class="text-primary" style="font-size: medium;"></span>
   </div>
-  <br>
-   <button id="toggleEntryListBtn" class="btn btn-outline-primary">🔎신청현황보기</button> -->
-   <!-- <button id="toggleallSeeBtn" class="btn btn-outline-dark">
-    🔎신청현황보기
-  </button>
-
   <hr>
   <div id="entryTableWrapper" style="display: none;">
-     <!--신청내역검색창창-->
+     <!-- 신청내역검색창 -->
   <div class="mb-3">
     <input type="text" id="searchInput" class="form-control" placeholder="🔍 이름으로 검색 (*키워드 일부입력 검색가능)">
   </div>
@@ -294,7 +294,7 @@
     </table>
   </div>
 
-<!-- 삭제 사유 선택 모달 -->
+<!-- 삭제 사유 선택 모달-->
 <div class="modal fade" id="reasonModal" tabindex="-1" aria-labelledby="reasonModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -684,73 +684,35 @@ document.addEventListener("DOMContentLoaded", function () {
   loadEntries();
 });
 </script>
-
 <script>
-    $( function() {
-      var availableTags = [
-        "김주연",
-"유주희",
-"김도형",
-"남상수",
-"박지영",
-"조완섭",
-"이상진",
-"최명훈",
-"김설호",
-"차운정",
-"이경래",
-"서천호",
-"최지웅",
-"임원현",
-"강성은",
-"이선영",
-"백금옥",
-"박은혜",
-"이형구",
-"김재신",
-"최상희",
-"김선목",
-"성시연",
-"박순엽",
-"정혜진",
-"정준화",
-"이세민",
-"김희훈",
-"정민석",
-"이종필",
-"김동민",
-"이광철",
-"이정신",
-"이희정",
-"우정희",
-"김옥섭",
-"김유경",
-"박경미",
-"이현서",
-"허다솜",
-"박혜정",
-"윤지영",
-"김경미",
-"박소라",
-"박주헌",
-"한인옥",
-"윤연숙",
-"윤일심",
-"우혜진",
-"조영자",
-"최정순",
-"이수경",
-"최혜진",
-"이지연",
-"김미선",
-"노미숙",
-"송은주"
-      ];
-      $( "#name" ).autocomplete({
-        source: availableTags
-      });
-    } );
-    </script> 
+  $(function () {
+    const availableTags = [
+      "김주연", "유주희", "김도형", "남상수", "박지영", "조완섭", "이상진", "최명훈",
+      "김설호", "차운정", "이경래", "서천호", "최지웅", "임원현", "강성은", "이선영",
+      "백금옥", "박은혜", "이형구", "김재신", "최상희", "김선목", "성시연", "박순엽",
+      "정혜진", "정준화", "이세민", "김희훈", "정민석", "이종필", "김동민", "이광철",
+      "이정신", "이희정", "우정희", "김옥섭", "김유경", "박경미", "이현서", "허다솜",
+      "박혜정", "윤지영", "김경미", "박소라", "박주헌", "한인옥", "윤연숙", "윤일심",
+      "우혜진", "조영자", "최정순", "이수경", "최혜진", "이지연", "김미선", "노미숙", "송은주",
+      "고정민", "김상숙", "김선경", "김성구", "김연", "김유아", "김현진", "김혜진", "라회정",
+      "박수경", "박인호", "박정혜", "박종현", "손미선", "신미영", "신정미", "안명숙", "양정화",
+      "유경화", "윤상미", "윤혜진", "이경환", "이연정", "임효진", "장애화", "장영미", "장창희",
+      "전명자", "정병곤", "정윤석", "조성애", "한은하", "한진이", "홍진희", "황미숙", "유태웅",
+      "김무수"
+    ];
+
+    $("#name").autocomplete({
+      source: function (request, response) {
+        const input = request.term.trim();
+        const result = availableTags.filter(name =>
+          name.includes(input)
+        );
+        response(result);
+      },
+      minLength: 1
+    });
+  });
+</script>
 <script>
   $( function() {
     var availableTags = [
