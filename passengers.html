@@ -17,70 +17,62 @@
   <h3 class="mb-4 text-center">📝 승선자 등록</h3>
   <form id="boardingForm" class="form-section">
     <div class="mb-3">
-      <label class="form-label">📍대표회원 성명</label>
-      <input type="text" class="form-control" placeholder="회원 또는 비회원 대표 성명" id="leaderName" required>
+      <label class="form-label">📍회원 성명</label>
+      <input type="text" class="form-control" placeholder="회원 또는 비회원 성명" id="leaderName" required>
     </div>
     <div class="mb-3">
       <label class="form-label">📞연락처</label>
       <input type="tel" class="form-control" id="leaderContact" placeholder="숫자만" required>
     </div>
 
-    <hr>
-    <h5 class="mt-4">👥 승선자(대표회원 포함) 명단</h5>
-    <a href="https://dpaper.kr/deepLinkList.do" target="_blank">🔗주민등록정보검색(전자증명서)</a>
+    
+    <h5 class="mt-4">👥 승선자(회원 포함) 명단</h5>
+    <!-- <a href="https://dpaper.kr/deepLinkList.do" target="_blank">🔗주민등록정보검색(전자증명서)</a> -->
     <br><br>
-    <div id="passengerList">
-        <!-- 기본 2개 입력창 -->
-        ${[1, 2].map(i => `
-          <div class="passenger-group row gx-2">
-            <div class="col-md-6 mb-2">
-              <input type="text" class="form-control passenger-name" placeholder="성명">
-            </div>
-            <div class="col-md-6 mb-2">
-              <input type="text" class="form-control rrn" placeholder="주민등록번호 입력예 => 000000-0000000" pattern="\\d{6}-\\d{7}">
-            </div>
-          </div>`).join('')}
-      </div>
-      
+    <div id="passengerList"></div>
 
-    <button type="button" class="btn btn-outline-secondary mb-3" onclick="addPassenger()">➕ 폼추가</button>
+    <button type="button" class="btn btn-outline-secondary mb-3" onclick="addPassenger()">➕ 추가</button>
 
     <div class="mb-3">
       <label class="form-label">📝기타 코멘트</label>
       <textarea class="form-control" id="comment" rows="2"></textarea>
     </div>
- <!-- 개인정보 수집 및 활용 동의 섹션 -->
- <div class="mb-3">
-    <button class="btn btn-outline-warning w-100" type="button" data-bs-toggle="collapse" data-bs-target="#consentDetails" aria-expanded="false" aria-controls="consentDetails">
-      📌 개인정보 수집 및 활용 동의 내용 보기/닫기🔃
-    </button>
-    <div class="collapse mt-2" id="consentDetails">
-      <div class="card card-body bg-light">
-        본 신청서에서는 승선자 명단 제출을 위해 다음의 개인정보를 수집·활용(제3자 제공)합니다.
-        <ul class="mt-2 mb-1">
-          <li>성명</li>
-          <li>연락처</li>
-          <li>주민등록번호</li>
-          <li>상기 개인정보 제3자 (유한회사 대부해운) 제공</li>
-        </ul>
-        수집된 정보는 해당 목적 외에는 활용(제공)되지 않으며, 활용 후 즉시 파기됩니다.
+
+    <!-- 개인정보 수집 및 활용 동의 섹션 -->
+    <div class="mb-3">
+      <button class="btn btn-outline-warning w-100" type="button" data-bs-toggle="collapse" data-bs-target="#consentDetails" aria-expanded="false" aria-controls="consentDetails">
+        📌 개인정보 수집 및 활용 동의 내용 보기/닫기🔃
+      </button>
+      <div class="collapse mt-2" id="consentDetails">
+        <div class="card card-body bg-light">
+          본 신청서에서는 승선자 명단 제출을 위해 다음의 개인정보를 수집·활용(제3자 제공)합니다.
+          <ul class="mt-2 mb-1">
+            <li>성명</li>
+            <li>연락처</li>
+            <li>생년월일</li>
+            <li>성별</li>
+            <li>상기 개인정보 제3자 (유한회사 대부해운) 제공</li>
+          </ul>
+          수집된 정보는 해당 목적 외에는 활용(제공)되지 않으며, 활용 후 즉시 파기됩니다.
+        </div>
       </div>
     </div>
-  </div>
-  <!-- 동의 체크박스 -->
-<div class="form-check mb-4">
-    <input class="form-check-input" type="checkbox" id="consentCheck" required>
-    <label class="form-check-label" for="consentCheck">
-      (필수)트래킹참여 승선명단 제출관련 개인정보 수집 및 활용에 동의합니다.
-    </label>
-  </div>
+
+    <!-- 동의 체크박스 -->
+    <div class="form-check mb-4">
+      <input class="form-check-input" type="checkbox" id="consentCheck" required>
+      <label class="form-check-label" for="consentCheck">
+        (필수)트래킹참여 승선명단 제출관련 개인정보 수집 및 활용에 동의합니다.
+      </label>
+    </div>
+
     <button type="submit" class="btn btn-primary w-100" id="submitBtn">📤 제출 하기</button>
-  </form> 
+  </form>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-
 const form = document.getElementById("boardingForm");
 const submitBtn = document.getElementById("submitBtn");
 const passengerList = document.getElementById("passengerList");
@@ -90,16 +82,22 @@ function resetPassengersToDefault() {
   for (let i = 0; i < 2; i++) addPassenger();
 }
 
-// ➕ 승선자 입력 행 추가 함수
-function addPassenger(name = "", rrn = "") {
+function addPassenger(name = "", birth = "", gender = "") {
   const group = document.createElement("div");
   group.className = "passenger-group row gx-2 align-items-center";
   group.innerHTML = `
-    <div class="col-md-5 mb-2">
+    <div class="col-md-4 mb-2">
       <input type="text" class="form-control passenger-name" placeholder="성명" value="${name}">
     </div>
-    <div class="col-md-5 mb-2">
-      <input type="text" class="form-control rrn" placeholder="주민등록번호 입력예=> 000000-0000000" pattern="\\d{6}-\\d{7}" value="${rrn}">
+    <div class="col-md-4 mb-2">
+      <input type="text" class="form-control birth" placeholder="생년월일 6자리 (예: 900101)" pattern="\\d{6}" value="${birth}">
+    </div>
+    <div class="col-md-2 mb-2">
+      <select class="form-select gender">
+        <option value="">성별</option>
+        <option value="남" ${gender === "남" ? "selected" : ""}>남</option>
+        <option value="여" ${gender === "여" ? "selected" : ""}>여</option>
+      </select>
     </div>
     <div class="col-md-2 mb-2">
       <button type="button" class="btn btn-outline-danger w-100" onclick="this.closest('.passenger-group').remove()">⛔폼삭제</button>
@@ -122,29 +120,30 @@ form.addEventListener("submit", async (e) => {
     comment: document.getElementById("comment").value.trim()
   };
 
-  const rrnRegex = /^\d{6}-\d{7}$/;
+  const birthRegex = /^\d{6}$/;
   let validPassengerCount = 0;
   let passengerSummary = "";
 
   document.querySelectorAll(".passenger-group").forEach(group => {
     const nameEl = group.querySelector(".passenger-name");
-    const rrnEl = group.querySelector(".rrn");
+    const birthEl = group.querySelector(".birth");
+    const genderEl = group.querySelector(".gender");
 
     const name = nameEl.value.trim();
-    const rrn = rrnEl.value.trim();
+    const birth = birthEl.value.trim();
+    const gender = genderEl.value;
 
-    if (name && rrnRegex.test(rrn)) {
-      data.passengers.push({ name, rrn });
-      passengerSummary += `- ${name} (${rrn})\n`;
+    if (name && birthRegex.test(birth) && (gender === "남" || gender === "여")) {
+      data.passengers.push({ name, birth, gender });
+      passengerSummary += `- ${name} (${birth}, ${gender})\n`;
       validPassengerCount++;
       nameEl.classList.remove('is-invalid');
-      rrnEl.classList.remove('is-invalid');
-    } else if (name || rrn) {
-      nameEl.classList.add('is-invalid');
-      rrnEl.classList.add('is-invalid');
+      birthEl.classList.remove('is-invalid');
+      genderEl.classList.remove('is-invalid');
     } else {
-      nameEl.classList.remove('is-invalid');
-      rrnEl.classList.remove('is-invalid');
+      if (!name) nameEl.classList.add('is-invalid');
+      if (!birthRegex.test(birth)) birthEl.classList.add('is-invalid');
+      if (!gender) genderEl.classList.add('is-invalid');
     }
   });
 
@@ -154,20 +153,14 @@ form.addEventListener("submit", async (e) => {
   }
 
   const consentCheck = document.getElementById("consentCheck");
-if (!consentCheck.checked) {
-  alert("⚠ 개인정보 수집 및 활용 동의에 체크해 주세요.");
-  return;
-} 
-
-  // 📋 사용자 확인 (승선자 목록 표시)
-  const confirmText = `🧾 입력된 승선자 명단을 확인해 주세요:\n\n${passengerSummary}\n제출하시겠습니까?`;
-  if (!confirm(confirmText)) {
-    submitBtn.disabled = false;
-    submitBtn.innerHTML = "📤 제출하기";
+  if (!consentCheck.checked) {
+    alert("⚠ 개인정보 수집 및 활용 동의에 체크해 주세요.");
     return;
   }
 
-  // 📨 제출 처리
+  const confirmText = `🧾 입력된 승선자 명단을 확인해 주세요:\n\n${passengerSummary}\n제출하시겠습니까?`;
+  if (!confirm(confirmText)) return;
+
   submitBtn.disabled = true;
   submitBtn.innerHTML = "⏳ 제출중...";
 
