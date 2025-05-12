@@ -28,7 +28,7 @@
     
     <h5 class="mt-4">👥 승선자(회원 포함) 명단</h5>
     <!-- <a href="https://dpaper.kr/deepLinkList.do" target="_blank">🔗주민등록정보검색(전자증명서)</a> -->
-    <br><br>
+    
     <div id="passengerList"></div>
 
     <button type="button" class="btn btn-outline-secondary mb-3" onclick="addPassenger()">➕ 추가</button>
@@ -79,30 +79,34 @@ const passengerList = document.getElementById("passengerList");
 
 function resetPassengersToDefault() {
   passengerList.innerHTML = '';
-  for (let i = 0; i < 2; i++) addPassenger();
+  passengerCount = 0;
+  addPassenger();  // 기본 1명만
 }
+
+
+let passengerCount = 0;
 
 function addPassenger(name = "", birth = "", gender = "") {
   const group = document.createElement("div");
-  group.className = "passenger-group row gx-2 align-items-center";
+  group.className = "passenger-group d-flex flex-wrap gap-2 mb-2";
+
   group.innerHTML = `
-    <div class="col-md-4 mb-2">
-      <input type="text" class="form-control passenger-name" placeholder="성명" value="${name}">
-    </div>
-    <div class="col-md-4 mb-2">
-      <input type="text" class="form-control birth" placeholder="생년월일 6자리 (예: 900101)" pattern="\\d{6}" value="${birth}">
-    </div>
-    <div class="col-md-2 mb-2">
-      <select class="form-select gender">
-        <option value="">성별</option>
-        <option value="남" ${gender === "남" ? "selected" : ""}>남</option>
-        <option value="여" ${gender === "여" ? "selected" : ""}>여</option>
-      </select>
-    </div>
-    <div class="col-md-2 mb-2">
-      <button type="button" class="btn btn-outline-danger w-100" onclick="this.closest('.passenger-group').remove()">⛔폼삭제</button>
-    </div>`;
+    <input type="text" class="form-control passenger-name flex-fill" placeholder="성명" value="${name}" style="min-width: 120px;">
+    <input type="text" class="form-control birth flex-fill" placeholder="생년월일 6자리" pattern="\\d{6}" inputmode="numeric" value="${birth}" style="min-width: 120px;">
+    <select class="form-select gender flex-fill" style="min-width: 100px;">
+      <option value="">성별</option>
+      <option value="남" ${gender === "남" ? "selected" : ""}>남</option>
+      <option value="여" ${gender === "여" ? "selected" : ""}>여</option>
+    </select>
+    ${
+      passengerCount > 0
+        ? `<button type="button" class="btn btn-outline-danger" onclick="this.closest('.passenger-group').remove()">⛔</button>`
+        : ``
+    }
+  `;
+
   passengerList.appendChild(group);
+  passengerCount++;
 }
 
 form.addEventListener("submit", async (e) => {
