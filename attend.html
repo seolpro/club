@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>단합대회 참석</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      background: #f8f9fa;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      max-width: 400px;
+      margin: 100px auto;
+      padding: 30px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    input, button {
+      padding: 10px;
+      width: 100%;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #5773ce;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h3>✅ 단합대회 참석</h3>
+    <p>이름을 입력하고 버튼을 클릭해주세요</p>
+    <input type="text" id="name" placeholder="성함을 입력해주세요" />
+    <button onclick="submitAttend()">✔️참석 합니다</button>
+    <p id="result" style="margin-top: 15px;"></p>
+  </div>
+
+  <script>
+    function submitAttend() {
+      const name = document.getElementById("name").value.trim();
+      const result = document.getElementById("result");
+      if (!name) {
+        result.textContent = "⚠️ 이름을 입력해주세요.";
+        return;
+      }
+
+      fetch("https://script.google.com/macros/s/AKfycbzHYCycoaYNof3gOf3CJzGAzsnv9IVkJZZqaDW50aSA05dIukaeI2mqsGUtcmnvFnmlYA/exec", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ name, status: "참석" })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            result.textContent = `✅ ${name} 선생님은 참석으로 전송되었습니다.`;
+          } else {
+            result.textContent = "❌ 전송 실패";
+          }
+        })
+        .catch(err => {
+          result.textContent = "❌ 오류 발생: " + err;
+        });
+    }
+  </script>
+</body>
+</html>
