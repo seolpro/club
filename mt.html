@@ -352,15 +352,37 @@
       </div>
       <div class="modal-footer flex-column gap-2">
         <div class="d-flex gap-3 justify-content-center">
-          <a class="btn btn-success px-4" href="sms:01071186639?body=🟢 단합대회 참석합니다.">✅ 참석</a>
-          <a class="btn btn-outline-secondary px-4" href="sms:01071186639?body=🔴 단합대회 불참합니다.">❌ 불참</a>
-          <a class="btn btn-outline-info px-4" href="sms:01071186639?body=💡그날 기분에 따라 할게요~~ ">💡 잘모름</a>
-        </div>
+  <button class="btn btn-success px-4" onclick="sendSMS('🟢 단합대회 참석합니다.')">✅ 참석</button>
+  <button class="btn btn-outline-secondary px-4" onclick="sendSMS('🔴 단합대회 불참합니다.')">❌ 불참</button>
+  <button class="btn btn-outline-info px-4" onclick="sendSMS('💡그날 기분에 따라 할게요~~')">💡 잘모름</button>
+</div>
         <button class="btn btn-sm btn-link text-muted" onclick="hideForOneDay()">⏳하루 동안 안 보기</button>
       </div>
     </div>
   </div>
 </div>
+
+
+
+<script>
+  function sendSMS(messageText) {
+    const phone = "01071186639";
+    const encodedMsg = encodeURIComponent(messageText);
+    const ua = navigator.userAgent.toLowerCase();
+    let smsLink = "";
+
+    if (/iphone|ipad|ipod/.test(ua)) {
+      smsLink = `sms:${phone}&body=${encodedMsg}`; // iOS용
+    } else if (/android/.test(ua)) {
+      smsLink = `sms:${phone}?body=${encodedMsg}`; // Android용
+    } else {
+      alert("📱 문자 전송은 모바일 기기에서만 가능합니다.");
+      return;
+    }
+
+    window.location.href = smsLink;
+  }
+</script>
 
 <!-- ✅ Bootstrap + Modal Logic -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
