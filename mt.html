@@ -376,7 +376,7 @@
     } else if (/android/.test(ua)) {
       smsLink = `sms:${phone}?body=${encodedMsg}`; // Android용
     } else {
-      alert("📱 문자 전송은 모바일 기기에서만 가능합니다.");
+      alert("⚠️ 문자 전송은 모바일(PAD) 기기에서만 가능합니다.");
       return;
     }
 
