@@ -231,14 +231,19 @@
       </div>
       
 
-    <div class="mb-2 d-flex align-items-center form-inline">
+    <!-- <div class="mb-2 d-flex align-items-center form-inline">
       <label class="form-label">🗺 단일 코스</label>
       <select class="form-select" id="course">
-        <!-- <option value="">✔선택하세요</option> -->
+        <option value="">✔선택하세요</option>
         <option>단일 코스(정상 ~ 원점회귀)</option>
-       <!--  <option>B코스(조망 코스)</option> -->
+        <option>B코스(조망 코스)</option>
       </select>
-    </div>
+    </div> -->
+    <select class="form-select" id="course" disabled>
+  <option>단일 코스(정상 ~ 원점회귀)</option>
+</select>
+<input type="hidden" name="course" value="단일 코스(정상 ~ 원점회귀)">
+
 
     <div class="mb-3 align-items-center">
       <label class="form-label">🗨️기타 코멘트</label>
@@ -329,6 +334,38 @@
     </div>
   </div>
 </div>
+
+<!--모달창생성-->
+<!-- ✅ 모달 HTML -->
+<div class="modal fade" id="gatheringModal" tabindex="-1" aria-labelledby="gatheringModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-header bg-primary text-white rounded-top-4">
+        <h5 class="modal-title" id="gatheringModalLabel">🎉 동아리 단합대회겸 신입회원 환영회</h5>
+      </div>
+      <div class="modal-body">
+        <p><strong>📅 일시:</strong> 2025년 6월 30일 (월) 오후 5시30분~</p>
+        <p><strong>📍 장소:</strong> 원천식당</p>
+        <p><strong>💰 지참금(급여공제):</strong> 1만원(단, 올해 신입회원은 공짜)</p>
+        <p>✔️참석 여부를 아래 버튼을 눌러 🗨️문자로 보내주세요. <strong>회장</strong>에게 전송됩니다.</p>
+      </div>
+      <div class="modal-footer justify-content-center">
+        <a class="btn btn-success px-4" href="sms:01071186639?body=🟢 단합대회 참석합니다.">✅ 참석</a>
+        <a class="btn btn-outline-secondary px-4" href="sms:01071186639?body=🔴 단합대회 불참합니다.">❌ 불참</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ Bootstrap + Modal Show -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const modal = new bootstrap.Modal(document.getElementById('gatheringModal'));
+    modal.show();
+  });
+</script>
+
 <!--날씨정보JS-->
 <script>
   const API_KEY = "5cb4f4a8cabfb7ea5c72264e6a5fd43d";
