@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>단합대회 참석</title>
+  <title>단합대회 참석 여부</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
@@ -18,56 +18,112 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       text-align: center;
     }
-    input, button {
+    input, select {
       padding: 10px;
       width: 100%;
       margin: 10px 0;
       border-radius: 6px;
       border: 1px solid #ccc;
     }
-    button {
-      background-color: #5773ce;
-      color: white;
+    .btn-group {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .btn-group button {
+      flex: 1;
+      padding: 12px;
       border: none;
+      border-radius: 6px;
+      color: white;
+      font-size: 16px;
       cursor: pointer;
+    }
+    .attend {
+      background-color: #28a745;
+    }
+    .decline {
+      background-color: #dc3545;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h3>✅ 단합대회 참석</h3>
-    <p>이름을 입력하고 버튼을 클릭해주세요</p>
-    <input type="text" id="name" placeholder="성함을 입력해주세요" />
-    <button onclick="submitAttend()">✔️참석 합니다</button>
-    <p id="result" style="margin-top: 15px;"></p>
+    <h3>🗓️ 단합대회 참석 여부</h3>
+    <p>🤷‍♂️이름을 선택하거나 직접 입력해주세요</p>
+
+    <select id="nameSelect" onchange="document.getElementById('nameInput').value = this.value">
+      <option value="">-- 이름을 선택하세요 --</option>
+      <option value="김철수">김철수</option>
+      <option value="이영희">이영희</option>
+      <option value="박지훈">박지훈</option>
+    </select>
+
+    <input type="text" id="nameInput" placeholder="또는 직접 이름을 입력하세요" />
+
+    <!-- 버튼 한 줄 정렬 -->
+    <!-- 버튼 한 줄 정렬 -->
+<div class="btn-group">
+  <button id="attendBtn" class="attend" onclick="submitResponse('참석')">✔ 참석</button>
+  <button id="declineBtn" class="decline" onclick="submitResponse('불참')">❌ 불참</button>
+</div>
+
+
+    <strong><p id="result" style="margin-top: 15px;"></p></strong>
   </div>
 
   <script>
-    function submitAttend() {
-      const name = document.getElementById("name").value.trim();
-      const result = document.getElementById("result");
-      if (!name) {
-        result.textContent = "⚠️ 이름을 입력해주세요.";
-        return;
-      }
+   function submitResponse(status) {
+  const nameInput = document.getElementById("nameInput").value.trim();
+  const nameSelect = document.getElementById("nameSelect").value;
+  const name = nameInput || nameSelect;
+  const result = document.getElementById("result");
 
-      fetch("https://script.google.com/macros/s/AKfycbzHYCycoaYNof3gOf3CJzGAzsnv9IVkJZZqaDW50aSA05dIukaeI2mqsGUtcmnvFnmlYA/exec", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({ name, status: "참석" })
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            result.textContent = `✅ ${name} 선생님은 참석으로 전송되었습니다.`;
-          } else {
-            result.textContent = "❌ 전송 실패";
-          }
-        })
-        .catch(err => {
-          result.textContent = "❌ 오류 발생: " + err;
-        });
+  if (!name) {
+    result.textContent = "⚠️ 이름을 입력하거나 선택해주세요.";
+    return;
+  }
+
+  // 버튼 요소들
+  const attendBtn = document.getElementById("attendBtn");
+  const declineBtn = document.getElementById("declineBtn");
+
+  const isAttend = status === '참석';
+  const activeBtn = isAttend ? attendBtn : declineBtn;
+  const originalText = activeBtn.textContent;
+  const originalColor = activeBtn.style.backgroundColor;
+
+  // 버튼 로딩 상태 표시
+  activeBtn.textContent = "🔄전송중...";
+  activeBtn.style.backgroundColor = "#66d9ef"; // 회색 (로딩)
+  attendBtn.disabled = true;
+  declineBtn.disabled = true;
+
+  fetch("https://script.google.com/macros/s/AKfycbzHYCycoaYNof3gOf3CJzGAzsnv9IVkJZZqaDW50aSA05dIukaeI2mqsGUtcmnvFnmlYA/exec", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ name, status })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      result.textContent = `🔗 ${name} 선생님은 '${status}'으로 전송되었습니다.`;
+    } else {
+      result.textContent = "❌ 전송 실패";
     }
+  })
+  .catch(err => {
+    result.textContent = "❌ 오류 발생: " + err;
+  })
+  .finally(() => {
+    // 원래 상태 복원
+    activeBtn.textContent = originalText;
+    activeBtn.style.backgroundColor = originalColor;
+    attendBtn.disabled = false;
+    declineBtn.disabled = false;
+  });
+}
   </script>
 </body>
 </html>
