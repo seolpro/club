@@ -98,6 +98,11 @@
   const originalText = activeBtn.textContent;
   const originalColor = activeBtn.style.backgroundColor;
 
+    // ✅ 진동 효과 (모바일에서만 적용)
+  if (navigator.vibrate) {
+    navigator.vibrate(50); // 50ms 진동
+  }
+
   // 버튼 로딩 상태 표시
   activeBtn.textContent = "🔄전송중...";
   activeBtn.style.backgroundColor = "#66d9ef"; // 회색 (로딩)
