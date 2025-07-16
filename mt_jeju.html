@@ -408,27 +408,6 @@
   });
 </script>
 
-<!--날씨정보JS-->
-<script>
-  const API_KEY = "5cb4f4a8cabfb7ea5c72264e6a5fd43d";
-  const LAT = 38.0756;
-  const LON = 128.6200;
-  const url = `https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=metric&lang=kr`;
-
-  fetch(url)
-    .then(response => {
-      if (!response.ok) throw new Error("HTTP 오류: " + response.status);
-      return response.json();
-    })
-    .then(data => {
-      document.getElementById('temperature').innerText = `🌡️ 강원 양양(서면)의 현재 기온은 ${data.main.temp}°C이며, 날씨는 ${data.weather[0].description} 상태 입니다.`;
-    })
-    .catch(error => {
-      document.getElementById('weather').innerHTML = `<p>❌ 날씨 정보를 불러오는 데 실패했습니다.</p>`;
-      console.error("Error fetching weather:", error);
-    });
-</script>
-
 <script>
   document.getElementById("toggleallSeeBtn").addEventListener("click", function () {
     if (confirm("📋 시트를 열어 전체 신형현황을 보시겠어요?")) {
