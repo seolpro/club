@@ -81,42 +81,73 @@
   </div>
 
   <script>
-    document.getElementById("clubForm").addEventListener("submit", async function (e) {
-      e.preventDefault();
-      const form = e.target;
-      const data = new FormData(form);
-      const params = new URLSearchParams(data);
-      const submitBtn = document.getElementById("submitBtn");
+document.getElementById("clubForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
+  const form = e.target;
+  const data = new FormData(form);
+  const params = new URLSearchParams(data);
+  const submitBtn = document.getElementById("submitBtn");
 
-      if (!form.employeeId.value || !form.name.value || !form.contact.value || !form.job.value) {
-        alert("필수 정보를 입력해주세요.");
-        return;
-      }
+  if (!form.employeeId.value || !form.name.value || !form.contact.value || !form.job.value) {
+    alert("⚠ 필수 정보를 입력해주세요.");
+    return;
+  }
 
-      const confirmMsg = `입력 확인:\n\n사번: ${form.employeeId.value}\n성명: ${form.name.value}\n부서명: ${form.job.value}\n연락처: ${form.contact.value}\n등산경험: ${form.motivation.value}\n\n제출하시겠습니까?`;
-      if (!confirm(confirmMsg)) return;
+  const confirmMsg = `입력 확인:\n\n사번: ${form.employeeId.value}\n성명: ${form.name.value}\n부서명: ${form.job.value}\n연락처: ${form.contact.value}\n등산경험: ${form.motivation.value}\n\n제출하시겠습니까?`;
+  if (!confirm(confirmMsg)) return;
 
-      // 중복 제출 방지
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = "🔂 제출중...";
-      document.getElementById("loading").style.display = "block";
+  // 중복 제출 방지
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = "🔂 제출중...";
+  document.getElementById("loading").style.display = "block";
 
-      try {
-        await fetch("https://script.google.com/macros/s/AKfycby_Tx0iqMKFjCbbdciqQtzgFU73O1P36zt7jn1GYjPy2LfdaA9vCiVQkJk5B9YimxOtaQ/exec", {
-          method: "POST",
-          body: params,
-          mode: "no-cors",
-        });
-        alert("✅ 신청이 완료되었습니다. 감사합니다!");
-        form.reset();
-      } catch (error) {
-        alert("⚠️ 오류가 발생했습니다. 다시 시도해주세요.");
-      } finally {
-        document.getElementById("loading").style.display = "none";
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = "📝 제출하기";
-      }
+  try {
+    // ✅ 구글 시트 저장
+    await fetch("https://script.google.com/macros/s/AKfycby_Tx0iqMKFjCbbdciqQtzgFU73O1P36zt7jn1GYjPy2LfdaA9vCiVQkJk5B9YimxOtaQ/exec", {
+      method: "POST",
+      body: params,
+      mode: "no-cors",
     });
+
+    // ✅ 문자 발송 요청 (신청자 + 운영진)
+    const smsPayload = {
+      sender: form.name.value,
+      userPhone: form.contact.value,
+      adminPhone: "01071186639", // 운영자 수신번호
+
+      userMessage: `[산악회동아리 가입신청 완료]
+${form.name.value}님, 가입 신청이 정상적으로 접수되었습니다. \n
+가입을 환영합니다.^*^ 동아리 오픈채팅방에 들어오세요, 산행일정 등 공지사항을 보실 수 있습니다. 
+https://open.kakao.com/o/gPJluCXf  \n\n -산악회장 드림-
+\n\n 
+- 본메세지는 시스템에의해 자동전송되었습니다- `,
+
+      adminMessage: `[운영자님 산악회동아리 신규 회원 가입건이 아래와 같이 접수되었습니다.]\n
+성명: ${form.name.value}
+사번: ${form.employeeId.value}
+부서: ${form.job.value}
+연락처: ${form.contact.value}
+등산경험: ${form.motivation.value} \n\n 
+- 본메세지는 시스템에의해 자동전송되었습니다- `
+    };
+
+    await fetch("https://ajoucu.mycafe24.com/relay_join_mt.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(smsPayload),
+    });
+
+    alert("✅ 가입 신청이 완료되었습니다. 환영합니다!");
+    form.reset();
+  } catch (error) {
+    console.error(error);
+    alert("⚠️ 오류가 발생했습니다. 다시 시도해주세요.");
+  } finally {
+    document.getElementById("loading").style.display = "none";
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = "📝 제출하기";
+  }
+});
   </script>
 </body>
 </html>
