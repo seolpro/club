@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>제주 단체여행객 지원금 신청</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <style>
+    :root{ --brand:#0d6efd; --soft:#f6f8fb; }
+    body{ background:var(--soft); font-family: system-ui, -apple-system, "Noto Sans KR", Roboto, sans-serif; }
+    .page{ max-width: 880px; margin: auto; padding: clamp(16px,3vw,32px); }
+    .card{ border:0; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,.08); }
+    .hero{
+      background: radial-gradient(1200px 300px at 10% -10%, rgba(13,110,253,.15), transparent),
+                  radial-gradient(1000px 400px at 110% -20%, rgba(25,135,84,.12), transparent);
+      border-radius: 20px; padding: 28px; color:#0b3c5d;
+    }
+    .required::after{ content:" *"; color:#dc3545; font-weight:700; }
+    .btn-xl{ padding:.9rem 1.25rem; border-radius:14px; font-weight:700; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="hero mb-4">
+      <h1 class="h3 mb-2">제주 단체여행객 지원금 신청</h1>
+      <p class="mb-0">참가자 정보를 입력해 주세요. 입력하신 정보는 지원금 확인 및 안내 목적에만 사용됩니다.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-body p-4 p-md-5">
+        <form id="applyForm" action="submit.php" method="post" novalidate>
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label required">성명</label>
+              <input type="text" class="form-control" name="name" id="name" required>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label required">연락처</label>
+              <input type="tel" class="form-control" name="tel" id="tel" inputmode="numeric" placeholder="010-1234-5678" required>
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label required">우편번호</label>
+              <div class="input-group">
+                <input type="text" class="form-control" name="zipcode" id="zipcode" readonly required>
+                <button type="button" class="btn btn-outline-secondary" id="btnPost">주소검색</button>
+              </div>
+            </div>
+            <div class="col-12 col-md-8">
+              <label class="form-label required">주소</label>
+              <input type="text" class="form-control" name="addr1" id="addr1" readonly required>
+            </div>
+            <div class="col-12">
+              <label class="form-label">상세주소</label>
+              <input type="text" class="form-control" name="addr2" id="addr2">
+            </div>
+            <div class="col-12">
+              <label class="form-label">비고</label>
+              <textarea class="form-control" name="memo" id="memo" rows="2"></textarea>
+            </div>
+            <div class="col-12">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="agree" name="agree" value="Y" required>
+                <label class="form-check-label" for="agree">개인정보 수집·이용에 동의합니다.</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-grid d-md-flex gap-2 mt-4">
+            <button class="btn btn-primary btn-xl" type="submit" id="btnSubmit">제출</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ✅ 제출 결과 토스트 (성공) -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index:1080;">
+      <div id="toastSuccess" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body" id="toastSuccessMsg">정상적으로 제출되었습니다.</div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="닫기"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ✅ 제출 결과 토스트 (실패) -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index:1080;">
+      <div id="toastError" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body" id="toastErrorMsg">제출에 실패했습니다.</div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="닫기"></button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+  <script>
+    const $ = sel => document.querySelector(sel);
+
+    // 010-1234-5678 형식 강제
+    $('#tel').addEventListener('input', e => {
+      let val = e.target.value.replace(/\D+/g, '');
+      if (!val.startsWith('010')) val = '010' + val.replace(/^010/, '');
+      if (val.length > 11) val = val.slice(0, 11);
+      if (val.length === 11) val = val.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+      e.target.value = val;
+    });
+
+    // 다음 주소검색
+    $('#btnPost').addEventListener('click', () => {
+      new daum.Postcode({
+        oncomplete: function(data){
+          const addr = data.roadAddress || data.jibunAddress || '';
+          $('#zipcode').value = data.zonecode || '';
+          $('#addr1').value = addr;
+          $('#addr2').focus();
+        }
+      }).open();
+    });
+
+    // 제출 전 간단 검증
+    const form = $('#applyForm');
+    form.addEventListener('submit', e => {
+      form.classList.add('was-validated');
+      const telOk = /^010-\d{4}-\d{4}$/.test($('#tel').value.trim());
+      $('#tel').setCustomValidity(telOk ? '' : 'Invalid');
+      if (!form.checkValidity()) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    });
+
+    // ✅ 제출 결과 표시 (ok, err 쿼리 파라미터 처리)
+    (function showResultFromQuery(){
+      const p = new URLSearchParams(location.search);
+      const ok = p.get('ok');
+      const err = p.get('err');
+      if (ok === '1') {
+        const rid = p.get('rid');
+        const name = p.get('name');
+        const msg = `정상적으로 제출되었습니다. #접수번호: ${rid}${name ? ' (' + name + ')' : ''}`;
+        $('#toastSuccessMsg').textContent = msg;
+        new bootstrap.Toast($('#toastSuccess')).show();
+        // 파라미터 제거 (새로고침 시 다시 뜨지 않도록)
+        history.replaceState(null, '', location.pathname);
+      } else if (err) {
+        $('#toastErrorMsg').textContent = err;
+        new bootstrap.Toast($('#toastError')).show();
+        history.replaceState(null, '', location.pathname);
+      }
+    })();
+  </script>
+</body>
+</html>
