@@ -97,7 +97,7 @@
             result.innerHTML = `<div class="alert alert-danger">❌ ${msg}</div>`;
           } else {
             msg = json.message || "업로드 성공";
-            const link = json.fileUrl ? `<br><a href="${json.fileUrl}" target="_blank">🧩제출파일 보기</a>` : "";
+            const link = json.fileUrl ? `<br><a href="${json.fileUrl}" target="_blank">🔎제출파일 보기</a>` : "";
             result.innerHTML = `<div class="alert alert-success">✅ ${msg}${link}</div>`;
             e.target.reset();
           }
