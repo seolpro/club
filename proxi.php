@@ -1,15 +1,17 @@
 <?php
 // ✅ CORS 허용
+<?php
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Content-Type: application/json; charset=utf-8");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Credentials: true");
 
-// ✅ Preflight 처리
+// Preflight OPTIONS 요청 처리
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
   http_response_code(200);
   exit;
 }
+
 
 // ✅ 보안 토큰 (프론트엔드와 동일)
 $ADMIN_TOKEN = "ajou2130==";
