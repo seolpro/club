@@ -1,22 +1,27 @@
 <?php
-// ✅ CORS 허용
-<?php
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-header("Access-Control-Allow-Credentials: true");
+// ==========================================
+// proxi.php : GitHub Pages → Cafe24 → GAS 프록시
+// 모바일(iOS/Android) 브라우저까지 100% 대응
+// ==========================================
 
-// Preflight OPTIONS 요청 처리
+// --- CORS 허용 ---
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Content-Type: application/json; charset=utf-8");
+
+// --- Preflight OPTIONS 처리 ---
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
   http_response_code(200);
+  echo json_encode(["ok" => true, "message" => "CORS preflight OK"]);
   exit;
 }
 
-
-// ✅ 보안 토큰 (프론트엔드와 동일)
+// --- 보안 토큰 (프론트엔드와 동일하게 맞추세요) ---
 $ADMIN_TOKEN = "ajou2130==";
 
-// ✅ 요청 JSON 파싱
+// --- 요청 JSON 읽기 ---
 $input = file_get_contents("php://input");
 $data  = json_decode($input, true);
 
@@ -31,10 +36,10 @@ if (!isset($data["token"]) || $data["token"] !== $ADMIN_TOKEN) {
   exit;
 }
 
-// ✅ 실제 GAS WebApp URL
+// --- 실제 GAS WebApp URL (/exec 로 반드시 배포된 것 사용) ---
 $target = "https://script.google.com/macros/s/AKfycbxMZ1qfhnVak2WMqcKFg8wm430bd9oP0KQ6bGwNgWACmPlKWySDKgguRQlN5L5On_Wx/exec";
 
-// ✅ cURL로 GAS에 전달
+// --- cURL로 GAS에 전달 ---
 $ch = curl_init($target);
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, $input);
@@ -42,11 +47,7 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
 curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // ✅ redirect 자동 따라가기
-
-// ⚠️ SSL 인증서 문제시(구형 환경) 아래 두 줄을 임시로 해제해보세요. (권장X)
-// curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-// curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // 302 redirect 자동 처리
 
 $response = curl_exec($ch);
 
@@ -61,18 +62,17 @@ if ($response === false) {
 $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
-// ✅ GAS가 텍스트를 주더라도 JSON으로 감싸 반환 (프런트 일관성)
-if ($httpcode >= 200 && $httpcode < 300) {
-  // 응답이 JSON인지 판단
-  $asJson = json_decode($response, true);
-  if (json_last_error() === JSON_ERROR_NONE && is_array($asJson)) {
-    http_response_code($httpcode);
-    echo $response;
-  } else {
+// --- 항상 JSON으로 반환 ---
+$decoded = json_decode($response, true);
+if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+  http_response_code($httpcode);
+  echo $response; // 이미 JSON 응답
+} else {
+  if ($httpcode >= 200 && $httpcode < 300) {
     http_response_code(200);
     echo json_encode(["ok"=>true, "message"=>$response]);
+  } else {
+    http_response_code($httpcode);
+    echo json_encode(["ok"=>false, "error"=>"GAS error ($httpcode): ".$response]);
   }
-} else {
-  http_response_code($httpcode);
-  echo json_encode(["ok"=>false, "error"=>"GAS error ($httpcode): ".$response]);
 }
