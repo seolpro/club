@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>온뱅크 실행</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .card {
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      padding: 30px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+    }
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+    p {
+      font-size: 0.95rem;
+      color: #555;
+      margin-bottom: 20px;
+    }
+    button {
+      background: #007bff;
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+      width: 100%;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>📲 온뱅크 실행하기</h1>
+    <p>앱이 설치되어 있다면 실행되고,<br> 없다면 스토어로 이동합니다.</p>
+    <button onclick="openOnbank()">온뱅크 열기</button>
+  </div>
+
+  <script>
+    function openOnbank() {
+      var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+      var now = new Date().getTime();
+      var timeout = 2000; // 2초 후 fallback 처리
+
+      // 안드로이드 기기
+      if (/android/i.test(userAgent)) {
+        window.location.href = "intent://onbank.cu.co.kr?SCHEME_ACTION=web&SCHEME_PARAM=1#Intent;scheme=cuonbank;package=kr.co.cu.onbank;end;";
+
+        setTimeout(function() {
+          if (new Date().getTime() - now < timeout + 100) {
+            window.location.href = "https://play.google.com/store/apps/details?id=kr.co.cu.onbank";
+          }
+        }, timeout);
+
+      // iOS 기기
+      } else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+        window.location.href = "cuonbank://onbank.cu.co.kr?SCHEME_ACTION=web&SCHEME_PARAM=1";
+
+        setTimeout(function() {
+          if (new Date().getTime() - now < timeout + 100) {
+            window.location.href = "https://apps.apple.com/kr/app/id1435818810"; // ✅ 온뱅크 iOS 앱스토어 ID
+          }
+        }, timeout);
+
+      // PC/기타
+      } else {
+        window.location.href = "https://onbank.cu.co.kr/run.html";
+      }
+    }
+  </script>
+
+</body>
+</html>
