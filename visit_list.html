@@ -64,10 +64,10 @@
               <div class="invalid-feedback">기본주소를 선택해 주세요.</div>
             </div>
 
-            <div class="col-12">
+            <!-- <div class="col-12">
               <label class="form-label">상세주소</label>
               <input type="text" class="form-control" id="addr2" name="addr2" placeholder="상세주소(동/호수 등)" />
-            </div>
+            </div> -->
 
             <div class="col-12">
               <label class="form-label">기타 남기실 말씀(선택)</label>
@@ -78,7 +78,7 @@
               <div class="form-check">
                 <input class="form-check-input" type="checkbox" value="Y" id="agree" required>
                 <label class="form-check-label" for="agree">
-                  개인정보 수집·이용에 동의합니다. (제주 여행객 지원금 신청관련)
+                  개인정보(성명,연락처,주소) 수집·활용 및 제3자 제공에 동의합니다. (*제주 여행객 지원금 신청관련)
                 </label>
                 <div class="invalid-feedback">동의가 필요합니다.</div>
               </div>
@@ -107,84 +107,95 @@
       </div>
     </div>
   </main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- 다음 우편번호 API -->
+<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script>
+  // ▶▶ GAS 웹앱 URL (배포 후 나온 URL로 교체)
+  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwGCOzIDEL35vxrHm87dU_wnsxXu4hID0rTPQmmNPi2d6DlGztpcGdH8jtvP2Jx2CVAfw/exec";
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- 다음 우편번호 API -->
-  <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-  <script>
-    // ▶▶ GAS 웹앱 URL (배포 후 나온 URL로 교체)
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwGCOzIDEL35vxrHm87dU_wnsxXu4hID0rTPQmmNPi2d6DlGztpcGdH8jtvP2Jx2CVAfw/exec"; // 예: https://script.google.com/macros/s/AKfycbx.../exec
+  const $ = (sel) => document.querySelector(sel);
 
-    const $ = (sel) => document.querySelector(sel);
+  // 연락처 숫자만 유지
+  $('#tel').addEventListener('input', (e) => {
+    e.target.value = e.target.value.replace(/\D+/g, '').slice(0, 11);
+  });
 
-    // 연락처 숫자만 유지
-    $('#tel').addEventListener('input', (e) => {
-      e.target.value = e.target.value.replace(/\D+/g, '').slice(0, 11);
-    });
-
-    // 다음 주소검색
-    $('#btnPost').addEventListener('click', () => {
-      new daum.Postcode({
-        oncomplete: function(data){
-          const addr = data.roadAddress || data.jibunAddress || '';
-          $('#zipcode').value = data.zonecode || '';
-          $('#addr1').value = addr;
-          $('#addr2').focus();
+  // 다음 주소검색 (도로명주소만 입력/저장, 괄호 내부 부가정보 제거)
+  $('#btnPost').addEventListener('click', () => {
+    new daum.Postcode({
+      oncomplete: function(data){
+        const road = (data.roadAddress || '').trim();
+        if (!road) {
+          alert('도로명주소 결과가 없습니다. 도로명주소를 선택해 주세요.');
+          return;
         }
-      }).open();
-    });
+        // 아파트명 등 괄호 안 부가정보 제거 (예: "서울 중구 세종대로 110 (OO빌딩)" → "서울 중구 세종대로 110")
+        const sanitized = road.replace(/\s*\([^)]*\)\s*/g, '').trim();
 
-    // 폼 검증
-    function validateForm(){
-      const form = $('#applyForm');
-      form.classList.add('was-validated');
-      const telOk = /^\d{10,11}$/.test($('#tel').value.trim());
-      if(!telOk){ $('#tel').setCustomValidity('Invalid'); } else { $('#tel').setCustomValidity(''); }
-      return form.checkValidity();
-    }
-
-    // 제출
-    $('#applyForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if(!validateForm()) return;
-
-      const btn = $('#btnSubmit');
-      const spin = btn.querySelector('.spinner-border');
-      btn.disabled = true; spin.classList.remove('d-none');
-
-      const payload = {
-        name : $('#name').value.trim(),
-        tel  : $('#tel').value.trim(),
-        zipcode: $('#zipcode').value.trim(),
-        addr1: $('#addr1').value.trim(),
-        addr2: $('#addr2').value.trim(),
-        memo : $('#memo').value.trim(),
-        agree: $('#agree').checked ? 'Y' : 'N'
-      };
-
-      try{
-        // 외부 HTML → GAS: CORS 회피를 위해 no-cors (응답 본문은 읽지 못함)
-        await fetch(WEBAPP_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        // 성공 토스트
-        const toast = new bootstrap.Toast($('#toast'));
-        toast.show();
-        // 폼 리셋
-        $('#applyForm').reset();
-        $('#applyForm').classList.remove('was-validated');
-
-      } catch(err){
-        alert('제출 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
-        console.error(err);
-      } finally {
-        btn.disabled = false; spin.classList.add('d-none');
+        $('#zipcode').value = data.zonecode || '';
+        $('#addr1').value  = sanitized;
       }
-    });
-  </script>
+    }).open();
+  });
+
+  // 폼 검증
+  function validateForm(){
+    const form = $('#applyForm');
+    form.classList.add('was-validated');
+
+    const telOk = /^\d{10,11}$/.test($('#tel').value.trim());
+    if(!telOk){ $('#tel').setCustomValidity('Invalid'); } else { $('#tel').setCustomValidity(''); }
+
+    const zipcodeOk = !!$('#zipcode').value.trim();
+    const addrOk    = !!$('#addr1').value.trim();
+
+    if (!zipcodeOk || !addrOk) return false;
+    return form.checkValidity();
+  }
+
+  // 제출 (addr2 완전 제거하여 상세주소 미전송)
+  $('#applyForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if(!validateForm()) return;
+
+    const btn = $('#btnSubmit');
+    const spin = btn.querySelector('.spinner-border');
+    btn.disabled = true; spin.classList.remove('d-none');
+
+    const payload = {
+      name   : $('#name').value.trim(),
+      tel    : $('#tel').value.trim(),
+      zipcode: $('#zipcode').value.trim(),
+      addr1  : $('#addr1').value.trim(),  // 도로명주소만
+      memo   : $('#memo').value.trim(),
+      agree  : $('#agree').checked ? 'Y' : 'N'
+    };
+
+    try{
+      // 외부 HTML → GAS: CORS 회피를 위해 no-cors (응답 본문은 읽지 못함)
+      await fetch(WEBAPP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      // 성공 토스트
+      const toast = new bootstrap.Toast($('#toast'));
+      toast.show();
+
+      // 폼 리셋
+      $('#applyForm').reset();
+      $('#applyForm').classList.remove('was-validated');
+
+    } catch(err){
+      alert('제출 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+      console.error(err);
+    } finally {
+      btn.disabled = false; spin.classList.add('d-none');
+    }
+  });
+</script>
 </body>
 </html>
