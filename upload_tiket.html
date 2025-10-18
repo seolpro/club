@@ -24,6 +24,10 @@
     button[aria-expanded="true"] .arrow-icon {
       transform: rotate(180deg); /* ▶ → ▼ 회전 */
     }
+    img {
+        width: 250px;
+        height: 350px;
+    }
   </style>
 </head>
 <body>
@@ -32,13 +36,15 @@
 
   <!-- 행사내용/개인정보 제공 동의 안내문 영역 -->
   <div id="formInfo" class="mb-3 p-3 border rounded bg-light">
-    <span>탑승권을 아래에 업로드 해 주세요</span>
+    <span>🤷‍♂️탑승권을 아래에 이미지(캡쳐본)업로드 해 주세요</span>
     <p class="small text-muted">
       # 업로드 파일: 탑승권 캡쳐 이미지 <br>
     </p>
+    <strong>💳탑승권 예시(Jinair)</strong><br>
+    <img src="img/boardingpass.jpg" alt="tiket"/>
 
     <!-- 개인정보 제공 및 활용 동의 (펼치기/접기) -->
-    <div class="mb-3">
+   <!--  <div class="mb-3">
       <button class="btn btn-link d-flex align-items-center text-decoration-none p-0" 
               type="button" data-bs-toggle="collapse" data-bs-target="#privacyCollapse" 
               aria-expanded="false" aria-controls="privacyCollapse">
@@ -51,7 +57,7 @@
           관련 법령에 따라 안전하게 관리됩니다.
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 
   <div id="formArea" class="card shadow-sm p-3">
