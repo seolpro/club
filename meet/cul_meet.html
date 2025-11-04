@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>산악회총회겸송년회 일정 추가</title>
+  <meta name="description" content="페이지 접속 시 자동으로 달력에 일정을 추가합니다." />
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans KR', Arial, sans-serif; }
+    .wrap { min-height: 100dvh; display:flex; align-items:center; justify-content:center; text-align:center; padding:24px; }
+    .card { max-width: 680px; border:1px solid #e5e7eb; border-radius:16px; padding:28px; box-shadow:0 10px 30px rgba(0,0,0,.05); }
+    .btn { display:inline-block; padding:12px 18px; border-radius:12px; border:1px solid #111; cursor:pointer; background:#111; color:#fff; font-weight:600; }
+    .btn:active { transform: translateY(1px); }
+    #loadingOverlay {
+      position: fixed; inset: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,.55); display: none;
+      align-items: center; justify-content: center; color: #fff;
+      font-size: 1.05rem; z-index: 99999; text-align:center; padding: 16px;
+      white-space: pre-line;
+    }
+    .muted { color:#6b7280; font-size:.95rem; }
+  </style>
+</head>
+<body>
+  <div id="loadingOverlay">📝 일정앱으로 이동중입니다…\n취소되거나 차단된 경우 아래 버튼으로 다시 시도해주세요.</div>
+
+  <div class="wrap">
+    <div class="card">
+      <h2>📅 산악회총회겸송년회 일정 추가</h2>
+      <p class="muted">페이지 접속 시 자동으로 일정 추가를 시도합니다.</p>
+      <hr style="border:none;height:1px;background:#eee;margin:18px 0;">
+      <p><b>제목</b><br>산악회총회겸송년회</p>
+      <p><b>일시</b><br>2025년 12월 5일(금) 오후 5:30 ~ 오후 7:30</p>
+      <p><b>장소</b><br>제주수산(매탄동)</p>
+      <p><b>설명</b><br>산악회 총회 및 송년 모임</p>
+      <button class="btn" onclick="addEventToCalendar()">다시 일정 추가 시도</button>
+      <p class="muted" style="margin-top:10px;">안드로이드는 구글 캘린더가 열리고, iOS/기타는 ICS 파일을 엽니다.</p>
+    </div>
+  </div>
+
+<script>
+(function() {
+  // 페이지 로드 시 자동 실행
+  window.addEventListener('DOMContentLoaded', () => {
+    // 살짝 지연 후 실행(브라우저 자동차단 회피에 도움이 됨)
+    setTimeout(addEventToCalendar, 300);
+  });
+})();
+
+function addEventToCalendar() {
+  const overlay = document.getElementById('loadingOverlay');
+  showOverlay('📝 일정앱으로 이동중입니다…\n잠시만 기다려주세요. 확인후 저장해 주세요');
+
+  // === 이벤트 정보(요청하신 값으로 고정) ===
+  const title = '문화탐방총회겸송년회';
+  const location = '추후안내';
+  const description = '문화탐방 동아리 총회 및 송년 모임';
+
+  // 시작/종료 (KST 기준) — 종료는 2시간 뒤로 설정
+  const startDate = new Date('2025-12-11T17:30:00'); // KST
+  const endDate   = new Date('2025-12-11T19:30:00'); // KST
+
+  if (!isValidRange(startDate, endDate)) {
+    hideOverlay();
+    alert('⚠️ 일정 시간에 문제가 있습니다. 시작/종료 시간을 확인해주세요.');
+    return;
+  }
+
+  const ua = navigator.userAgent || '';
+  const isAndroid = /android/i.test(ua);
+  const isIOS = /iPhone|iPad|iPod/i.test(ua);
+
+  // 안드로이드: 구글 캘린더 템플릿(로컬시간 문자열 + ctz=Asia/Seoul)
+  if (isAndroid) {
+    const startStr = toLocalGoogleDate(startDate);
+    const endStr   = toLocalGoogleDate(endDate);
+    const url =
+      `https://www.google.com/calendar/render?action=TEMPLATE` +
+      `&text=${encodeURIComponent(title)}` +
+      `&dates=${startStr}/${endStr}` +
+      `&details=${encodeURIComponent(description)}` +
+      `&location=${encodeURIComponent(location)}` +
+      `&ctz=${encodeURIComponent('Asia/Seoul')}`;
+
+    // 이동 시도
+    window.location.href = url;
+
+    // 실패/취소 대비: 3초 후 오버레이 자동 제거
+    setTimeout(hideOverlay, 3000);
+    return;
+  }
+
+  // iOS/기타: ICS 파일 생성 후 자동 다운로드/열기
+  try {
+    const ics = makeICS({
+      title, location, description, startDate, endDate
+    });
+    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+    const blobUrl = URL.createObjectURL(blob);
+
+    // iOS Safari 호환: 같은 탭에서 다운로드 트리거
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = 'event.ics';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    setTimeout(() => {
+      URL.revokeObjectURL(blobUrl);
+      hideOverlay();
+    }, 1200);
+  } catch (e) {
+    console.error(e);
+    hideOverlay();
+    alert('일정 파일(ICS) 생성 중 오류가 발생했습니다.');
+  }
+
+  // ===== 유틸 =====
+  function showOverlay(text) {
+    overlay.textContent = text;
+    overlay.style.display = 'flex';
+  }
+  function hideOverlay() {
+    overlay.style.display = 'none';
+  }
+  function isValidRange(s, e) {
+    return s instanceof Date && e instanceof Date && !isNaN(s) && !isNaN(e) && s < e;
+  }
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  // 구글 템플릿용(로컬시간, Z 없이) YYYYMMDDTHHMMSS
+  function toLocalGoogleDate(d) {
+    const y = d.getFullYear();
+    const m = pad(d.getMonth() + 1);
+    const dy = pad(d.getDate());
+    const hh = pad(d.getHours());
+    const mi = pad(d.getMinutes());
+    const ss = pad(d.getSeconds());
+    return `${y}${m}${dy}T${hh}${mi}${ss}`;
+  }
+
+  // ICS: UTC 표기(Z)로 안전하게 전달
+  function toICSDateUTC(d) {
+    const y = d.getUTCFullYear();
+    const m = pad(d.getUTCMonth() + 1);
+    const dy = pad(d.getUTCDate());
+    const hh = pad(d.getUTCHours());
+    const mi = pad(d.getUTCMinutes());
+    const ss = pad(d.getUTCSeconds());
+    return `${y}${m}${dy}T${hh}${mi}${ss}Z`;
+  }
+
+  function makeICS({ title, location, description, startDate, endDate }) {
+    const dtStamp = toICSDateUTC(new Date());
+    const dtStart = toICSDateUTC(startDate);
+    const dtEnd   = toICSDateUTC(endDate);
+    const uid = `ajoucu-${Date.now()}@event`;
+    const esc = (s) => String(s).replace(/\\/g,'\\\\').replace(/,/g,'\\,').replace(/;/g,'\\;').replace(/\n/g,'\\n');
+
+    return [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//AjouCU//Calendar Export//KO',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      'BEGIN:VEVENT',
+      `UID:${uid}`,
+      `DTSTAMP:${dtStamp}`,
+      `DTSTART:${dtStart}`,
+      `DTEND:${dtEnd}`,
+      `SUMMARY:${esc(title)}`,
+      `DESCRIPTION:${esc(description)}`,
+      `LOCATION:${esc(location)}`,
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\r\n');
+  }
+}
+</script>
+</body>
+</html>
