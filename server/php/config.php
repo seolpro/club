@@ -13,6 +13,14 @@ define('ADMIN_EMAIL', 'sktseolho@gmail.com');   // ← 여기만 변경
 // ✅ GAS 메일 릴레이 WebApp URL
 define('GAS_MAIL_URL', 'https://script.google.com/macros/s/AKfycbz4lfshq6Mf7dbNMQFrIyL6CZ4kiyB9EoN97G0vmowJxl_0FI3IOFeLzGja61xbff17/exec');
 
+// === 테이블명 상수 ===
+define('TABLE_MT_MEMBERS', 'mt_members');
+define('TABLE_MT_LEDGER',   'mt_ledger');
+define('TABLE_MT_EMAIL',    'mt_email_list');
+
+// 최대 정원(옵션) – 필요 없으면 사용 안 해도 됨
+define('MT_MAX_MEMBERS', 9999);
+
 function get_pdo() {
     static $pdo = null;
     if ($pdo === null) {
