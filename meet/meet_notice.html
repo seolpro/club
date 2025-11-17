@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>산악회총회겸송년회 일정 안내</title>
-  <meta name="description" content="산악회총회겸송년회 참석 여부를 문자로 보내고, 캘린더에 일정을 추가합니다." />
+  <title>산악회총회겸송년회 안내</title>
+  <meta name="description" content="산악회총회겸송년회 일정 안내 및 참석 여부 확인 페이지입니다." />
 
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -86,45 +86,10 @@
       color: #4b5563;
     }
 
-    .btn-main {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 11px 18px;
-      border-radius: 999px;
-      border: 1px solid #111827;
-      cursor: pointer;
-      background: #111827;
-      color: #fff;
-      font-weight: 600;
-      font-size: 0.98rem;
-    }
-
-    .btn-main:active {
-      transform: translateY(1px);
-    }
-
-    .btn-sub {
-      font-size: 0.8rem;
-      color: #6b7280;
+    .hint-text {
+      font-size: 0.85rem;
+      color: #9ca3af;
       margin-top: 6px;
-    }
-
-    #loadingOverlay {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(15, 23, 42, .65);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 1.05rem;
-      z-index: 1030; /* 🔽 모달(1055)보다 낮게 */
-      text-align: center;
-      padding: 16px;
-      white-space: pre-line;
     }
 
     .modal-content {
@@ -136,22 +101,17 @@
   </style>
 </head>
 <body>
-  <div id="loadingOverlay">
-    📝 일정앱으로 이동중입니다…
-    잠시만 기다려 주세요. 일정 내용을 확인한 뒤 저장을 눌러 주세요.
-  </div>
-
   <div class="wrap">
     <div class="card-main">
       <div class="d-flex align-items-center justify-content-between mb-2">
-        <span class="badge-soft">산악회 일정 안내</span>
-        <span class="text-muted" style="font-size:0.8rem;">📅 참석 여부 확인 후 일정 추가</span>
+        <span class="badge-soft">산악회 안내</span>
+        <span class="text-muted" style="font-size:0.8rem;">🎉 총회 & 송년회</span>
       </div>
 
-      <h2>산악회총회겸송년회 일정 안내</h2>
+      <h2>산악회총회겸송년회 안내</h2>
       <p class="muted mb-3">
-        먼저 참석 여부를 문자로 알린 뒤,<br>
-        필요하시면 캘린더에 일정을 추가해 주세요.
+        아래 일정을 확인하시고,<br>
+        페이지 진입 시 뜨는 창에서 참석 여부를 알려 주세요.
       </p>
 
       <hr class="my-3">
@@ -162,20 +122,15 @@
       <p class="info-row"><b>내용</b> 산악회 총회 및 송년 모임</p>
 
       <div class="info-box">
-        ✅ 페이지를 열면 송년회 참석 여부를 묻는 창이 먼저 뜹니다.<br>
-        참석/불참/보류 중 하나를 선택하면 문자앱이 열립니다.<br>
-        문자 전송 후 이 페이지로 돌아와 아래 버튼으로 달력에 일정을 추가해 주세요.
+        ✅ 이 페이지를 열면 <b>참석 여부를 묻는 팝업(모달)</b>이 자동으로 나타납니다.<br>
+        참석 / 불참 / 보류 중 하나를 선택하시면<br>
+        회장님께 문자 메시지 앱이 열리도록 되어 있습니다.
       </div>
 
-      <div class="mt-3">
-        <button class="btn-main" onclick="addEventToCalendar()">
-          📅 일정 다시 추가 시도
-        </button>
-        <div class="btn-sub">
-          안드로이드는 <b>구글 캘린더</b>가 열리고,<br>
-          iOS/기타 기기는 <b>ICS(일정 파일)</b>이 열립니다.
-        </div>
-      </div>
+      <p class="hint-text">
+        ※ PC에서는 문자앱 열기가 동작하지 않을 수 있으며,<br>
+        스마트폰(또는 태블릿)에서 접속하시는 것을 권장드립니다.
+      </p>
     </div>
   </div>
 
@@ -191,8 +146,8 @@
           <p class="mb-1"><strong>📅 일시</strong> 2025년 12월 5일 (금) 오후 5시 30분~</p>
           <p class="mb-3"><strong>📍 장소</strong> 제주수산(매탄동)</p>
           <p class="mb-0">
-            ✔️ 참석 여부를 아래 버튼 중 하나를 눌러<br>
-            <strong>회장 (문자)</strong>에게 먼저 알려 주세요.
+            ✔️ 아래 버튼 중 하나를 선택하시면<br>
+            <strong>회장에게 문자 메시지</strong>를 보낼 수 있습니다.
           </p>
         </div>
         <div class="modal-footer flex-column gap-2">
@@ -216,21 +171,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    // ====== 공통 오버레이 제어 ======
-    const overlayEl = document.getElementById('loadingOverlay');
-
-    function showOverlay(text) {
-      if (!overlayEl) return;
-      overlayEl.textContent = text;
-      overlayEl.style.display = 'flex';
-    }
-
-    function hideOverlay() {
-      if (!overlayEl) return;
-      overlayEl.style.display = 'none';
-    }
-
-    // ====== 문자 전송 전용 (모바일 안정 버전) ======
+    // ====== 문자 전송 ======
     function respondSMS(messageText) {
       const phone = "01071186639"; // 회장님 번호
       const ua = navigator.userAgent.toLowerCase();
@@ -239,7 +180,7 @@
       const isMobile = isIOS || isAndroid;
 
       if (!isMobile) {
-        alert("⚠️ 문자 전송은 모바일(PAD/스마트폰)에서만 가능합니다.");
+        alert("⚠️ 문자 전송은 모바일(스마트폰/태블릿)에서만 가능합니다.");
         return;
       }
 
@@ -248,21 +189,14 @@
         ? `sms:${phone}&body=${encodedMsg}`
         : `sms:${phone}?body=${encodedMsg}`;
 
-      // 모바일에서 더 안정적인 방식: a 태그를 만들어 클릭
       const a = document.createElement('a');
       a.href = smsUri;
       document.body.appendChild(a);
       a.click();
       a.remove();
 
-      // 모달 닫기
       const modalInstance = bootstrap.Modal.getInstance(document.getElementById('gatheringModal'));
       if (modalInstance) modalInstance.hide();
-
-      // 안내 메시지 (사용자가 돌아온 뒤 일정 추가 버튼 눌러달라는 안내)
-      setTimeout(() => {
-        alert('📩 문자 전송 후 이 페이지로 돌아오시면\n아래 [📅 일정 다시 추가 시도] 버튼을 눌러\n달력에 일정을 등록해 주세요.');
-      }, 500);
     }
 
     // ====== 모달: 하루 동안 보지 않기 ======
@@ -273,126 +207,7 @@
       if (modalInstance) modalInstance.hide();
     }
 
-    // ====== 일정 추가 메인 함수 ======
-    function addEventToCalendar() {
-      showOverlay('📝 일정앱으로 이동중입니다…\n잠시만 기다려 주세요. 일정 내용을 확인한 뒤 저장을 눌러 주세요.');
-
-      const title = '산악회총회겸송년회';
-      const location = '제주수산(매탄동)';
-      const description = '산악회 총회 및 송년 모임';
-
-      const startDate = new Date('2025-12-05T17:30:00');
-      const endDate   = new Date('2025-12-05T19:30:00');
-
-      if (!isValidRange(startDate, endDate)) {
-        hideOverlay();
-        alert('⚠️ 일정 시간에 문제가 있습니다. 시작/종료 시간을 확인해주세요.');
-        return;
-      }
-
-      const ua = navigator.userAgent || '';
-      const isAndroid = /android/i.test(ua);
-
-      if (isAndroid) {
-        const startStr = toLocalGoogleDate(startDate);
-        const endStr   = toLocalGoogleDate(endDate);
-        const url =
-          `https://www.google.com/calendar/render?action=TEMPLATE` +
-          `&text=${encodeURIComponent(title)}` +
-          `&dates=${startStr}/${endStr}` +
-          `&details=${encodeURIComponent(description)}` +
-          `&location=${encodeURIComponent(location)}` +
-          `&ctz=${encodeURIComponent('Asia/Seoul')}`;
-
-        window.location.href = url;
-        setTimeout(hideOverlay, 3000);
-        return;
-      }
-
-      // iOS / 기타: ICS 다운로드
-      try {
-        const ics = makeICS({ title, location, description, startDate, endDate });
-        const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
-        const blobUrl = URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = '산악회총회겸송년회.ics';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-
-        setTimeout(() => {
-          URL.revokeObjectURL(blobUrl);
-          hideOverlay();
-        }, 1200);
-      } catch (e) {
-        console.error(e);
-        hideOverlay();
-        alert('일정 파일(ICS) 생성 중 오류가 발생했습니다.');
-      }
-    }
-
-    // ====== 유틸 함수들 ======
-    function isValidRange(s, e) {
-      return s instanceof Date && e instanceof Date && !isNaN(s) && !isNaN(e) && s < e;
-    }
-
-    function pad(n) {
-      return String(n).padStart(2, '0');
-    }
-
-    function toLocalGoogleDate(d) {
-      const y = d.getFullYear();
-      const m = pad(d.getMonth() + 1);
-      const dy = pad(d.getDate());
-      const hh = pad(d.getHours());
-      const mi = pad(d.getMinutes());
-      const ss = pad(d.getSeconds());
-      return `${y}${m}${dy}T${hh}${mi}${ss}`;
-    }
-
-    function toICSDateUTC(d) {
-      const y = d.getUTCFullYear();
-      const m = pad(d.getUTCMonth() + 1);
-      const dy = pad(d.getUTCDate());
-      const hh = pad(d.getUTCHours());
-      const mi = pad(d.getMinutes());
-      const ss = pad(d.getSeconds());
-      return `${y}${m}${dy}T${hh}${mi}${ss}Z`;
-    }
-
-    function makeICS({ title, location, description, startDate, endDate }) {
-      const dtStamp = toICSDateUTC(new Date());
-      const dtStart = toICSDateUTC(startDate);
-      const dtEnd   = toICSDateUTC(endDate);
-      const uid = `ajoucu-${Date.now()}@event`;
-      const esc = (s) => String(s)
-        .replace(/\\/g, '\\\\')
-        .replace(/,/g, '\\,')
-        .replace(/;/g, '\\;')
-        .replace(/\n/g, '\\n');
-
-      return [
-        'BEGIN:VCALENDAR',
-        'VERSION:2.0',
-        'PRODID:-//AjouCU//Calendar Export//KO',
-        'CALSCALE:GREGORIAN',
-        'METHOD:PUBLISH',
-        'BEGIN:VEVENT',
-        `UID:${uid}`,
-        `DTSTAMP:${dtStamp}`,
-        `DTSTART:${dtStart}`,
-        `DTEND:${dtEnd}`,
-        `SUMMARY:${esc(title)}`,
-        `DESCRIPTION:${esc(description)}`,
-        `LOCATION:${esc(location)}`,
-        'END:VEVENT',
-        'END:VCALENDAR'
-      ].join('\r\n');
-    }
-
-    // ====== 페이지 로드 시: 모달만 표시 ======
+    // ====== 페이지 로드 시: 모달 자동 표시 ======
     document.addEventListener('DOMContentLoaded', () => {
       const now = Date.now();
       const expire = localStorage.getItem("hideModalUntil");
