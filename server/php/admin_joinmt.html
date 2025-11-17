@@ -71,80 +71,91 @@
     </div>
 
     <!-- 전자장부 탭 -->
-    <div class="tab-pane fade" id="ledger-panel" role="tabpanel">
-      <div class="section-card mb-3">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <h6 class="m-0">💰 전자장부 입력</h6>
-          <small class="text-muted">운영진 비밀번호 필요 (예: 1004)</small>
-        </div>
-        <form id="ledgerForm" onsubmit="submitLedger(event)">
-          <div class="row g-2">
-            <div class="col-6 col-md-3">
-              <input type="date" class="form-control form-control-sm" id="trade_date" required>
-            </div>
-            <div class="col-6 col-md-2">
-              <input type="text" class="form-control form-control-sm" id="deposit" placeholder="입금" onblur="fmt(this)">
-            </div>
-            <div class="col-6 col-md-2">
-              <input type="text" class="form-control form-control-sm" id="withdrawal" placeholder="출금" onblur="fmt(this)">
-            </div>
-            <div class="col-6 col-md-3">
-              <select class="form-select form-select-sm" id="description">
-                <option value="회비입금">회비입금</option>
-                <option value="참가비입금">참가비입금</option>
-                <option value="의료원 동아리지원금">의료원 동아리지원금</option>
-                <option value="교통비(버스대여료)">교통비(버스대여료)</option>
-                <option value="식대(간식)">식대(간식)</option>
-                <option value="경조금">경조금</option>
-                <option value="기타내역(참고)">기타내역(참고)</option>
-              </select>
-            </div>
-            <div class="col-6 col-md-2">
-              <input type="text" class="form-control form-control-sm" id="note" placeholder="비고">
-            </div>
-          </div>
-          <div class="row g-2 mt-2">
-            <div class="col-6 col-md-4">
-              <input type="url" class="form-control form-control-sm" id="proof1_url" placeholder="증빙URL1(선택)">
-            </div>
-            <div class="col-6 col-md-4">
-              <input type="url" class="form-control form-control-sm" id="proof2_url" placeholder="증빙URL2(선택)">
-            </div>
-            <div class="col-6 col-md-2">
-              <input type="password" class="form-control form-control-sm" id="ledger_pw" placeholder="비밀번호">
-            </div>
-            <div class="col-6 col-md-2 text-end">
-              <button type="submit" class="btn btn-primary btn-sm w-100">➕ 저장</button>
-            </div>
-          </div>
-        </form>
-      </div>
+<div class="section-card mb-3">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h6 class="m-0">💰 전자장부 입력</h6>
+    <small class="text-muted">운영진 비밀번호 필요 (예: 1004)</small>
+  </div>
 
-      <div class="section-card">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <h6 class="m-0">📜 최근 입출내역</h6>
-          <small class="text-muted">최대 100건 표시</small>
-        </div>
-        <div class="table-responsive">
-          <table class="table table-sm table-striped align-middle">
-            <thead class="table-light">
-              <tr>
-                <th>일자</th>
-                <th class="text-end">입금</th>
-                <th class="text-end">출금</th>
-                <th>적요</th>
-                <th class="text-end">잔액</th>
-                <th>증빙</th>
-                <th>비고</th>
-                <th>관리</th>
-              </tr>
-            </thead>
-            <tbody id="ledgerTbody"></tbody>
-          </table>
-        </div>
+  <!-- 단건 입력 + 파일 업로드 -->
+  <form id="ledgerForm" onsubmit="submitLedger(event)" enctype="multipart/form-data">
+    <div class="row g-2">
+      <div class="col-6 col-md-3">
+        <input type="date" class="form-control form-control-sm" id="trade_date" required>
+      </div>
+      <div class="col-6 col-md-2">
+        <input type="text" class="form-control form-control-sm" id="deposit" placeholder="입금" onblur="fmt(this)">
+      </div>
+      <div class="col-6 col-md-2">
+        <input type="text" class="form-control form-control-sm" id="withdrawal" placeholder="출금" onblur="fmt(this)">
+      </div>
+      <div class="col-6 col-md-3">
+        <select class="form-select form-select-sm" id="description">
+          <option value="회비입금">회비입금</option>
+          <option value="참가비입금">참가비입금</option>
+          <option value="의료원 동아리지원금">의료원 동아리지원금</option>
+          <option value="교통비(버스대여료)">교통비(버스대여료)</option>
+          <option value="식대(간식)">식대(간식)</option>
+          <option value="경조금">경조금</option>
+          <option value="기타내역(참고)">기타내역(참고)</option>
+        </select>
+      </div>
+      <div class="col-6 col-md-2">
+        <input type="text" class="form-control form-control-sm" id="note" placeholder="비고">
       </div>
     </div>
-  </div>
+
+    <div class="row g-2 mt-2">
+      <div class="col-6 col-md-3">
+        <input type="file" class="form-control form-control-sm"
+               id="proof1_file" name="proof1_file"
+               accept="image/*,application/pdf">
+        <img id="proof1_preview"
+             style="max-height:80px;margin-top:4px;border-radius:6px;display:none;border:1px solid #ddd;">
+      </div>
+      <div class="col-6 col-md-3">
+        <input type="file" class="form-control form-control-sm"
+               id="proof2_file" name="proof2_file"
+               accept="image/*,application/pdf">
+        <img id="proof2_preview"
+             style="max-height:80px;margin-top:4px;border-radius:6px;display:none;border:1px solid #ddd;">
+      </div>
+      <div class="col-6 col-md-2">
+        <input type="password" class="form-control form-control-sm" id="ledger_pw" placeholder="비밀번호">
+      </div>
+      <div class="col-6 col-md-2 text-end">
+        <button type="submit" class="btn btn-primary btn-sm w-100">➕ 저장</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- ▼ CSV 업로드 박스 추가 -->
+<div class="section-card mb-3">
+  <h6 class="mb-2">📥 기존 Google 시트 CSV 업로드</h6>
+  <p class="text-muted small mb-2">
+    1) 아래 링크의 스프레드시트를 여신 뒤 →<br>
+    &nbsp;&nbsp; <a href="https://docs.google.com/spreadsheets/d/1-jy0s3TyZeuSi7Ib1BaG2gOg9NmkwI198KVwmVwnVE8/edit?usp=sharing" target="_blank">
+      🔗 기존 전자장부 시트 열기
+    </a><br>
+    2) <code>파일 → 다운로드 → CSV</code> 로 저장 후, 아래에서 업로드 해 주세요.<br>
+    (날짜는 <code>2024-10-10</code> 같은 형식이면 가장 안전합니다.)
+  </p>
+  <form id="csvForm" onsubmit="uploadCsv(event)" enctype="multipart/form-data">
+    <div class="row g-2 align-items-center">
+      <div class="col-6 col-md-4">
+        <input type="file" class="form-control form-control-sm"
+               id="ledger_csv" name="ledger_csv" accept=".csv" required>
+      </div>
+      <div class="col-4 col-md-2">
+        <input type="password" class="form-control form-control-sm"
+               id="csv_pw" placeholder="비밀번호" required>
+      </div>
+      <div class="col-2 col-md-2">
+        <button type="submit" class="btn btn-outline-primary btn-sm w-100">업로드</button>
+      </div>
+    </div>
+  </form>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -239,6 +250,22 @@ async function activateMember(id, name){
 
 // ### 전자장부 ###
 
+function renderProofThumb(url) {
+  if (!url) return '';
+  const lower = url.toLowerCase();
+  const isImg = /\.(jpg|jpeg|png|gif|webp)$/i.test(lower);
+
+  if (isImg) {
+    return `<a href="${url}" target="_blank">
+              <img src="${url}"
+                   style="max-width:70px;max-height:70px;border-radius:6px;border:1px solid #ddd;">
+            </a>`;
+  } else {
+    // 이미지가 아니면 그냥 파일 아이콘 링크
+    return `<a href="${url}" target="_blank">📎 파일</a>`;
+  }
+}
+
 async function loadLedger(){
   const res = await fetch(API_URL + '?action=list_ledger');
   const json = await res.json();
@@ -251,7 +278,11 @@ async function loadLedger(){
     const dep = row.deposit ? parseInt(row.deposit,10).toLocaleString() : '';
     const wit = row.withdrawal ? parseInt(row.withdrawal,10).toLocaleString() : '';
     const bal = row.balance ? parseInt(row.balance,10).toLocaleString() : '';
-    const proofs = [row.proof1_url, row.proof2_url].filter(Boolean).map(u=>`<a href="${u}" target="_blank">🔎</a>`).join(' ');
+    const proofs = [row.proof1_url, row.proof2_url]
+      .filter(Boolean)
+      .map(renderProofThumb)
+      .join(' ');
+
     tr.innerHTML = `
       <td>${row.trade_date}</td>
       <td class="text-end text-primary">${dep}</td>
@@ -265,58 +296,6 @@ async function loadLedger(){
     tb.appendChild(tr);
   });
 }
-
-async function submitLedger(e){
-  e.preventDefault();
-  const pw = document.getElementById('ledger_pw').value.trim();
-  if (pw !== '1004') {
-    alert('⚠ 비밀번호가 올바르지 않습니다.');
-    return;
-  }
-
-  const trade_date = document.getElementById('trade_date').value;
-  let deposit      = document.getElementById('deposit').value.replace(/,/g,'') || '0';
-  let withdrawal   = document.getElementById('withdrawal').value.replace(/,/g,'') || '0';
-  const description= document.getElementById('description').value;
-  const note       = document.getElementById('note').value;
-  const proof1_url = document.getElementById('proof1_url').value;
-  const proof2_url = document.getElementById('proof2_url').value;
-
-  if (!trade_date) { alert('📅 거래일을 입력하세요'); return; }
-  if (!description) { alert('📝 적요를 선택하세요'); return; }
-
-  if (!confirm(`다음 내역을 저장할까요?\n\n일자: ${trade_date}\n입금: ${deposit}\n출금: ${withdrawal}\n적요: ${description}\n비고: ${note}`)) return;
-
-  const res = await fetch(API_URL, {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      action:'add_ledger',
-      trade_date, deposit, withdrawal, description, note,
-      proof1_url, proof2_url
-    })
-  });
-  const json = await res.json();
-  if (!json.ok) { alert('저장 실패: '+json.msg); return; }
-  alert('✅ 전자장부에 등록되었습니다.');
-  e.target.reset();
-  document.getElementById('trade_date').valueAsDate = new Date();
-  loadLedger();
-}
-
-async function deleteLedger(id){
-  if (!confirm('해당 입출내역을 삭제하시겠습니까?\n(잔액은 직접 확인·조정 필요)')) return;
-  const res = await fetch(API_URL, {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({action:'delete_ledger', id})
-  });
-  const json = await res.json();
-  if (!json.ok) { alert('삭제 실패: '+json.msg); return; }
-  alert('✅ 삭제되었습니다.');
-  loadLedger();
-}
-
 // 초기 로딩
 document.addEventListener('DOMContentLoaded', () => {
   // 관리자 간단 잠금 (프롬프트 수준)
