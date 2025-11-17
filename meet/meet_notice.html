@@ -121,7 +121,7 @@
       justify-content: center;
       color: #fff;
       font-size: 1.05rem;
-      z-index: 99999;
+      z-index: 1030; /* 🔽 모달(1055)보다 낮게 */
       text-align: center;
       padding: 16px;
       white-space: pre-line;
@@ -163,13 +163,13 @@
 
       <div class="info-box">
         ✅ 페이지를 열면 송년회 참석 여부를 묻는 창이 먼저 뜹니다.<br>
-        참석/불참/보류 중 하나를 선택하면 문자앱이 열리고,<br>
-        이어서 일정앱(구글 캘린더 또는 ICS 파일)이 열립니다.
+        참석/불참/보류 중 하나를 선택하면 문자앱이 열립니다.<br>
+        문자 전송 후 이 페이지로 돌아와 아래 버튼으로 달력에 일정을 추가해 주세요.
       </div>
 
       <div class="mt-3">
         <button class="btn-main" onclick="addEventToCalendar()">
-          🔁 일정 다시 추가 시도
+          📅 일정 다시 추가 시도
         </button>
         <div class="btn-sub">
           안드로이드는 <b>구글 캘린더</b>가 열리고,<br>
@@ -192,18 +192,17 @@
           <p class="mb-3"><strong>📍 장소</strong> 제주수산(매탄동)</p>
           <p class="mb-0">
             ✔️ 참석 여부를 아래 버튼 중 하나를 눌러<br>
-            <strong>회장 (문자)</strong>에게 먼저 알려 주세요.<br>
-            이후 일정앱이 열리며 캘린더에 추가할 수 있습니다.
+            <strong>회장 (문자)</strong>에게 먼저 알려 주세요.
           </p>
         </div>
         <div class="modal-footer flex-column gap-2">
           <div class="d-flex flex-wrap gap-2 justify-content-center">
             <button class="btn btn-success px-4"
-                    onclick="respondAndAdd('🍠 당근.. 참석합니다.')">✅ 참석</button>
+                    onclick="respondSMS('🍠 당근.. 참석합니다.')">✅ 참석</button>
             <button class="btn btn-outline-secondary px-4"
-                    onclick="respondAndAdd('😁 그날 제 자리가 비어 있지만… 마음만은 함께할게요 😉')">❌ 불참</button>
+                    onclick="respondSMS('😁 그날 제 자리가 비어 있지만… 마음만은 함께할게요 😉')">❌ 불참</button>
             <button class="btn btn-outline-info px-4"
-                    onclick="respondAndAdd('💡 다른 송년모임이 취소되면 참석할게요 🎲')">💡 선약으로 보류</button>
+                    onclick="respondSMS('💡 다른 송년모임이 취소되면 참석할게요 🎲')">💡 선약으로 보류</button>
           </div>
           <button class="btn btn-sm btn-link text-muted" onclick="hideForOneDay()">
             ⏳ 오늘 하루 이 안내 보지 않기
@@ -231,38 +230,39 @@
       overlayEl.style.display = 'none';
     }
 
-    // ====== SMS 전송 ======
-    function sendSMS(messageText) {
+    // ====== 문자 전송 전용 (모바일 안정 버전) ======
+    function respondSMS(messageText) {
       const phone = "01071186639"; // 회장님 번호
-      const encodedMsg = encodeURIComponent(messageText);
       const ua = navigator.userAgent.toLowerCase();
-      let smsLink = "";
+      const isIOS = /iphone|ipad|ipod/.test(ua);
+      const isAndroid = /android/.test(ua);
+      const isMobile = isIOS || isAndroid;
 
-      if (/iphone|ipad|ipod/.test(ua)) {
-        smsLink = `sms:${phone}&body=${encodedMsg}`; // iOS
-      } else if (/android/.test(ua)) {
-        smsLink = `sms:${phone}?body=${encodedMsg}`; // Android
-      } else {
-        alert("⚠️ 문자 전송은 모바일(PAD) 기기에서만 가능합니다.");
+      if (!isMobile) {
+        alert("⚠️ 문자 전송은 모바일(PAD/스마트폰)에서만 가능합니다.");
         return;
       }
 
-      window.location.href = smsLink;
-    }
+      const encodedMsg = encodeURIComponent(messageText);
+      const smsUri = isIOS
+        ? `sms:${phone}&body=${encodedMsg}`
+        : `sms:${phone}?body=${encodedMsg}`;
 
-    // 참석/불참/보류 → 문자 전송 + 일정앱 열기
-    function respondAndAdd(messageText) {
-      // 1) 문자앱 열기 시도
-      sendSMS(messageText);
+      // 모바일에서 더 안정적인 방식: a 태그를 만들어 클릭
+      const a = document.createElement('a');
+      a.href = smsUri;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
 
-      // 2) 모달 닫기
+      // 모달 닫기
       const modalInstance = bootstrap.Modal.getInstance(document.getElementById('gatheringModal'));
       if (modalInstance) modalInstance.hide();
 
-      // 3) 일정앱 열기
-      //   - 모바일의 경우 문자앱으로 전환되면서 뒤의 코드가 바로 보이진 않을 수 있지만
-      //   - PC/브라우저에선 그대로 동작해서 일정 추가가 가능합니다.
-      setTimeout(addEventToCalendar, 500);
+      // 안내 메시지 (사용자가 돌아온 뒤 일정 추가 버튼 눌러달라는 안내)
+      setTimeout(() => {
+        alert('📩 문자 전송 후 이 페이지로 돌아오시면\n아래 [📅 일정 다시 추가 시도] 버튼을 눌러\n달력에 일정을 등록해 주세요.');
+      }, 500);
     }
 
     // ====== 모달: 하루 동안 보지 않기 ======
@@ -292,7 +292,6 @@
 
       const ua = navigator.userAgent || '';
       const isAndroid = /android/i.test(ua);
-      const isIOS = /iPhone|iPad|iPod/i.test(ua);
 
       if (isAndroid) {
         const startStr = toLocalGoogleDate(startDate);
@@ -358,8 +357,8 @@
       const m = pad(d.getUTCMonth() + 1);
       const dy = pad(d.getUTCDate());
       const hh = pad(d.getUTCHours());
-      const mi = pad(d.getUTCMinutes());
-      const ss = pad(d.getUTCSeconds());
+      const mi = pad(d.getMinutes());
+      const ss = pad(d.getSeconds());
       return `${y}${m}${dy}T${hh}${mi}${ss}Z`;
     }
 
@@ -393,7 +392,7 @@
       ].join('\r\n');
     }
 
-    // ====== 페이지 로드 시: 모달만 표시 (자동 일정 추가 없음) ======
+    // ====== 페이지 로드 시: 모달만 표시 ======
     document.addEventListener('DOMContentLoaded', () => {
       const now = Date.now();
       const expire = localStorage.getItem("hideModalUntil");
