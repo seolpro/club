@@ -12,13 +12,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-// 입력 파싱 (JSON/폼 둘 다 대응)
+// JSON / form-data 모두 대응
 $raw  = file_get_contents('php://input');
 $data = json_decode($raw, true);
-if (!is_array($data)) $data = $_POST;
+if (!is_array($data)) {
+    $data = $_POST; // multipart/form-data 등
+}
 
 $method = $_SERVER['REQUEST_METHOD'];
 $action = $data['action'] ?? ($_GET['action'] ?? '');
+
+// ===== 업로드 경로 설정 =====
+// 실제 서버 경로 및 URL은 환경에 맞게 조정
+$UPLOAD_DIR = __DIR__ . '/uploads';       // 물리 경로 예: /home/hosting_users/ajoucu/www/mt/uploads
+$UPLOAD_URL = '/mt/uploads';              // 웹에서 접근하는 URL 경로 (도메인 뒤에 붙는 경로)
+
+// 디렉토리 없으면 생성
+if (!is_dir($UPLOAD_DIR)) {
+    @mkdir($UPLOAD_DIR, 0775, true);
+}
+
+// 파일 업로드 공통 함수
+function save_uploaded_file($fieldName, $UPLOAD_DIR, $UPLOAD_URL) {
+    if (empty($_FILES[$fieldName]['name']) || $_FILES[$fieldName]['error'] !== UPLOAD_ERR_OK) {
+        return null;
+    }
+    $origName = $_FILES[$fieldName]['name'];
+    $ext = strtolower(pathinfo($origName, PATHINFO_EXTENSION));
+    if ($ext === '') $ext = 'dat';
+
+    // 파일명 충돌 방지용 난수
+    $newName = date('Ymd_His') . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
+    $targetPath = rtrim($UPLOAD_DIR, '/') . '/' . $newName;
+
+    if (!move_uploaded_file($_FILES[$fieldName]['tmp_name'], $targetPath)) {
+        return null;
+    }
+
+    // URL 반환 (도메인 기준 상대경로)
+    return rtrim($UPLOAD_URL, '/') . '/' . $newName;
+}
 
 try {
     $pdo = get_pdo();
@@ -28,18 +61,17 @@ try {
         switch ($action) {
             case 'list_members':
                 $status = $_GET['status'] ?? ''; // active / withdrawn / ''(전체)
-                $sql = "SELECT id, employee_id, name, department, contact,
-                               motivation, comment, status, joined_date, withdrawn_date
-                        FROM " . TABLE_MT_MEMBERS . " ORDER BY name ASC";
+                $baseSql = "
+                    SELECT id, employee_id, name, department, contact,
+                           motivation, comment, status, joined_date, withdrawn_date
+                    FROM " . TABLE_MT_MEMBERS . " 
+                ";
                 if ($status === 'active' || $status === 'withdrawn') {
-                    $sql = "SELECT id, employee_id, name, department, contact,
-                                   motivation, comment, status, joined_date, withdrawn_date
-                            FROM " . TABLE_MT_MEMBERS . "
-                            WHERE status = :status
-                            ORDER BY name ASC";
+                    $sql = $baseSql . " WHERE status = :status ORDER BY name ASC";
                     $stmt = $pdo->prepare($sql);
                     $stmt->execute([':status' => $status]);
                 } else {
+                    $sql = $baseSql . " ORDER BY name ASC";
                     $stmt = $pdo->query($sql);
                 }
                 $rows = $stmt->fetchAll();
@@ -172,17 +204,39 @@ try {
             }
 
             // 3) 전자장부 입·출내역 추가
-            case 'add_ledger': {
+            //    프론트에서 'insert_ledger' 또는 'add_ledger' 둘 다 허용
+            case 'add_ledger':
+            case 'insert_ledger': {
+                // JSON/form 모두에서 들어올 수 있음
                 $trade_date = trim($data['trade_date'] ?? '');
-                $deposit    = (int)($data['deposit'] ?? 0);
-                $withdrawal = (int)($data['withdrawal'] ?? 0);
+                // "10,000" 이런 것도 대비해서 숫자만 추출
+                $deposit    = (int)preg_replace('/\D+/', '', $data['deposit'] ?? '0');
+                $withdrawal = (int)preg_replace('/\D+/', '', $data['withdrawal'] ?? '0');
                 $desc       = trim($data['description'] ?? '');
                 $note       = trim($data['note'] ?? '');
-                $proof1     = trim($data['proof1_url'] ?? '');
-                $proof2     = trim($data['proof2_url'] ?? '');
 
                 if ($trade_date==='' || $desc==='') {
                     json_response(['ok'=>false,'msg'=>'거래일과 적요는 필수입니다.'],400);
+                }
+
+                // 증빙 파일(이미지/PDF) 업로드 처리
+                // 이미 URL이 들어오는 구조(앱 등)도 고려해서, 파일 우선 -> 없으면 기존 URL 필드 사용
+                $proof1 = null;
+                $proof2 = null;
+
+                // 1) 파일 업로드가 있으면 파일 저장
+                $p1 = save_uploaded_file('proof1_file', $UPLOAD_DIR, $UPLOAD_URL);
+                if ($p1) $proof1 = $p1;
+
+                $p2 = save_uploaded_file('proof2_file', $UPLOAD_DIR, $UPLOAD_URL);
+                if ($p2) $proof2 = $p2;
+
+                // 2) 파일이 없고, 직접 URL이 넘어온 경우만 사용
+                if (!$proof1 && !empty($data['proof1_url'])) {
+                    $proof1 = trim($data['proof1_url']);
+                }
+                if (!$proof2 && !empty($data['proof2_url'])) {
+                    $proof2 = trim($data['proof2_url']);
                 }
 
                 // 현재 마지막 잔액 조회
@@ -222,7 +276,76 @@ try {
                 json_response(['ok'=>true,'msg'=>'입출내역이 삭제되었습니다.\n(잔액은 직접 확인해 주세요)']);
             }
 
-            // 5) 이메일 알림 수신자 추가
+            // 5) CSV 업로드로 기존 전자장부 내역 일괄 추가
+            case 'upload_ledger_csv': {
+                if (empty($_FILES['ledger_csv']['name']) || $_FILES['ledger_csv']['error'] !== UPLOAD_ERR_OK) {
+                    json_response(['ok'=>false,'msg'=>'CSV 파일이 업로드되지 않았습니다.'],400);
+                }
+
+                $tmpName = $_FILES['ledger_csv']['tmp_name'];
+                $fh = fopen($tmpName, 'r');
+                if (!$fh) {
+                    json_response(['ok'=>false,'msg'=>'CSV 파일을 열 수 없습니다.'],500);
+                }
+
+                // 현재 마지막 잔액
+                $stmt = $pdo->query("SELECT balance FROM " . TABLE_MT_LEDGER . " ORDER BY id DESC LIMIT 1");
+                $balance = (int)($stmt->fetchColumn() ?: 0);
+
+                // CSV 헤더 한 줄 건너뛴다고 가정 (첫 줄이 헤더)
+                $first = true;
+                $insertCount = 0;
+
+                $insertStmt = $pdo->prepare("
+                    INSERT INTO " . TABLE_MT_LEDGER . "
+                    (trade_date, deposit, withdrawal, description, balance, note)
+                    VALUES (:trade_date, :deposit, :withdrawal, :description, :balance, :note)
+                ");
+
+                while (($row = fgetcsv($fh)) !== false) {
+                    // BOM 제거 등
+                    if ($first) {
+                        $first = false;
+                        // 필요하다면 헤더를 분석해서 스킵
+                        // 여기서는 단순 헤더 스킵용으로 사용
+                        continue;
+                    }
+
+                    // 열 구조는 스프레드시트 CSV 형식에 맞게 조정
+                    // 예: 0:날짜, 1:입금, 2:출금, 3:적요, 4:비고 (가정)
+                    $trade_date = trim($row[0] ?? '');
+                    $depStr     = trim($row[1] ?? '0');
+                    $witStr     = trim($row[2] ?? '0');
+                    $desc       = trim($row[3] ?? '');
+                    $note       = trim($row[4] ?? '');
+
+                    if ($trade_date === '' || $desc === '') {
+                        // 필수 값이 없으면 스킵
+                        continue;
+                    }
+
+                    // 숫자만 추출
+                    $deposit    = (int)preg_replace('/\D+/', '', $depStr ?: '0');
+                    $withdrawal = (int)preg_replace('/\D+/', '', $witStr ?: '0');
+
+                    $balance += $deposit - $withdrawal;
+
+                    $insertStmt->execute([
+                        ':trade_date'=>$trade_date,
+                        ':deposit'=>$deposit,
+                        ':withdrawal'=>$withdrawal,
+                        ':description'=>$desc,
+                        ':balance'=>$balance,
+                        ':note'=>$note ?: null,
+                    ]);
+                    $insertCount++;
+                }
+                fclose($fh);
+
+                json_response(['ok'=>true,'msg'=>"CSV 업로드 완료 ({$insertCount}건 반영)"]);
+            }
+
+            // 6) 이메일 알림 수신자 추가
             case 'add_email': {
                 $name  = trim($data['name'] ?? '');
                 $email = trim($data['email'] ?? '');
@@ -249,6 +372,131 @@ try {
 
                 json_response(['ok'=>true,'msg'=>'이메일 알림 수신자로 등록되었습니다.']);
             }
+
+                    // ✅ 회원 CSV 일괄 업로드 (관리자)
+        case 'upload_members_csv': {
+            if (empty($_FILES['members_csv']['name']) || $_FILES['members_csv']['error'] !== UPLOAD_ERR_OK) {
+                json_response(['ok'=>false,'msg'=>'CSV 파일이 업로드되지 않았습니다.'],400);
+            }
+
+            $tmpName = $_FILES['members_csv']['tmp_name'];
+            $fh = fopen($tmpName, 'r');
+            if (!$fh) {
+                json_response(['ok'=>false,'msg'=>'CSV 파일을 열 수 없습니다.'],500);
+            }
+
+            $first = true;
+            $insertCount = 0;
+            $updateCount = 0;
+
+            while (($row = fgetcsv($fh)) !== false) {
+                // [0]사번, [1]이름, [2]부서명, [3]휴대전화번호, [4]가입일시
+                if ($first) {
+                    // 첫 줄 헤더(사번,이름,부서명...)는 건너뜀
+                    $first = false;
+                    continue;
+                }
+
+                $employeeId = trim($row[0] ?? '');
+                $name       = trim($row[1] ?? '');
+                $dept       = trim($row[2] ?? '');
+                $phoneRaw   = trim($row[3] ?? '');
+                $joinRaw    = trim($row[4] ?? '');
+
+                if ($employeeId === '' || $name === '') {
+                    // 핵심 정보 없으면 스킵
+                    continue;
+                }
+
+                // 휴대전화번호: 숫자만 저장
+                $contact   = preg_replace('/\D+/', '', $phoneRaw);
+                $joinedDate = parse_join_date($joinRaw);
+
+                // 기존 사번 여부 확인
+                $stmt = $pdo->prepare("SELECT id FROM " . TABLE_MT_MEMBERS . " WHERE employee_id = :eid LIMIT 1");
+                $stmt->execute([':eid'=>$employeeId]);
+                $existing = $stmt->fetch();
+
+                if ($existing) {
+                    // 이미 있으면 UPDATE
+                    $sql = "
+                        UPDATE " . TABLE_MT_MEMBERS . "
+                        SET name = :name,
+                            department = :dept,
+                            contact = :contact,
+                            updated_at = NOW()
+                    ";
+                    $params = [
+                        ':name'    => $name,
+                        ':dept'    => $dept,
+                        ':contact' => $contact,
+                        ':id'      => $existing['id'],
+                    ];
+
+                    if ($joinedDate !== null) {
+                        $sql .= ", joined_date = :joined_date";
+                        $params[':joined_date'] = $joinedDate;
+                    }
+
+                    $sql .= " WHERE id = :id";
+                    $stmt2 = $pdo->prepare($sql);
+                    $stmt2->execute($params);
+                    $updateCount++;
+                } else {
+                    // 없으면 신규 INSERT
+                    $stmt2 = $pdo->prepare("
+                        INSERT INTO " . TABLE_MT_MEMBERS . "
+                        (employee_id, name, department, contact,
+                         motivation, comment, status, joined_date)
+                        VALUES (:eid, :name, :dept, :contact,
+                                '', '', 'active', :joined_date)
+                    ");
+                    $stmt2->execute([
+                        ':eid'        => $employeeId,
+                        ':name'       => $name,
+                        ':dept'       => $dept,
+                        ':contact'    => $contact,
+                        ':joined_date'=> $joinedDate,
+                    ]);
+                    $insertCount++;
+                }
+            }
+            fclose($fh);
+
+            $msg = "총 처리 건수: 신규 {$insertCount}건, 업데이트 {$updateCount}건";
+            json_response(['ok'=>true,'msg'=>$msg]);
+        }
+
+
+            // 가입일 텍스트를 DATE 형식(Y-m-d)으로 변환
+function parse_join_date($str) {
+    $str = trim($str);
+    if ($str === '') return null;
+
+    // 1) 2024-03-01
+    if (preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $str, $m)) {
+        return sprintf('%04d-%02d-%02d', $m[1], $m[2], $m[3]);
+    }
+
+    // 2) 2024. 4. 6 오전 8:27:07  /  2024. 4. 6
+    if (preg_match('/^(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})/', $str, $m)) {
+        return sprintf('%04d-%02d-%02d', $m[1], $m[2], $m[3]);
+    }
+
+    // 3) 2025.2월가입, 2025. 2월가입 → 해당 월 1일로 처리
+    if (preg_match('/^(\d{4})\.\s*(\d{1,2})월/', $str, $m)) {
+        return sprintf('%04d-%02d-01', $m[1], $m[2]);
+    }
+
+    // 4) 2024년 이전 → 2023-12-31 로 처리
+    if (preg_match('/(20\d{2})년\s*이전/', $str, $m)) {
+        $year = (int)$m[1] - 1;
+        return sprintf('%04d-12-31', $year);
+    }
+
+    // 인식이 안 되면 NULL
+    return null;
+}
 
             default:
                 json_response(['ok'=>false,'msg'=>'알 수 없는 POST action입니다.'],400);

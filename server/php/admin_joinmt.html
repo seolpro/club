@@ -34,8 +34,9 @@
   </ul>
 
   <div class="tab-content">
-    <!-- 회원 관리 탭 -->
-    <div class="tab-pane fade show active" id="members-panel" role="tabpanel">
+
+    <!-- ▽ 회원 관리 탭 -->
+    <div class="tab-pane fade show active" id="members-panel" role="tabpanel" aria-labelledby="tab-members">
       <div class="section-card">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <div>
@@ -69,118 +70,169 @@
         </div>
       </div>
     </div>
-
-    <!-- 전자장부 탭 -->
-<div class="section-card mb-3">
-  <div class="d-flex justify-content-between align-items-center mb-2">
-    <h6 class="m-0">💰 전자장부 입력</h6>
-    <small class="text-muted">운영진 비밀번호 필요 (예: 1004)</small>
-  </div>
-
-  <!-- 단건 입력 + 파일 업로드 -->
-  <form id="ledgerForm" onsubmit="submitLedger(event)" enctype="multipart/form-data">
-    <div class="row g-2">
-      <div class="col-6 col-md-3">
-        <input type="date" class="form-control form-control-sm" id="trade_date" required>
-      </div>
-      <div class="col-6 col-md-2">
-        <input type="text" class="form-control form-control-sm" id="deposit" placeholder="입금" onblur="fmt(this)">
-      </div>
-      <div class="col-6 col-md-2">
-        <input type="text" class="form-control form-control-sm" id="withdrawal" placeholder="출금" onblur="fmt(this)">
-      </div>
-      <div class="col-6 col-md-3">
-        <select class="form-select form-select-sm" id="description">
-          <option value="회비입금">회비입금</option>
-          <option value="참가비입금">참가비입금</option>
-          <option value="의료원 동아리지원금">의료원 동아리지원금</option>
-          <option value="교통비(버스대여료)">교통비(버스대여료)</option>
-          <option value="식대(간식)">식대(간식)</option>
-          <option value="경조금">경조금</option>
-          <option value="기타내역(참고)">기타내역(참고)</option>
-        </select>
-      </div>
-      <div class="col-6 col-md-2">
-        <input type="text" class="form-control form-control-sm" id="note" placeholder="비고">
-      </div>
-    </div>
-
-    <div class="row g-2 mt-2">
-      <div class="col-6 col-md-3">
-        <input type="file" class="form-control form-control-sm"
-               id="proof1_file" name="proof1_file"
-               accept="image/*,application/pdf">
-        <img id="proof1_preview"
-             style="max-height:80px;margin-top:4px;border-radius:6px;display:none;border:1px solid #ddd;">
-      </div>
-      <div class="col-6 col-md-3">
-        <input type="file" class="form-control form-control-sm"
-               id="proof2_file" name="proof2_file"
-               accept="image/*,application/pdf">
-        <img id="proof2_preview"
-             style="max-height:80px;margin-top:4px;border-radius:6px;display:none;border:1px solid #ddd;">
-      </div>
-      <div class="col-6 col-md-2">
-        <input type="password" class="form-control form-control-sm" id="ledger_pw" placeholder="비밀번호">
-      </div>
-      <div class="col-6 col-md-2 text-end">
-        <button type="submit" class="btn btn-primary btn-sm w-100">➕ 저장</button>
-      </div>
-    </div>
-  </form>
-</div>
-
-<!-- ▼ CSV 업로드 박스 추가 -->
-<div class="section-card mb-3">
-  <h6 class="mb-2">📥 기존 Google 시트 CSV 업로드</h6>
+    <!-- 회원 CSV 업로드 박스 (회원 관리 탭 안, 표 아래에 추가) -->
+<!-- <div class="section-card mt-3">
+  <h6 class="mb-2">📥 기존 회원 CSV 업로드</h6>
   <p class="text-muted small mb-2">
-    1) 아래 링크의 스프레드시트를 여신 뒤 →<br>
-    &nbsp;&nbsp; <a href="https://docs.google.com/spreadsheets/d/1-jy0s3TyZeuSi7Ib1BaG2gOg9NmkwI198KVwmVwnVE8/edit?usp=sharing" target="_blank">
-      🔗 기존 전자장부 시트 열기
-    </a><br>
-    2) <code>파일 → 다운로드 → CSV</code> 로 저장 후, 아래에서 업로드 해 주세요.<br>
-    (날짜는 <code>2024-10-10</code> 같은 형식이면 가장 안전합니다.)
+    1) 엑셀에서 <code>사번, 이름, 부서명, 휴대전화번호, 가입일시</code> 형태로 정리 후<br>
+    2) <code>CSV (쉼표로 분리)</code> 형식으로 저장한 뒤 업로드해 주세요.<br>
+    (가입일시는 <code>2024-03-01</code> 또는 <code>2024. 4. 6 오전 8:27:07</code 처럼 입력되어 있어도 됩니다.)<br>
+    <mark>※ 같은 사번이 이미 DB에 있으면, 이름/부서/연락처/가입일을 업데이트합니다.</mark>
   </p>
-  <form id="csvForm" onsubmit="uploadCsv(event)" enctype="multipart/form-data">
+  <form id="memberCsvForm" onsubmit="uploadMemberCsv(event)" enctype="multipart/form-data">
     <div class="row g-2 align-items-center">
       <div class="col-6 col-md-4">
         <input type="file" class="form-control form-control-sm"
-               id="ledger_csv" name="ledger_csv" accept=".csv" required>
+               id="members_csv" name="members_csv" accept=".csv" required>
       </div>
       <div class="col-4 col-md-2">
         <input type="password" class="form-control form-control-sm"
-               id="csv_pw" placeholder="비밀번호" required>
+               id="member_csv_pw" placeholder="비밀번호" required>
       </div>
       <div class="col-2 col-md-2">
         <button type="submit" class="btn btn-outline-primary btn-sm w-100">업로드</button>
       </div>
     </div>
   </form>
+</div> -->
+
+    <!-- ▽ 전자장부 탭 -->
+    <div class="tab-pane fade" id="ledger-panel" role="tabpanel" aria-labelledby="tab-ledger">
+
+      <!-- 전자장부 입력 -->
+      <div class="section-card mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="m-0">💰 전자장부 입력</h6>
+          <small class="text-muted">운영진 비밀번호 필요 (예: 1004)</small>
+        </div>
+
+        <!-- 단건 입력 + 파일 업로드 -->
+        <form id="ledgerForm" onsubmit="submitLedger(event)" enctype="multipart/form-data">
+          <div class="row g-2">
+            <div class="col-6 col-md-3">
+              <input type="date" class="form-control form-control-sm" id="trade_date" required>
+            </div>
+            <div class="col-6 col-md-2">
+              <input type="text" class="form-control form-control-sm" id="deposit" placeholder="입금" onblur="fmt(this)">
+            </div>
+            <div class="col-6 col-md-2">
+              <input type="text" class="form-control form-control-sm" id="withdrawal" placeholder="출금" onblur="fmt(this)">
+            </div>
+            <div class="col-6 col-md-3">
+              <select class="form-select form-select-sm" id="description">
+                <option value="회비입금">회비입금</option>
+                <option value="참가비입금">참가비입금</option>
+                <option value="의료원 동아리지원금">의료원 동아리지원금</option>
+                <option value="교통비(버스대여료)">교통비(버스대여료)</option>
+                <option value="식대(간식)">식대(간식)</option>
+                <option value="경조금">경조금</option>
+                <option value="기타내역(참고)">기타내역(참고)</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-2">
+              <input type="text" class="form-control form-control-sm" id="note" placeholder="비고">
+            </div>
+          </div>
+
+          <div class="row g-2 mt-2">
+            <div class="col-6 col-md-3">
+              <input type="file" class="form-control form-control-sm"
+                     id="proof1_file" name="proof1_file"
+                     accept="image/*,application/pdf">
+              <img id="proof1_preview"
+                   style="max-height:80px;margin-top:4px;border-radius:6px;display:none;border:1px solid #ddd;">
+            </div>
+            <div class="col-6 col-md-3">
+              <input type="file" class="form-control form-control-sm"
+                     id="proof2_file" name="proof2_file"
+                     accept="image/*,application/pdf">
+              <img id="proof2_preview"
+                   style="max-height:80px;margin-top:4px;border-radius:6px;display:none;border:1px solid #ddd;">
+            </div>
+            <div class="col-6 col-md-2">
+              <input type="password" class="form-control form-control-sm" id="ledger_pw" placeholder="비밀번호">
+            </div>
+            <div class="col-6 col-md-2 text-end">
+              <button type="submit" class="btn btn-primary btn-sm w-100">➕ 저장</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+<!-- 📑 이전 전자장부 링크 박스 (CSV 업로드 제거 버전) -->
+<div class="section-card mb-3">
+  <h6 class="mb-2">📑 이전 전자장부</h6>
+  <p class="text-muted small mb-3">
+    기존 Google 스프레드시트 증빙이 포함된 전자장부 내역을 확인하려면 아래 버튼을 클릭하세요.
+  </p>
+  <a href="https://docs.google.com/spreadsheets/d/1-jy0s3TyZeuSi7Ib1BaG2gOg9NmkwI198KVwmVwnVE8/edit?usp=sharing"
+     target="_blank"
+     class="btn btn-outline-secondary btn-sm">
+    🔗 이전 전자장부 열기
+  </a>
 </div>
+
+
+      <!-- 전자장부 목록 -->
+      <div class="section-card">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="m-0">📒 전자장부 내역</h6>
+          <button class="btn btn-outline-secondary btn-sm" onclick="loadLedger()">🔄 새로고침</button>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm table-striped align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>거래일</th>
+                <th class="text-end">입금</th>
+                <th class="text-end">출금</th>
+                <th>적요</th>
+                <th class="text-end">잔액</th>
+                <th>증빙</th>
+                <th>비고</th>
+                <th>관리</th>
+              </tr>
+            </thead>
+            <tbody id="ledgerTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div> <!-- /전자장부 탭 -->
+
+  </div> <!-- /tab-content -->
+</div><!-- /container -->
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 const API_URL = 'club_api.php';
+const ADMIN_PW = '1004'; // 필요시 여기만 변경
 
 // 숫자 포맷
 function fmt(el){
   let v = el.value.replace(/,/g,'');
-  if (!v) return;
+  if (!v) { el.value = ''; return; }
   if (!isNaN(v)) el.value = parseInt(v,10).toLocaleString();
 }
 
-// ### 회원 관리 ###
-
+/* =====================
+   회원 관리
+===================== */
 let MEMBER_CACHE = [];
 
 async function loadMembers(status='') {
-  const url = API_URL + '?action=list_members' + (status ? '&status='+encodeURIComponent(status) : '');
-  const res = await fetch(url);
-  const json = await res.json();
-  if (!json.ok) { alert('회원 조회 오류: '+json.msg); return; }
+  try {
+    const url = API_URL + '?action=list_members' + (status ? '&status='+encodeURIComponent(status) : '');
+    const res = await fetch(url);
+    const json = await res.json();
+    if (!json.ok) { alert('회원 조회 오류: '+json.msg); return; }
 
-  MEMBER_CACHE = json.members || [];
-  renderMemberTable(MEMBER_CACHE);
+    MEMBER_CACHE = json.members || [];
+    renderMemberTable(MEMBER_CACHE);
+  } catch (e) {
+    console.error(e);
+    alert('회원 조회 중 오류가 발생했습니다.');
+  }
 }
 
 function renderMemberTable(list) {
@@ -224,32 +276,89 @@ function filterMemberTable() {
 async function withdrawMember(id, name){
   const reason = prompt(`⚠️ ${name} 회원을 탈퇴 처리합니다.\n사유를 입력해 주세요(선택):`);
   if (reason === null) return;
-  const res = await fetch(API_URL, {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({action:'update_member_status', id, status:'withdrawn', reason})
-  });
-  const json = await res.json();
-  if (!json.ok) { alert('탈퇴 처리 실패: '+json.msg); return; }
-  alert('✅ 탈퇴 처리되었습니다.');
-  loadMembers();
+  try {
+    const res = await fetch(API_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'update_member_status', id, status:'withdrawn', reason})
+    });
+    const json = await res.json();
+    if (!json.ok) { alert('탈퇴 처리 실패: '+json.msg); return; }
+    alert('✅ 탈퇴 처리되었습니다.');
+    loadMembers();
+  } catch (e) {
+    console.error(e);
+    alert('탈퇴 처리 중 오류가 발생했습니다.');
+  }
 }
 
 async function activateMember(id, name){
   if (!confirm(`${name} 회원을 활동 상태로 복귀시키겠습니까?`)) return;
-  const res = await fetch(API_URL, {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({action:'update_member_status', id, status:'active'})
-  });
-  const json = await res.json();
-  if (!json.ok) { alert('복귀 실패: '+json.msg); return; }
-  alert('✅ 활동 상태로 변경되었습니다.');
-  loadMembers();
+  try {
+    const res = await fetch(API_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'update_member_status', id, status:'active'})
+    });
+    const json = await res.json();
+    if (!json.ok) { alert('복귀 실패: '+json.msg); return; }
+    alert('✅ 활동 상태로 변경되었습니다.');
+    loadMembers();
+  } catch (e) {
+    console.error(e);
+    alert('복귀 처리 중 오류가 발생했습니다.');
+  }
 }
 
-// ### 전자장부 ###
+// 회원 CSV 업로드
+async function uploadMemberCsv(event){
+  event.preventDefault();
 
+  const pw = document.getElementById('member_csv_pw').value.trim();
+  if (!pw) {
+    alert('비밀번호를 입력해 주세요.');
+    return;
+  }
+  if (typeof ADMIN_PW !== 'undefined' && pw !== ADMIN_PW) {
+    alert('비밀번호가 올바르지 않습니다.');
+    return;
+  }
+
+  const fileInput = document.getElementById('members_csv');
+  if (!fileInput.files.length) {
+    alert('CSV 파일을 선택해 주세요.');
+    return;
+  }
+
+  const fd = new FormData();
+  fd.append('action','upload_members_csv');
+  fd.append('members_csv', fileInput.files[0]);
+
+  try {
+    const res = await fetch(API_URL, {
+      method:'POST',
+      body: fd
+    });
+    const json = await res.json();
+    if (!json.ok) {
+      alert('업로드 실패: ' + (json.msg || '서버 오류'));
+      return;
+    }
+    alert('✅ 회원 CSV 업로드 완료\n' + (json.msg || ''));
+    document.getElementById('member_csv_pw').value = '';
+    document.getElementById('members_csv').value = '';
+    loadMembers(); // 리스트 새로고침
+  } catch (e) {
+    console.error(e);
+    alert('회원 CSV 업로드 중 오류가 발생했습니다.');
+  }
+}
+
+/* =====================
+   전자장부
+===================== */
+
+// 증빙 썸네일
 function renderProofThumb(url) {
   if (!url) return '';
   const lower = url.toLowerCase();
@@ -261,52 +370,216 @@ function renderProofThumb(url) {
                    style="max-width:70px;max-height:70px;border-radius:6px;border:1px solid #ddd;">
             </a>`;
   } else {
-    // 이미지가 아니면 그냥 파일 아이콘 링크
     return `<a href="${url}" target="_blank">📎 파일</a>`;
   }
 }
 
 async function loadLedger(){
-  const res = await fetch(API_URL + '?action=list_ledger');
-  const json = await res.json();
-  if (!json.ok) { alert('전자장부 조회 오류: '+json.msg); return; }
+  try {
+    const res = await fetch(API_URL + '?action=list_ledger');
+    const json = await res.json();
+    if (!json.ok) { alert('전자장부 조회 오류: '+json.msg); return; }
 
-  const tb = document.getElementById('ledgerTbody');
-  tb.innerHTML = '';
-  (json.ledger || []).forEach(row=>{
-    const tr = document.createElement('tr');
-    const dep = row.deposit ? parseInt(row.deposit,10).toLocaleString() : '';
-    const wit = row.withdrawal ? parseInt(row.withdrawal,10).toLocaleString() : '';
-    const bal = row.balance ? parseInt(row.balance,10).toLocaleString() : '';
-    const proofs = [row.proof1_url, row.proof2_url]
-      .filter(Boolean)
-      .map(renderProofThumb)
-      .join(' ');
+    const tb = document.getElementById('ledgerTbody');
+    tb.innerHTML = '';
+    (json.ledger || []).forEach(row=>{
+      const tr = document.createElement('tr');
+      const dep = row.deposit ? parseInt(row.deposit,10).toLocaleString() : '';
+      const wit = row.withdrawal ? parseInt(row.withdrawal,10).toLocaleString() : '';
+      const bal = row.balance ? parseInt(row.balance,10).toLocaleString() : '';
+      const proofs = [row.proof1_url, row.proof2_url]
+        .filter(Boolean)
+        .map(renderProofThumb)
+        .join(' ');
 
-    tr.innerHTML = `
-      <td>${row.trade_date}</td>
-      <td class="text-end text-primary">${dep}</td>
-      <td class="text-end text-danger">${wit}</td>
-      <td>${row.description}</td>
-      <td class="text-end fw-bold">${bal}</td>
-      <td>${proofs}</td>
-      <td>${row.note || ''}</td>
-      <td><button class="btn btn-sm btn-outline-danger" onclick="deleteLedger(${row.id})">삭제</button></td>
-    `;
-    tb.appendChild(tr);
+      tr.innerHTML = `
+        <td>${row.trade_date}</td>
+        <td class="text-end text-primary">${dep}</td>
+        <td class="text-end text-danger">${wit}</td>
+        <td>${row.description}</td>
+        <td class="text-end fw-bold">${bal}</td>
+        <td>${proofs}</td>
+        <td>${row.note || ''}</td>
+        <td><button class="btn btn-sm btn-outline-danger" onclick="deleteLedger(${row.id})">삭제</button></td>
+      `;
+      tb.appendChild(tr);
+    });
+  } catch (e) {
+    console.error(e);
+    alert('전자장부 조회 중 오류가 발생했습니다.');
+  }
+}
+
+// 파일 미리보기 (이미지인 경우만)
+function setupProofPreview(inputId, imgId) {
+  const input = document.getElementById(inputId);
+  const img = document.getElementById(imgId);
+  if (!input || !img) return;
+
+  input.addEventListener('change', () => {
+    const file = input.files[0];
+    if (!file) {
+      img.style.display = 'none';
+      img.src = '';
+      return;
+    }
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        img.src = e.target.result;
+        img.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    } else {
+      // 이미지가 아니면 썸네일 숨기고 끝
+      img.style.display = 'none';
+      img.src = '';
+    }
   });
 }
-// 초기 로딩
-document.addEventListener('DOMContentLoaded', () => {
-  // 관리자 간단 잠금 (프롬프트 수준)
-  const pw = prompt('⚠ 관리자 전용 페이지입니다. 비밀번호를 입력하세요 (예: 1004)');
-  if (pw !== '1004') {
-    alert('접근이 제한됩니다.');
-    document.body.innerHTML = '<div class="container py-5 text-center"><h5>접근이 제한되었습니다.</h5></div>';
+
+async function submitLedger(event){
+  event.preventDefault();
+
+  const pw = document.getElementById('ledger_pw').value.trim();
+  if (!pw) {
+    alert('비밀번호를 입력해 주세요.');
+    return;
+  }
+  if (pw !== ADMIN_PW) {
+    alert('비밀번호가 올바르지 않습니다.');
     return;
   }
 
-  document.getElementById('trade_date').valueAsDate = new Date();
+  const trade_date = document.getElementById('trade_date').value;
+  const depVal = document.getElementById('deposit').value.replace(/,/g,'');
+  const witVal = document.getElementById('withdrawal').value.replace(/,/g,'');
+  const description = document.getElementById('description').value;
+  const note = document.getElementById('note').value;
+
+  if (!trade_date) {
+    alert('거래일을 입력해 주세요.');
+    return;
+  }
+  if (!depVal && !witVal) {
+    alert('입금 또는 출금 중 하나는 입력해 주세요.');
+    return;
+  }
+
+  const formEl = document.getElementById('ledgerForm');
+  const fd = new FormData(formEl);
+  fd.append('action','insert_ledger');
+  fd.set('trade_date', trade_date);
+  fd.set('deposit', depVal || '0');
+  fd.set('withdrawal', witVal || '0');
+  fd.set('description', description);
+  fd.set('note', note);
+
+  try {
+    const res = await fetch(API_URL, {
+      method:'POST',
+      body: fd
+    });
+    const json = await res.json();
+    if (!json.ok) {
+      alert('저장 실패: ' + (json.msg || '서버 오류'));
+      return;
+    }
+    alert('✅ 전자장부가 저장되었습니다.');
+
+    // 폼 리셋
+    document.getElementById('deposit').value = '';
+    document.getElementById('withdrawal').value = '';
+    document.getElementById('note').value = '';
+    document.getElementById('proof1_file').value = '';
+    document.getElementById('proof2_file').value = '';
+    document.getElementById('ledger_pw').value = '';
+    document.getElementById('proof1_preview').style.display = 'none';
+    document.getElementById('proof2_preview').style.display = 'none';
+
+    loadLedger();
+  } catch (e) {
+    console.error(e);
+    alert('전자장부 저장 중 오류가 발생했습니다.');
+  }
+}
+
+async function uploadCsv(event){
+  event.preventDefault();
+  const pw = document.getElementById('csv_pw').value.trim();
+  if (!pw) {
+    alert('비밀번호를 입력해 주세요.');
+    return;
+  }
+  if (pw !== ADMIN_PW) {
+    alert('비밀번호가 올바르지 않습니다.');
+    return;
+  }
+  const fileInput = document.getElementById('ledger_csv');
+  if (!fileInput.files.length) {
+    alert('CSV 파일을 선택해 주세요.');
+    return;
+  }
+
+  const fd = new FormData();
+  fd.append('action','upload_ledger_csv'); // club_api.php에서 이 action 처리
+  fd.append('ledger_csv', fileInput.files[0]);
+
+  try {
+    const res = await fetch(API_URL, {
+      method:'POST',
+      body: fd
+    });
+    const json = await res.json();
+    if (!json.ok) {
+      alert('CSV 업로드 실패: ' + (json.msg || '서버 오류'));
+      return;
+    }
+    alert('✅ CSV 업로드 및 반영이 완료되었습니다.');
+    document.getElementById('csv_pw').value = '';
+    document.getElementById('ledger_csv').value = '';
+    loadLedger();
+  } catch (e) {
+    console.error(e);
+    alert('CSV 업로드 중 오류가 발생했습니다.');
+  }
+}
+
+async function deleteLedger(id){
+  if (!confirm('이 거래를 삭제하시겠습니까?')) return;
+  try {
+    const res = await fetch(API_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'delete_ledger', id})
+    });
+    const json = await res.json();
+    if (!json.ok) {
+      alert('삭제 실패: ' + (json.msg || '서버 오류'));
+      return;
+    }
+    alert('✅ 삭제되었습니다.');
+    loadLedger();
+  } catch (e) {
+    console.error(e);
+    alert('삭제 중 오류가 발생했습니다.');
+  }
+}
+
+/* =====================
+   초기 로딩
+===================== */
+document.addEventListener('DOMContentLoaded', () => {
+  // 전역 프롬프트 잠금 제거 / 폼 비밀번호만 사용
+  // 오늘 날짜 기본값
+  const tradeDateInput = document.getElementById('trade_date');
+  if (tradeDateInput) {
+    tradeDateInput.valueAsDate = new Date();
+  }
+
+  setupProofPreview('proof1_file', 'proof1_preview');
+  setupProofPreview('proof2_file', 'proof2_preview');
+
   loadMembers();
   loadLedger();
 });
