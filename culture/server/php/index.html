@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🚩문화탐방 참가 신청서</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <style>
+    /* 기존 스타일 그대로 사용 가능 (필요한 부분만 가져옴) */
+    .form-label { width: 120px; }
+    .form-inline .form-control, .form-inline select { flex: 1; }
+    #entryTableWrapper {
+      max-height: 2500px;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+      display: none;
+    }
+    #entryTableWrapper.show {
+      display: block;
+      opacity: 1;
+    }
+    #entryList td {
+      font-weight: normal;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+<div class="container py-3">
+
+  <!-- 📢 안내 문구/이미지 슬라이드 등은 기존 코드 그대로 붙여넣기 -->
+
+  <h5 class="text-center mb-3">⛰ 참가 신청서</h5>
+  <div class="card p-4 shadow">
+    <div class="mb-2 d-flex align-items-center form-inline">
+      <label class="form-label">👤 성명*</label>
+      <input type="text" class="form-control" id="name">
+    </div>
+
+    <div class="mb-2 d-flex align-items-center form-inline">
+      <label class="form-label">📱 연락처*</label>
+      <input type="tel" class="form-control" id="contact" placeholder="숫자만 입력" required>
+    </div>
+
+    <div class="mb-2 d-flex align-items-center form-inline">
+      <label class="form-label">👥 참가인원*</label>
+      <select class="form-select" id="participants" required>
+        <option value="">✔선택</option>
+        <option value="1">1명</option>
+        <option value="2">2명</option>
+        <option value="3">3명</option>
+        <option value="4">4명</option>
+        <option value="5">5명</option>
+      </select>
+    </div>
+
+    <div class="mb-3 align-items-center">
+      <label class="form-label" style="min-width: 250px;">✨참가인원중 미취학가족은?</label>
+      <select class="form-select" id="nonMembers">
+        <option value="">✔선택</option>
+        <option value="0">0명</option>
+        <option value="1">1명</option>
+        <option value="2">2명</option>
+        <option value="3">3명</option>
+      </select>
+    </div>
+
+    <div class="mb-2 d-flex align-items-center form-inline" id="memberNamesGroup" style="display: none;">
+      <label class="form-label">👬동반가족?</label>
+      <input type="text" class="form-control" id="memberNames" placeholder="배우자,자녀 등(쉼표로 구분)">
+    </div>
+
+    <select class="form-select" id="course" disabled>
+      <option>청와대</option>
+    </select>
+    <input type="hidden" id="courseHidden" value="청와대">
+
+    <div class="mb-3 align-items-center">
+      <label class="form-label">🗨️기타 코멘트</label>
+      <input type="text" class="form-control" placeholder="선택 사항입니다." id="comment">
+    </div>
+    <button class="btn btn-primary w-100" onclick="submitForm()">📥 신청하기</button>
+  </div>
+
+  <br>
+  <span class="mt-3"><mark>
+    💬취소 또는 변경(취소 후 재신청)은 아래
+    <button class="btn btn-outline-primary btn-sm" onclick="alert('🤷‍♂️신청내역 ⬇⬇아래  버튼을 터치해 주세요')">🔎신청현황보기</button>
+    에서 진행해 주세요.
+  </mark></span>
+
+  <br><br>
+
+  <button id="toggleEntryListBtn" class="btn btn-outline-primary">🔎신청현황 보기</button>
+  <div class="d-flex justify-content-between align-items-center mt-4">
+    <h6 class="mb-0">📋 신청 내역(*신청역순)</h6>
+    <span id="totalCount" class="text-primary" style="font-size: medium;"></span>
+  </div>
+  <hr>
+  <div id="entryTableWrapper" style="display: none;">
+    <div class="mb-3">
+      <input type="text" id="searchInput" class="form-control" placeholder="🔍 이름으로 검색 (*키워드 일부입력 검색가능)">
+    </div>
+
+    <table class="table table-bordered text-center mt-2">
+      <thead class="table-dark">
+        <tr>
+          <th>성명</th>
+          <th>인원</th>
+          <th>코스</th>
+          <th>취소하기</th>
+        </tr>
+      </thead>
+      <tbody id="entryList"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 삭제 사유 선택 모달 (기존 그대로) -->
+<div class="modal fade" id="reasonModal" tabindex="-1" aria-labelledby="reasonModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title" id="reasonModalLabel">📝 취소 사유를 선택해 주세요</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+      </div>
+      <div class="modal-body">
+        <form id="reasonForm" class="d-grid gap-2">
+          <div class="form-check">
+            <input class="form-check-input d-none" type="radio" name="deleteReason" id="reason1" value="잘못 신청함" required>
+            <label class="form-check-label btn btn-outline-danger w-100 text-start fw-bold" for="reason1">
+              ❌ 잘못 신청함
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input d-none" type="radio" name="deleteReason" id="reason2" value="인원 변경">
+            <label class="form-check-label btn btn-outline-warning w-100 text-start fw-bold" for="reason2">
+              🤵 인원 변경
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input d-none" type="radio" name="deleteReason" id="reason3" value="개인 사정">
+            <label class="form-check-label btn btn-outline-secondary w-100 text-start fw-bold" for="reason3">
+              🤷‍♀️ 개인 사정
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input d-none" type="radio" name="deleteReason" id="reason4" value="기타">
+            <label class="form-check-label btn btn-outline-primary w-100 text-start fw-bold" for="reason4">
+              💬 기타
+            </label>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button id="confirmDelete" class="btn btn-info w-100 fw-bold">✔ 신청하기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API_URL = 'apply_api.php';   // 같은 폴더에 있을 경우
+
+  const MAX_CAPACITY = 40;
+  let allData = [];
+  let deleteData = {};   // { id, name }
+
+  // 동반회원 입력 조건 로직 (기존과 동일)
+  const participantsSelect = document.getElementById("participants");
+  const nonMembersSelect = document.getElementById("nonMembers");
+  const memberNamesGroup = document.getElementById("memberNamesGroup");
+  const memberNamesInput = document.getElementById("memberNames");
+
+  function checkMemberNameRequirement() {
+    const participants = parseInt(participantsSelect.value) || 0;
+    const nonMembers = parseInt(nonMembersSelect.value) || 0;
+
+    if (!participants && !nonMembers) {
+      memberNamesGroup.style.display = "none";
+      memberNamesInput.removeAttribute("required");
+      memberNamesInput.value = '';
+      return;
+    }
+    const diff = participants - nonMembers;
+    if (diff >= 2) {
+      alert("👬 동반가족을 입력해 주세요.");
+      memberNamesGroup.style.display = "flex";
+      memberNamesInput.setAttribute("required", "required");
+    } else {
+      memberNamesGroup.style.display = "none";
+      memberNamesInput.removeAttribute("required");
+      memberNamesInput.value = '';
+    }
+  }
+  nonMembersSelect.addEventListener("change", checkMemberNameRequirement);
+
+  // 신청 제출
+  function submitForm() {
+    const submitBtn = document.querySelector('button.btn-primary');
+    submitBtn.disabled = true;
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '🔄 제출중...';
+
+    const data = {
+      action: 'register',
+      name: document.getElementById("name").value.trim(),
+      contact: document.getElementById("contact").value.trim(),
+      participants: document.getElementById("participants").value,
+      nonMembers: document.getElementById("nonMembers").value || '0',
+      memberNames: document.getElementById("memberNames").value.trim(),
+      course: document.getElementById("courseHidden").value,
+      comment: document.getElementById("comment").value.trim()
+    };
+
+    if (!data.name || !data.contact || !data.participants || !data.course) {
+      alert("🤷‍♂️필수 항목(*)을 모두 입력해 주세요.");
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+      return;
+    }
+
+    if (!/^\d{11}$/.test(data.contact)) {
+      alert("📱 연락처는 11자리여야 합니다. 확인해 주세요.");
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+      return;
+    }
+
+    const total = parseInt(data.participants);
+    const nonMembers = parseInt(data.nonMembers);
+    const memberCount = total - nonMembers;
+    if (memberCount >= 2 && !data.memberNames) {
+      alert("👥 참가인원 중 동반가족이 있으시네요.\n동반가족을 입력해 주세요.");
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+      return;
+    }
+
+    const confirmMsg = `
+✅ 신청 내역을 확인해 주세요:
+
+성  명: ${data.name}
+연락처: ${data.contact}
+참가인원: ${data.participants}
+미취학가족: ${data.nonMembers || '0명'}
+동반가족: ${data.memberNames || '없음'}
+선택코스: ${data.course}
+
+이대로 제출할까요?
+    `;
+    if (!confirm(confirmMsg)) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+      return;
+    }
+
+    if (navigator.vibrate) navigator.vibrate(100);
+
+    fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) throw new Error(res.msg || '신청 실패');
+      alert("✅ 신청이 완료되었습니다!\n" + (res.isWaiting ? '현재 정원이 넘어 대기접수로 등록되었습니다.' : '정상 접수되었습니다.'));
+      // 폼 초기화
+      document.getElementById("name").value = '';
+      document.getElementById("contact").value = '';
+      document.getElementById("participants").value = '';
+      document.getElementById("nonMembers").value = '';
+      document.getElementById("memberNames").value = '';
+      document.getElementById("comment").value = '';
+
+      loadEntries();
+    })
+    .catch(err => {
+      alert("❌ 신청 실패: " + err.message);
+    })
+    .finally(() => {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+    });
+  }
+
+  // 삭제 버튼 클릭
+  function deleteEntry(id, name) {
+    const cleanName = name.replace(/\(대기\)/g, '').trim();
+    if (!confirm(`${cleanName}님의 신청을 삭제 하시겠습니까? 삭제 => 확인`)) return;
+
+    const inputName = prompt("🤷‍♂️ 취소(삭제)를 위해 기존에 입력한 이름 그대로 입력해 주세요:");
+    if (!inputName || inputName.trim() !== cleanName) {
+      alert("⚠삭제취소. 이름이 미입력되었거나 일치하지 않습니다.");
+      return;
+    }
+
+    deleteData = { id, name: cleanName };
+    const modal = new bootstrap.Modal(document.getElementById('reasonModal'));
+    modal.show();
+  }
+
+  document.getElementById("confirmDelete").addEventListener("click", function (event) {
+    const form = document.getElementById("reasonForm");
+    const reason = form.deleteReason.value;
+
+    if (!reason) {
+      alert("🤷‍♀️취소 사유를 선택해 주세요.");
+      return;
+    }
+
+    const { id, name } = deleteData;
+
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '🔄 취소 신청중...';
+
+    fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "delete", id, reason })
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) throw new Error(res.msg || '삭제 실패');
+
+      const modal = bootstrap.Modal.getInstance(document.getElementById('reasonModal'));
+      modal.hide();
+
+      setTimeout(() => {
+        alert("✅ 취소(삭제)되었습니다.\n다시 신청해 주세요.");
+        loadEntries();
+      }, 300);
+    })
+    .catch(err => {
+      alert("❌ 삭제 실패: " + err.message);
+    })
+    .finally(() => {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    });
+  });
+
+  // 리스트 불러오기
+  function loadEntries() {
+    fetch(API_URL)
+      .then(res => res.json())
+      .then(data => {
+        allData = data || [];
+        renderTable(allData);
+      })
+      .catch(err => {
+        console.error(err);
+        alert("❌ 신청내역을 불러오는 데 실패했습니다.");
+      });
+  }
+
+  function renderTable(data) {
+    const tbody = document.getElementById("entryList");
+    const totalCountEl = document.getElementById("totalCount");
+    tbody.innerHTML = '';
+
+    let totalParticipants = 0;
+    let accumulated = 0;
+
+    const markedData = data.map(row => {
+      const participants = Number(row.participants);
+      const validParticipants = isNaN(participants) ? 0 : participants;
+
+      const isWaiting = accumulated >= MAX_CAPACITY;
+      accumulated += validParticipants;
+
+      return { ...row, validParticipants, isWaiting };
+    });
+
+    markedData.reverse().forEach(row => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${row.name}${row.isWaiting ? ' <span class="text-danger fw-bold">(대기)</span>' : ''}</td>
+        <td>${row.validParticipants}</td>
+        <td>${row.course}</td>
+        <td>
+          <button class="btn btn-sm btn-warning" style="box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);" onclick="deleteEntry(${row.id}, '${row.name}')">
+            ⛔
+          </button>
+        </td>
+      `;
+
+      if (row.isWaiting) {
+        tr.querySelectorAll('td').forEach(td => {
+          td.style.backgroundColor = '#fff4cc';
+          td.style.color = '#6b4700';
+        });
+      }
+
+      tbody.appendChild(tr);
+      totalParticipants += row.validParticipants;
+    });
+
+    totalCountEl.textContent = `| 👥총 신청 인원: ${totalParticipants}명 |`;
+  }
+
+  // 검색
+  document.getElementById("searchInput").addEventListener("input", function () {
+    const keyword = this.value.trim().toLowerCase();
+    const filtered = allData.filter(row =>
+      row.name.toLowerCase().includes(keyword)
+    );
+    renderTable(filtered);
+  });
+
+  // 신청현황 토글
+  document.getElementById("toggleEntryListBtn").addEventListener("click", function () {
+    const wrapper = document.getElementById("entryTableWrapper");
+    const totalCount = document.getElementById("totalCount");
+    const isVisible = wrapper.classList.contains("show");
+
+    if (isVisible) {
+      wrapper.classList.remove("show");
+      setTimeout(() => { wrapper.style.display = "none"; }, 500);
+      this.textContent = "🔎신청현황 보기";
+    } else {
+      wrapper.style.display = "block";
+      setTimeout(() => {
+        wrapper.classList.add("show");
+        totalCount.style.display = "inline";
+      }, 10);
+      this.textContent = "🔼 신청현황 닫기";
+
+      setTimeout(() => {
+        wrapper.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 600);
+    }
+  });
+
+  // 페이지 로드 시 자동 호출
+  document.addEventListener("DOMContentLoaded", function () {
+    loadEntries();
+  });
+</script>
+</body>
+</html>
