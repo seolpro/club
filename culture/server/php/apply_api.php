@@ -91,7 +91,8 @@ try {
             ];
         }, $rows);
 
-        json_response(['ok' => true, 'list' => $entryList]);
+        // ✅ 여기!
+        json_response($entryList);   // <-- 이렇게만 리턴
     }
 
     /* ------------------------------------------------------------------
