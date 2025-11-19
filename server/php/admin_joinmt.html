@@ -26,20 +26,22 @@
 
   <!-- 탭 메뉴 -->
   <ul class="nav nav-tabs mb-3" id="adminTabs" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="tab-members" data-bs-toggle="tab"
-              data-bs-target="#members-panel" type="button" role="tab">👥 회원 관리</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="tab-ledger" data-bs-toggle="tab"
-              data-bs-target="#ledger-panel" type="button" role="tab">💰 전자장부</button>
-    </li>
-  </ul>
+  <li class="nav-item" role="presentation">
+    <!-- ❌ active 제거 -->
+    <button class="nav-link" id="tab-members" data-bs-toggle="tab"
+            data-bs-target="#members-panel" type="button" role="tab">👥 회원 현황</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <!-- ✅ 전자장부에 active 추가 -->
+    <button class="nav-link active" id="tab-ledger" data-bs-toggle="tab"
+            data-bs-target="#ledger-panel" type="button" role="tab">💰 전자장부</button>
+  </li>
+</ul>
 
   <div class="tab-content">
 
     <!-- ▽ 회원 관리 탭 -->
-    <div class="tab-pane fade show active" id="members-panel" role="tabpanel" aria-labelledby="tab-members">
+    <div class="tab-pane fade" id="members-panel" role="tabpanel" aria-labelledby="tab-members">
       <div class="section-card">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <div>
@@ -76,7 +78,7 @@
     </div>
 
     <!-- ▽ 전자장부 탭 -->
-    <div class="tab-pane fade" id="ledger-panel" role="tabpanel" aria-labelledby="tab-ledger">
+    <div class="tab-pane fade show active" id="ledger-panel" role="tabpanel" aria-labelledby="tab-ledger">
 
       <!-- 전자장부 입력 -->
       <!-- ✅ 일반회원 모드에서 숨기기 위해 id 부여 -->
@@ -150,9 +152,9 @@
       <div class="section-card mb-3">
         <h6 class="mb-2">📑 이전 전자장부</h6>
         <p class="text-muted small mb-3">
-          기존 Google 스프레드시트 증빙이 포함된 전자장부 내역을 확인하려면 아래 버튼을 클릭하세요.
+          증빙이 포함된 구버전 전자장부 내역을 확인하려면 아래 버튼을 클릭하세요.
         </p>
-        <a href="https://docs.google.com/spreadsheets/d/1-jy0s3TyZeuSi7Ib1BaG2gOg9NmkwI198KVwmVwnVE8/edit?usp=sharing"
+        <a href="https://seolpro.github.io/club/ledger_mt"
            target="_blank"
            class="btn btn-outline-secondary btn-sm">
           🔗 이전 전자장부 열기
@@ -164,6 +166,8 @@
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h6 class="m-0">📒 전자장부 내역</h6>
           <button class="btn btn-outline-secondary btn-sm" onclick="loadLedger()">🔄 새로고침</button>
+          <!-- ✅ 결산보고 버튼 추가 -->
+      <button class="btn btn-outline-primary btn-sm" onclick="openSettlementModal()">📊 결산보고</button>
         </div>
         <div class="table-responsive">
           <table class="table table-sm table-striped align-middle">
@@ -184,7 +188,53 @@
           </table>
         </div>
       </div>
+    <!-- ✅ 결산보고 모달 -->
+<div class="modal fade" id="settlementModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">📊 산악회 결산보고</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+      </div>
+      <div class="modal-body" id="settlementModalBody">
+        <form class="row g-2 mb-3" onsubmit="event.preventDefault(); updateSettlementReport();">
+          <div class="col-4">
+            <label for="settlementYear" class="form-label form-label-sm">결산연도</label>
+            <input type="number" class="form-control form-control-sm" id="settlementYear" onchange="updateSettlementReport()">
 
+          </div>
+          <div class="col-8">
+  <label class="form-label form-label-sm">전년이월금액</label>
+  <input
+    type="text"
+    class="form-control form-control-sm"
+    id="carryoverInput"
+    readonly
+  >
+</div>
+
+        </form>
+
+        <!-- 요약 영역 -->
+        <div id="settlementSummary" class="mb-3"></div>
+
+        <hr>
+
+        <!-- 적요별 수입·지출 -->
+        <div id="settlementByDesc" class="mb-2"></div>
+
+        <small class="text-muted">
+          ※ 결산연도는 거래일 기준(YYYY-01-01 ~ YYYY-12-31)으로 집계합니다.<br>
+          ※ 전년이월 + 수입합계 − 지출합계 = 현잔액(전자장부)과 일치해야 합니다.
+        </small>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="printSettlement()">🖨 인쇄 / PDF 저장</button>
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">닫기</button>
+      </div>
+    </div>
+  </div>
+</div>
     </div> <!-- /전자장부 탭 -->
 
   </div> <!-- /tab-content -->
@@ -204,6 +254,15 @@ function fmt(el){
   let v = el.value.replace(/,/g,'');
   if (!v) { el.value = ''; return; }
   if (!isNaN(v)) el.value = parseInt(v,10).toLocaleString();
+}
+
+// 콤마 제거 후 정수로
+function parseAmount(v) {
+  if (v == null) return 0;
+  const n = String(v).replace(/,/g,'').trim();
+  if (!n) return 0;
+  const num = parseInt(n,10);
+  return isNaN(num) ? 0 : num;
 }
 
 /* =====================
@@ -248,6 +307,7 @@ function getDisplayEmpId(empId) {
    회원 관리
 ===================== */
 let MEMBER_CACHE = [];
+let LEDGER_CACHE = [];   // ✅ 전자장부 전체를 여기 저장
 
 async function loadMembers(status='') {
   try {
@@ -430,7 +490,7 @@ function renderProofThumb(url) {
   }
 }
 
-async function loadLedger(){
+/* async function loadLedger(){
   try {
     const res = await fetch(API_URL + '?action=list_ledger');
     const json = await res.json();
@@ -469,7 +529,51 @@ async function loadLedger(){
     console.error(e);
     alert('전자장부 조회 중 오류가 발생했습니다.');
   }
+} */
+
+async function loadLedger(){
+  try {
+    const res = await fetch(API_URL + '?action=list_ledger');
+    const json = await res.json();
+    if (!json.ok) { alert('전자장부 조회 오류: '+json.msg); return; }
+
+    // ✅ 캐시에 저장
+    LEDGER_CACHE = json.ledger || [];
+
+    const tb = document.getElementById('ledgerTbody');
+    tb.innerHTML = '';
+    LEDGER_CACHE.forEach(row=>{
+      const tr = document.createElement('tr');
+      const dep = row.deposit ? parseInt(row.deposit,10).toLocaleString() : '';
+      const wit = row.withdrawal ? parseInt(row.withdrawal,10).toLocaleString() : '';
+      const bal = row.balance ? parseInt(row.balance,10).toLocaleString() : '';
+      const proofs = [row.proof1_url, row.proof2_url]
+        .filter(Boolean)
+        .map(renderProofThumb)
+        .join(' ');
+
+      const manageBtnHtml = IS_ADMIN
+        ? `<button class="btn btn-sm btn-outline-danger" onclick="deleteLedger(${row.id})">삭제</button>`
+        : '';
+
+      tr.innerHTML = `
+        <td>${row.trade_date}</td>
+        <td class="text-end text-primary">${dep}</td>
+        <td class="text-end text-danger">${wit}</td>
+        <td>${row.description}</td>
+        <td class="text-end fw-bold">${bal}</td>
+        <td>${proofs}</td>
+        <td>${row.note || ''}</td>
+        <td>${manageBtnHtml}</td>
+      `;
+      tb.appendChild(tr);
+    });
+  } catch (e) {
+    console.error(e);
+    alert('전자장부 조회 중 오류가 발생했습니다.');
+  }
 }
+
 
 // 파일 미리보기 (이미지인 경우만)
 function setupProofPreview(inputId, imgId) {
@@ -642,6 +746,311 @@ async function deleteLedger(id){
     alert('삭제 중 오류가 발생했습니다.');
   }
 }
+
+/* =====================
+   결산보고
+===================== */
+
+// 결산 모달 열기
+
+// ... 여기까지 기존 코드들 (fmt, loadMembers, renderMemberTable, loadLedger 등) ...
+
+// ✅ 전년도 이월금액 = 전년도 마지막 행의 잔액
+// ✅ 전년도 이월금액 = 전년도(예: 2024년) 거래 중 '가장 마지막 날짜'의 잔액
+// ✅ 전년도 이월금액 = 전년도(예: 2024년) 거래 중 '가장 마지막 날짜'의 잔액
+function getCarryoverForYear(year) {
+  const prevYear = year - 1;
+  if (!LEDGER_CACHE || !LEDGER_CACHE.length) return 0;
+
+  // 전년도 행만 골라오기 (연도 직접 파싱)
+  const prevRows = LEDGER_CACHE.filter(r => {
+    if (!r.trade_date) return false;
+    const y = parseInt(String(r.trade_date).substring(0, 4), 10); // "2024-..." → 2024
+    return y === prevYear;
+  });
+
+  if (!prevRows.length) return 0;
+
+  // 날짜 기준 정렬 (혹시 DB가 날짜순이 아닐 수도 있으니)
+  prevRows.sort((a, b) => {
+    const da = new Date(a.trade_date);
+    const db = new Date(b.trade_date);
+    return da - db;
+  });
+
+  // 전년도 마지막 거래의 balance
+  const lastPrev = prevRows[prevRows.length - 1];
+  return parseAmount(lastPrev.balance);
+}
+
+// ✅ 결산 모달 열기
+function openSettlementModal() {
+  if (!LEDGER_CACHE.length) {
+    alert('전자장부 내역이 없습니다. 먼저 장부를 불러옵니다.');
+    loadLedger();
+  }
+
+  const yearInput = document.getElementById('settlementYear');
+  const carryInput = document.getElementById('carryoverInput');
+
+  const nowYear = new Date().getFullYear();
+  if (yearInput && !yearInput.value) {
+    yearInput.value = nowYear;
+  }
+
+  const year = yearInput.value ? parseInt(yearInput.value, 10) : nowYear;
+  const carryover = getCarryoverForYear(year);
+
+  if (carryInput) {
+    carryInput.value = carryover.toLocaleString() + '원';
+  }
+
+  updateSettlementReport();
+
+  const modalEl = document.getElementById('settlementModal');
+  const modal = new bootstrap.Modal(modalEl);
+  modal.show();
+}
+
+// ✅ 해당 연도 말 전자장부 잔액
+//    - LEDGER_CACHE는 화면에 보이는 순서대로(최신순) 들어 있다고 가정
+//    - 따라서, 처음으로 year가 일치하는 행의 balance가 그 해 '마지막 거래' 잔액
+function getYearEndBalance(year) {
+  if (!LEDGER_CACHE || !LEDGER_CACHE.length) return 0;
+
+  for (const r of LEDGER_CACHE) {
+    if (!r.trade_date) continue;
+    const y = parseInt(String(r.trade_date).substring(0, 4), 10);
+    if (y === year) {
+      // 화면에서 맨 위에 보이는 2025년 행의 잔액 (예: 5,108,508)
+      return parseAmount(r.balance);
+    }
+  }
+  return 0;
+}
+
+// ✅ 결산 계산
+function updateSettlementReport() {
+  const yearInput  = document.getElementById('settlementYear');
+  const carryInput = document.getElementById('carryoverInput');
+  const summaryEl  = document.getElementById('settlementSummary');
+  const byDescEl   = document.getElementById('settlementByDesc');
+
+  if (!yearInput || !summaryEl || !byDescEl) return;
+
+  const year = yearInput.value ? parseInt(yearInput.value, 10) : new Date().getFullYear();
+
+  // ✅ 1) 전년도 이월금액 = 전년도 마지막 잔액
+  const carryover = getCarryoverForYear(year);
+  if (carryInput) {
+    carryInput.value = carryover.toLocaleString() + '원';
+  }
+
+  // ✅ 2) 해당 연도(예: 2025년) 거래만 필터하고 날짜순 정렬
+  const yearRows = (LEDGER_CACHE || [])
+    .filter(r => {
+      if (!r.trade_date) return false;
+      const y = parseInt(String(r.trade_date).substring(0, 4), 10);
+      return y === year;
+    })
+    .sort((a, b) => {
+      const da = new Date(a.trade_date);
+      const db = new Date(b.trade_date);
+      return da - db;
+    });
+
+  // ✅ 3) 해당 연도 수입·지출 합계 계산
+  let totalIncome = 0;
+  let totalExpense = 0;
+  const incomeByDesc = {};
+  const expenseByDesc = {};
+
+  yearRows.forEach(r => {
+    const dep  = parseAmount(r.deposit);
+    const wit  = parseAmount(r.withdrawal);
+    const desc = r.description || '기타';
+
+    if (dep > 0) {
+      incomeByDesc[desc] = (incomeByDesc[desc] || 0) + dep;
+      totalIncome += dep;
+    }
+    if (wit > 0) {
+      expenseByDesc[desc] = (expenseByDesc[desc] || 0) + wit;
+      totalExpense += wit;
+    }
+  });
+
+  // ✅ 4) (전년이월 + 당기수입 − 당기지출) = 예상 잔액
+// 전년이월 + 당기 수입 - 당기 지출
+const expectedBalance = carryover + totalIncome - totalExpense;
+
+// ✅ 2025년 말 전자장부 잔액 = LEDGER_CACHE에서 "해당 연도 첫 번째 행"의 balance
+let lastYearBalance = getYearEndBalance(year);
+
+// 해당 연도에 거래가 아예 없으면, 연말 잔액은 전년이월과 동일로 보는 게 자연스러움
+if (!yearRows.length) {
+  lastYearBalance = carryover;
+}
+  const diff = expectedBalance - lastYearBalance;
+
+  // ✅ 7) 상단 요약 표
+  summaryEl.innerHTML = `
+    <h6 class="mb-2">① 결산 요약 (${year}년)</h6>
+    <table class="table table-sm table-bordered align-middle mb-3">
+      <tbody>
+        <tr>
+          <th style="width:30%;">전년이월금액</th>
+          <td class="text-end">${carryover.toLocaleString()}원</td>
+        </tr>
+        <tr>
+          <th>당기 수입 합계</th>
+          <td class="text-end text-primary fw-semibold">${totalIncome.toLocaleString()}원</td>
+        </tr>
+        <tr>
+          <th>당기 지출 합계</th>
+          <td class="text-end text-danger fw-semibold">${totalExpense.toLocaleString()}원</td>
+        </tr>
+        <tr>
+          <th>차기 이월 예정액<br><small class="text-muted">(전년이월 + 수입 − 지출)</small></th>
+          <td class="text-end fw-bold">${expectedBalance.toLocaleString()}원</td>
+        </tr>
+        <tr>
+          <th>${year}년 말 전자장부 잔액</th>
+          <td class="text-end">${lastYearBalance.toLocaleString()}원</td>
+        </tr>
+        <tr>
+          <th>차이</th>
+          <td class="text-end ${diff === 0 ? 'text-success' : 'text-danger fw-bold'}">
+            ${diff.toLocaleString()}원
+            ${diff === 0
+              ? '<span class="badge bg-success ms-2">일치</span>'
+              : '<span class="badge bg-danger ms-2">불일치</span>'}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  `;
+
+  // ✅ 8) 적요별 수입·지출 (역시 해당 연도만)
+  const allDescs = Array.from(new Set([
+  ...Object.keys(incomeByDesc),
+  ...Object.keys(expenseByDesc)
+])).sort();
+
+let rowsHtml = '';
+allDescs.forEach(desc => {
+  const inc = incomeByDesc[desc] || 0;
+  const exp = expenseByDesc[desc] || 0;
+  rowsHtml += `
+    <tr>
+      <td>${desc}</td>
+      <td class="text-end text-primary">${inc ? inc.toLocaleString() : ''}</td>
+      <td class="text-end text-danger">${exp ? exp.toLocaleString() : ''}</td>
+    </tr>
+  `;
+});
+
+// ✅ 데이터가 있을 때는 맨 아래에 합계 행 추가
+let bodyHtml = '';
+if (allDescs.length) {
+  bodyHtml = `
+    ${rowsHtml}
+    <tr class="table-secondary fw-bold">
+      <td>합계</td>
+      <td class="text-end text-primary">${totalIncome.toLocaleString()}원</td>
+      <td class="text-end text-danger">${totalExpense.toLocaleString()}원</td>
+    </tr>
+  `;
+} else {
+  bodyHtml = `
+    <tr>
+      <td colspan="3" class="text-center text-muted">
+        해당 연도에 전자장부 내역이 없습니다.
+      </td>
+    </tr>
+  `;
+}
+
+byDescEl.innerHTML = `
+  <h6 class="mb-2">② 적요별 수입·지출 현황 (${year}년)</h6>
+  <table class="table table-sm table-bordered align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>적요</th>
+        <th class="text-end">수입 합계</th>
+        <th class="text-end">지출 합계</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${bodyHtml}
+    </tbody>
+  </table>
+`;
+}
+
+// ✅ 인쇄 / PDF 저장
+// 인쇄 / PDF 저장
+function printSettlement() {
+  const yearEl   = document.getElementById('settlementYear');
+  const carryEl  = document.getElementById('carryoverInput');
+  const summaryEl = document.getElementById('settlementSummary');
+  const byDescEl  = document.getElementById('settlementByDesc');
+
+  const year   = yearEl && yearEl.value ? yearEl.value : '';
+  const carry  = carryEl && carryEl.value ? carryEl.value : '';
+
+  const win = window.open('', '_blank');
+  win.document.write('<html><head><title>산악회 결산보고서</title>');
+  win.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">');
+  win.document.write('</head><body class="p-3">');
+
+  // 제목
+  win.document.write('<h4 class="mb-3">산악회 결산보고서</h4>');
+
+  // ✅ 결산연도 / 전년이월금액을 텍스트로 출력
+  win.document.write(`
+    <p class="mb-3">
+      <strong>결산연도:</strong> ${year || '-'}년
+      &nbsp;&nbsp;&nbsp;
+      <strong>전년이월금액:</strong> ${carry || '-'}
+    </p>
+  `);
+
+  // 모달 안에서 계산된 내용 그대로 복사
+  if (summaryEl) {
+    win.document.write(summaryEl.innerHTML);
+  }
+  if (byDescEl) {
+    win.document.write('<br>');
+    win.document.write(byDescEl.innerHTML);
+  }
+
+  win.document.write('</body></html>');
+  win.document.close();
+  win.focus();
+  win.print();
+}
+
+// ✅ 필요하면 전역에 노출 (inline onclick용)
+window.openSettlementModal = openSettlementModal;
+window.updateSettlementReport = updateSettlementReport;
+window.printSettlement = printSettlement;
+
+document.addEventListener('DOMContentLoaded', () => {
+  // 기존 초기화 코드들...
+  const tradeDateInput = document.getElementById('trade_date');
+  if (tradeDateInput) {
+    tradeDateInput.valueAsDate = new Date();
+  }
+
+  setupProofPreview('proof1_file', 'proof1_preview');
+  setupProofPreview('proof2_file', 'proof2_preview');
+
+  loadMembers();
+  loadLedger();
+});
+
+window.openSettlementModal = openSettlementModal;
 
 /* =====================
    초기 로딩
