@@ -3,180 +3,243 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>문화탐방동아리 총회겸송년회 일정 추가</title>
-  <meta name="description" content="페이지 접속 시 자동으로 달력에 일정을 추가합니다." />
+  <title>문화탐방 총회겸송년회 안내</title>
+  <meta name="description" content="산악회총회겸송년회 일정 안내 및 참석 여부 확인 페이지입니다." />
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Noto Sans KR -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+
   <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans KR', Arial, sans-serif; }
-    .wrap { min-height: 100dvh; display:flex; align-items:center; justify-content:center; text-align:center; padding:24px; }
-    .card { max-width: 680px; border:1px solid #e5e7eb; border-radius:16px; padding:28px; box-shadow:0 10px 30px rgba(0,0,0,.05); }
-    .btn { display:inline-block; padding:12px 18px; border-radius:12px; border:1px solid #111; cursor:pointer; background:#111; color:#fff; font-weight:600; }
-    .btn:active { transform: translateY(1px); }
-    #loadingOverlay {
-      position: fixed; inset: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,.55); display: none;
-      align-items: center; justify-content: center; color: #fff;
-      font-size: 1.05rem; z-index: 99999; text-align:center; padding: 16px;
-      white-space: pre-line;
+    :root {
+      --primary: #2563eb;
+      --primary-soft: #e0edff;
+      --card-border: #e5e7eb;
     }
-    .muted { color:#6b7280; font-size:.95rem; }
+
+    body {
+      font-family: system-ui, -apple-system, 'Noto Sans KR', Segoe UI, Roboto, Arial, sans-serif;
+      margin: 0;
+      background: radial-gradient(circle at top left, #e0f2fe, #eef2ff 45%, #f9fafb 100%);
+    }
+
+    .wrap {
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card-main {
+      max-width: 720px;
+      width: 100%;
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 28px 24px 24px;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, .08);
+      background: #ffffffd9;
+      backdrop-filter: blur(6px);
+    }
+
+    .badge-soft {
+      background: var(--primary-soft);
+      color: var(--primary);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    h2 {
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .muted {
+      color: #6b7280;
+      font-size: .95rem;
+    }
+
+    .info-row {
+      margin-top: 0.75rem;
+      margin-bottom: 0.25rem;
+      font-size: 0.98rem;
+    }
+
+    .info-row b {
+      display: inline-block;
+      min-width: 52px;
+      color: #374151;
+    }
+
+    .info-box {
+      background: #f9fafb;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-top: 10px;
+      font-size: 0.92rem;
+      color: #4b5563;
+    }
+
+    .hint-text {
+      font-size: 0.85rem;
+      color: #9ca3af;
+      margin-top: 6px;
+    }
+
+    .modal-content {
+      border-radius: 1rem;
+    }
+    .modal-header {
+      border-radius: 1rem 1rem 0 0;
+    }
+
+    /* 모달 안의 a 링크를 버튼처럼 보이게 */
+    .sms-btn {
+      display: inline-block;
+      padding: 0.5rem 1.5rem;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      font-weight: 500;
+      border: 1px solid transparent;
+    }
+    .sms-btn-attend {
+      background-color: #198754;
+      color: #fff;
+      border-color: #198754;
+    }
+    .sms-btn-attend:hover {
+      background-color: #157347;
+      color: #fff;
+    }
+    .sms-btn-absent {
+      background-color: #ffffff;
+      color: #6c757d;
+      border-color: #6c757d;
+    }
+    .sms-btn-absent:hover {
+      background-color: #f8f9fa;
+      color: #495057;
+    }
+    .sms-btn-hold {
+      background-color: #0dcaf0;
+      color: #ffffff;
+      border-color: #0dcaf0;
+    }
+    .sms-btn-hold:hover {
+      background-color: #0bb8dc;
+      color: #ffffff;
+    }
   </style>
 </head>
 <body>
-  <div id="loadingOverlay">📝 일정앱으로 이동중입니다…\n취소되거나 차단된 경우 아래 버튼으로 다시 시도해주세요.</div>
-
   <div class="wrap">
-    <div class="card">
-      <h2>📅 문화탐방동아리 총회겸송년회 일정 추가</h2>
-      <p class="muted">페이지 접속 시 자동으로 일정 추가를 시도합니다.</p>
-      <hr style="border:none;height:1px;background:#eee;margin:18px 0;">
-      <p><b>제목</b><br>문화탐방동아리 총회겸송년회</p>
-      <p><b>일시</b><br>2025년 12월 11일(목) 오후 5:30 ~ 오후 7:30</p>
-      <p><b>장소</b><br>추후 안내</p>
-      <p><b>설명</b><br>문화탐방동아리 총회 및 송년 모임</p>
-      <button class="btn" onclick="addEventToCalendar()">다시 일정 추가 시도</button>
-      <p class="muted" style="margin-top:10px;">안드로이드는 구글 캘린더가 열리고, iOS/기타는 ICS 파일을 엽니다.</p>
+    <div class="card-main">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <span class="badge-soft">문화탐방 총회겸 송년회 개최안내</span>
+        <span class="text-muted" style="font-size:0.8rem;">🎉 총회 & 송년회</span>
+      </div>
+
+      <h2>문화탐방 총회겸송년회 안내</h2>
+      <p class="muted mb-3">
+        아래 일정을 확인하시고,<br>
+        페이지 진입 시 뜨는 창에서 참석 여부를 알려 주세요.
+      </p>
+
+      <hr class="my-3">
+
+      <p class="info-row"><b>제목</b> 총회겸송년회</p>
+      <p class="info-row"><b>일시</b> 2025년 12월 11일 (목) 오후 5:30 ~ 오후 7:00</p>
+      <p class="info-row"><b>장소</b> 태백생고기연탄구이(병원 앞 설빙 옆)</p>
+
+      <div class="info-box">
+        ✅ 이 페이지를 열면 <b>참석 여부를 묻는 팝업(모달)</b>이 자동으로 나타납니다.<br>
+        참석 / 불참 / 보류 중 하나를 선택하시면<br>
+        총무에게 보낼 문자앱이 열립니다.
+      </div>
+
+      <p class="hint-text">
+        ※ PC에서는 문자앱 열기가 동작하지 않을 수 있으며,<br>
+        스마트폰(또는 태블릿)에서 접속하시는 것을 권장드립니다.
+      </p>
     </div>
   </div>
 
-<script>
-(function() {
-  // 페이지 로드 시 자동 실행
-  window.addEventListener('DOMContentLoaded', () => {
-    // 살짝 지연 후 실행(브라우저 자동차단 회피에 도움이 됨)
-    setTimeout(addEventToCalendar, 300);
-  });
-})();
+  <!-- ✅ 송년회 참석/불참 안내 모달 -->
+  <div class="modal fade" id="gatheringModal" tabindex="-1" aria-labelledby="gatheringModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow-lg">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="gatheringModalLabel">🎉 문화탐방 총회겸송년회 참석 여부</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="닫기"></button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-1"><strong>📅 일시</strong> 2025년 12월 11일 (목) 오후 5시 30분~</p>
+          <p class="mb-3"><strong>📍 장소</strong> 태백생고기연탄구이(병원 앞 설빙 옆)</p>
+          <p class="mb-3">
+            ✔️ 아래 버튼 중 하나를 선택하시면<br>
+            <strong>총무에게 문자 메시지</strong>를 보내는 화면이 열립니다.
+          </p>
 
-function addEventToCalendar() {
-  const overlay = document.getElementById('loadingOverlay');
-  showOverlay('📝 일정앱으로 이동중입니다…\n잠시만 기다려주세요. 확인후 저장해 주세요');
+          <div class="d-flex flex-wrap gap-2 justify-content-center">
+            <!-- Android 스타일 sms 링크 (대부분 기기에서 동작) -->
+            <a class="sms-btn sms-btn-attend"
+               href="sms:01071186639?body=%F0%9F%8D%A0%20%EB%8B%B9%EA%B7%BC..%20%EC%B0%B8%EC%84%9D%ED%95%A9%EB%8B%88%EB%8B%A4.">
+              ✅ 참석
+            </a>
+            <a class="sms-btn sms-btn-absent"
+               href="sms:01071186639?body=%F0%9F%98%81%20%EA%B7%B8%EB%82%A0%20%EC%A0%9C%20%EC%9E%90%EB%A6%AC%EA%B0%80%20%EB%B9%84%EC%96%B4%20%EC%9E%88%EC%A7%80%EB%A7%8C%E2%80%A6%20%EB%A7%88%EC%9D%8C%EB%A7%8C%EC%9D%80%20%ED%95%A8%EA%BB%98%ED%95%A0%EA%B2%8C%EC%9A%94%20%F0%9F%98%89">
+              ❌ 불참
+            </a>
+            <a class="sms-btn sms-btn-hold"
+               href="sms:01071186639?body=다른 송년모임이 선약되어 있지만 취소시 달려갈게요~~">
+              💡 선약으로 보류
+            </a>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-sm btn-link text-muted" id="hideTodayBtn">
+            ⏳ 오늘 하루 이 안내 보지 않기
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  // === 이벤트 정보(요청하신 값으로 고정) ===
-  const title = '문화탐방총회겸송년회';
-  const location = '추후안내';
-  const description = '문화탐방 동아리 총회 및 송년 모임';
+  <!-- ✅ Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  // 시작/종료 (KST 기준) — 종료는 2시간 뒤로 설정
-  const startDate = new Date('2025-12-11T17:30:00'); // KST
-  const endDate   = new Date('2025-12-11T19:30:00'); // KST
+  <script>
+    // 오늘 하루 보지 않기
+    function setHideForOneDay() {
+      const expireTime = Date.now() + 24 * 60 * 60 * 1000; // 현재 시각 + 1일
+      localStorage.setItem("hideModalUntil", String(expireTime));
+    }
 
-  if (!isValidRange(startDate, endDate)) {
-    hideOverlay();
-    alert('⚠️ 일정 시간에 문제가 있습니다. 시작/종료 시간을 확인해주세요.');
-    return;
-  }
+    document.addEventListener('DOMContentLoaded', function () {
+      // "오늘 하루 안 보기" 버튼 동작
+      document.getElementById('hideTodayBtn').addEventListener('click', function () {
+        setHideForOneDay();
+        const modalEl = document.getElementById('gatheringModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) modalInstance.hide();
+      });
 
-  const ua = navigator.userAgent || '';
-  const isAndroid = /android/i.test(ua);
-  const isIOS = /iPhone|iPad|iPod/i.test(ua);
+      // 모달 자동 표시 여부 확인
+      const expire = localStorage.getItem("hideModalUntil");
+      const now = Date.now();
 
-  // 안드로이드: 구글 캘린더 템플릿(로컬시간 문자열 + ctz=Asia/Seoul)
-  if (isAndroid) {
-    const startStr = toLocalGoogleDate(startDate);
-    const endStr   = toLocalGoogleDate(endDate);
-    const url =
-      `https://www.google.com/calendar/render?action=TEMPLATE` +
-      `&text=${encodeURIComponent(title)}` +
-      `&dates=${startStr}/${endStr}` +
-      `&details=${encodeURIComponent(description)}` +
-      `&location=${encodeURIComponent(location)}` +
-      `&ctz=${encodeURIComponent('Asia/Seoul')}`;
-
-    // 이동 시도
-    window.location.href = url;
-
-    // 실패/취소 대비: 3초 후 오버레이 자동 제거
-    setTimeout(hideOverlay, 3000);
-    return;
-  }
-
-  // iOS/기타: ICS 파일 생성 후 자동 다운로드/열기
-  try {
-    const ics = makeICS({
-      title, location, description, startDate, endDate
+      if (!expire || now > Number(expire)) {
+        const modalEl = document.getElementById('gatheringModal');
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+      }
     });
-    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
-    const blobUrl = URL.createObjectURL(blob);
-
-    // iOS Safari 호환: 같은 탭에서 다운로드 트리거
-    const a = document.createElement('a');
-    a.href = blobUrl;
-    a.download = 'event.ics';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-
-    setTimeout(() => {
-      URL.revokeObjectURL(blobUrl);
-      hideOverlay();
-    }, 1200);
-  } catch (e) {
-    console.error(e);
-    hideOverlay();
-    alert('일정 파일(ICS) 생성 중 오류가 발생했습니다.');
-  }
-
-  // ===== 유틸 =====
-  function showOverlay(text) {
-    overlay.textContent = text;
-    overlay.style.display = 'flex';
-  }
-  function hideOverlay() {
-    overlay.style.display = 'none';
-  }
-  function isValidRange(s, e) {
-    return s instanceof Date && e instanceof Date && !isNaN(s) && !isNaN(e) && s < e;
-  }
-  function pad(n) { return String(n).padStart(2, '0'); }
-
-  // 구글 템플릿용(로컬시간, Z 없이) YYYYMMDDTHHMMSS
-  function toLocalGoogleDate(d) {
-    const y = d.getFullYear();
-    const m = pad(d.getMonth() + 1);
-    const dy = pad(d.getDate());
-    const hh = pad(d.getHours());
-    const mi = pad(d.getMinutes());
-    const ss = pad(d.getSeconds());
-    return `${y}${m}${dy}T${hh}${mi}${ss}`;
-  }
-
-  // ICS: UTC 표기(Z)로 안전하게 전달
-  function toICSDateUTC(d) {
-    const y = d.getUTCFullYear();
-    const m = pad(d.getUTCMonth() + 1);
-    const dy = pad(d.getUTCDate());
-    const hh = pad(d.getUTCHours());
-    const mi = pad(d.getUTCMinutes());
-    const ss = pad(d.getUTCSeconds());
-    return `${y}${m}${dy}T${hh}${mi}${ss}Z`;
-  }
-
-  function makeICS({ title, location, description, startDate, endDate }) {
-    const dtStamp = toICSDateUTC(new Date());
-    const dtStart = toICSDateUTC(startDate);
-    const dtEnd   = toICSDateUTC(endDate);
-    const uid = `ajoucu-${Date.now()}@event`;
-    const esc = (s) => String(s).replace(/\\/g,'\\\\').replace(/,/g,'\\,').replace(/;/g,'\\;').replace(/\n/g,'\\n');
-
-    return [
-      'BEGIN:VCALENDAR',
-      'VERSION:2.0',
-      'PRODID:-//AjouCU//Calendar Export//KO',
-      'CALSCALE:GREGORIAN',
-      'METHOD:PUBLISH',
-      'BEGIN:VEVENT',
-      `UID:${uid}`,
-      `DTSTAMP:${dtStamp}`,
-      `DTSTART:${dtStart}`,
-      `DTEND:${dtEnd}`,
-      `SUMMARY:${esc(title)}`,
-      `DESCRIPTION:${esc(description)}`,
-      `LOCATION:${esc(location)}`,
-      'END:VEVENT',
-      'END:VCALENDAR'
-    ].join('\r\n');
-  }
-}
-</script>
+  </script>
 </body>
 </html>
