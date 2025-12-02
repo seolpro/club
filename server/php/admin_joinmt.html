@@ -1098,5 +1098,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 5000);
 });
 </script>
+<script>
+  // 페이지 로드 시 방문 로그 남기기
+  fetch('https://seolhopro.mycafe24.com/mt/visit_log.php', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ page: '/mt/admin_joinmt.html' })
+  }).catch(() => {});
+</script>
+
 </body>
 </html>
