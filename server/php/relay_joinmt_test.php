@@ -1,7 +1,4 @@
 <?php
-
-//  계정 설정 , 인증키값 설정, 발송인 설정 필수
-
 // CORS 허용
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
@@ -45,8 +42,8 @@ $adminMessage = trim($data['adminMessage'] ?? '');
 // ✅ 관리자 연락처 리스트
 $adminPhones = [
     "01071186639", // 운영진1
-   "01023781287", // 운영진2
-   "01094031761"  // 운영진3
+    //"01023781287", // 운영진2
+    //"01094031761"  // 운영진3
 ];
 
 // ✅ 필수 값 체크
