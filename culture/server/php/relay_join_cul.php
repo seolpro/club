@@ -6,8 +6,8 @@ header("Access-Control-Allow-Headers: Content-Type");
 
 // ✅ 뿌리오 인증 토큰 발급 함수
 function getPpurioToken() {
-    $account = "ajou9770";
-    $authKey = "7bfe9eefc98c868431e0c3ca58c534ea37bbea9174a311c90be09636502ee296";
+    $account = "aj9770";
+    $authKey = "08868d27d42a13b10954f7c9705063152e03d948b824bf336ff611be225957b9";
     $authString = base64_encode("$account:$authKey");
 
     $ch = curl_init("https://message.ppurio.com/v1/token");
@@ -42,10 +42,10 @@ $adminMessage = trim($data['adminMessage'] ?? '');
 // ✅ 관리자 연락처 리스트
 $adminPhones = [
     "01071186639",// 운영진1
-     "01023781287", // 이세민
-    "01072491953",  // 김혜진
-    "01053380719",  // 유경화
-    "01071733755",  // 이경환 
+   //  "01023781287", // 이세민
+   // "01072491953",  // 김혜진
+   // "01053380719",  // 유경화
+   // "01071733755",  // 이경환 
 ];
 
 // ✅ 필수 값 체크
@@ -69,7 +69,7 @@ $headers = [
 
 // ✅ 1. 신청자에게 메시지 전송
 $payloadUser = [
-    "account" => "ajou9770",
+    "account" => "aj9770",
     "messageType" => getMessageType($userMessage),
     "content" => $userMessage,
     "from" => "01071186639",
@@ -106,7 +106,7 @@ foreach ($adminPhones as $adminPhone) {
 }
 
 $payloadAdmin = [
-    "account" => "ajou9770",
+    "account" => "aj9770",
     "messageType" => getMessageType($adminMessage),
     "content" => $adminMessage,
     "from" => "01071186639",
