@@ -33,6 +33,69 @@
 
 <div class="container py-3">
 
+<div id="mainCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
+  <!-- 슬라이드 인디케이터 (동그라미) -->
+  <div class="carousel-indicators">
+    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
+    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="1"></button>
+    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="2"></button>
+    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="3"></button>
+    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="4"></button>
+    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="5"></button>
+  </div>
+
+  <!-- 슬라이드 이미지 영역 -->
+  <div class="carousel-inner rounded shadow">
+    <div class="carousel-item active">
+      <img src="https://cdn.jbnews.com/news/photo/201305/519306_334994_3633.jpg" class="d-block w-100" alt="슬라이드1">
+    </div>
+    <!-- <div class="carousel-item">
+      <img src="https://www.google.com/url?sa=i&url=http%3A%2F%2Fweekly.chosun.com%2Fnews%2FarticleView.html%3Fidxno%3D22877&psig=AOvVaw0ENe_7axsCPFAHgBbKAQr5&ust=1756168981269000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCLCf0-zcpI8DFQAAAAAdAAAAABAY" class="d-block w-100" alt="슬라이드2">
+    </div> -->
+    <div class="carousel-item">
+      <img src="https://mblogthumb-phinf.pstatic.net/MjAyMjA1MDNfNDMg/MDAxNjUxNTU4NTA0Mjg5.zL6EBDhLHS02W1AeHGs0qYjyw8uVegnv7ThqsgAYgrEg.PyXqtfJR1-cYY1PH0THcuUoxqBFR0T3wS1hAE8SjLv4g.JPEG.iqee001/VideoCapture%EF%BC%BF20220503%EF%BC%8D132007.jpg?type=w800" class="d-block w-100" alt="슬라이드3">
+    </div>
+    <div class="carousel-item">
+      <img src="https://theimage.myfishmap.kr/pa/20200330160055.4BqJEhsrdwfZpaX.png" class="d-block w-100" alt="슬라이드4">
+    </div>
+    <!-- <div class="carousel-item">
+      <img src="https://www.namdonews.com/news/articleView.html?idxno=369804" class="d-block w-100" alt="슬라이드5">
+    </div> -->
+    <!-- <div class="carousel-item">
+      <img src="https://tong.visitkorea.or.kr/cms/resource/50/3095750_image2_1.jpg" class="d-block w-100" alt="슬라이드6">
+    </div> -->
+  </div>
+
+  <!-- 좌우 이동 버튼 -->
+  <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">이전</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#mainCarousel" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">다음</span>
+  </button>
+</div>
+<hr>
+  <h5><b>📢5월탐방 :서해안 바다낚시 체험</b>
+</h5><br>
+<p>
+   5월 탐방은 바다낚시 체험으로 진행합니다.  아래 일정을 참고하시어 신청해 주세요. <br><br>
+    📅 일시: 2026. 5. 16(토) 현장기준 9시  ~ 14시<br>
+    🏕 장소 : 서해안 당암포(바다낚시 가두리) <br> 
+      📌 가족과 함께 바다낚시의 묘미에 빠져 보세요 <br>
+
+    💳 참가비: 회원 5만원 / 비회원 8만원 (*회원가족 미취학:무료)<br>
+        [낚시일체, 간식, 점심(회 무한제공),  회 픽업]
+        <!-- <span><mark>📌바로쿡 도시락 공동구매 하실래요?</mark> </span><a href="https://www.coupang.com/vp/products/6542912717?itemId=20110975722&vendorItemId=86150531653&q=%ED%95%AB%EC%95%A4%EC%BF%A1&itemsCount=36&searchId=f32b09c4271240&rank=0&searchRank=0&isAddedCart=" target="_blank">
+  <img src="img/hotandcook.jpg" style="width: 350px; height: 250px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); border-radius: 8px;">
+</a> -->
+<br>
+    📅신청기간:   ~ 5.3(일)까지 (*최종신청인원이 20명 미만시 취소됩니다)<br>
+    🌧️우천시 취소 될 수 있습니다. 
+    <br> 
+</p>  
+
   <!-- 📢 안내 문구/이미지 슬라이드 등은 기존 코드 그대로 붙여넣기 -->
 
   <h5 class="text-center mb-3">⛰ 참가 신청서</h5>
@@ -76,9 +139,9 @@
     </div>
 
     <select class="form-select" id="course" disabled>
-      <option>청와대</option>
+      <option>바다낚시체험</option>
     </select>
-    <input type="hidden" id="courseHidden" value="청와대">
+    <input type="hidden" id="courseHidden" value="바다낚시체험">
 
     <div class="mb-3 align-items-center">
       <label class="form-label">🗨️기타 코멘트</label>
