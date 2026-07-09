@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="description" content="카톡 공유 링크로 바로 실행하는 웹 알람">
+  <title>알람 저장</title>
+
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --text:#111827;
+      --muted:#6b7280;
+      --primary:#2563eb;
+      --primary-dark:#1d4ed8;
+      --success:#16a34a;
+      --danger:#dc2626;
+      --warning:#f59e0b;
+      --line:#e5e7eb;
+      --shadow:0 16px 40px rgba(15,23,42,.12);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR","Apple SD Gothic Neo",Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(37,99,235,.18), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(14,165,233,.16), transparent 30%),
+        var(--bg);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:22px;
+    }
+    .wrap{
+      width:100%;
+      max-width:460px;
+    }
+    .card{
+      background:rgba(255,255,255,.94);
+      backdrop-filter: blur(12px);
+      border:1px solid rgba(255,255,255,.7);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .top{
+      padding:26px 24px 18px;
+      background:linear-gradient(135deg,#2563eb,#0ea5e9);
+      color:#fff;
+      text-align:center;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:7px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.18);
+      font-size:13px;
+      font-weight:700;
+      margin-bottom:12px;
+    }
+    h1{
+      margin:0;
+      font-size:28px;
+      line-height:1.25;
+      letter-spacing:-.04em;
+    }
+    .subtitle{
+      margin:8px 0 0;
+      font-size:14px;
+      opacity:.92;
+    }
+    .content{padding:24px}
+    .alarm-box{
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:18px;
+      background:#f9fafb;
+      text-align:center;
+      margin-bottom:16px;
+    }
+    .label{
+      font-size:13px;
+      color:var(--muted);
+      font-weight:700;
+      margin-bottom:6px;
+    }
+    .time{
+      font-size:52px;
+      line-height:1;
+      font-weight:900;
+      letter-spacing:-.06em;
+      color:#0f172a;
+      font-variant-numeric:tabular-nums;
+    }
+    .date-note{
+      margin-top:10px;
+      font-size:14px;
+      color:var(--muted);
+      font-weight:600;
+    }
+    .device{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+      padding:14px 15px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:#fff;
+      margin-bottom:16px;
+      font-size:14px;
+      color:#374151;
+      line-height:1.5;
+    }
+    .device .icon{font-size:22px; line-height:1.2}
+    .device strong{color:#111827}
+    .btn{
+      width:100%;
+      border:0;
+      border-radius:18px;
+      padding:17px 16px;
+      font-size:18px;
+      font-weight:900;
+      color:#fff;
+      background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+      cursor:pointer;
+      box-shadow:0 10px 20px rgba(37,99,235,.25);
+      -webkit-tap-highlight-color:transparent;
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn.secondary{
+      margin-top:10px;
+      color:#1f2937;
+      background:#fff;
+      border:1px solid var(--line);
+      box-shadow:none;
+      font-size:15px;
+    }
+    .status{
+      margin-top:16px;
+      padding:14px;
+      border-radius:16px;
+      background:#eff6ff;
+      color:#1e40af;
+      font-size:14px;
+      line-height:1.55;
+      display:none;
+    }
+    .status.show{display:block}
+    .status.success{background:#ecfdf5;color:#166534}
+    .status.warn{background:#fffbeb;color:#92400e}
+    .status.danger{background:#fef2f2;color:#991b1b}
+    .foot{
+      margin-top:14px;
+      text-align:center;
+      color:#6b7280;
+      font-size:12px;
+      line-height:1.5;
+    }
+    .hidden{display:none!important}
+    .ring{
+      position:fixed;
+      inset:0;
+      z-index:50;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:22px;
+      background:rgba(15,23,42,.78);
+    }
+    .ring.show{display:flex}
+    .ring-card{
+      width:100%;
+      max-width:420px;
+      background:#fff;
+      border-radius:28px;
+      padding:30px 24px;
+      text-align:center;
+      box-shadow:0 24px 70px rgba(0,0,0,.35);
+      animation:pulse .9s infinite alternate;
+    }
+    .ring-emoji{font-size:58px;margin-bottom:12px}
+    .ring-title{font-size:26px;font-weight:900;letter-spacing:-.04em}
+    .ring-time{margin-top:8px;font-size:42px;font-weight:900;color:var(--primary)}
+    .stop{
+      margin-top:22px;
+      width:100%;
+      border:0;
+      border-radius:18px;
+      padding:16px;
+      color:#fff;
+      font-size:18px;
+      font-weight:900;
+      background:var(--danger);
+      cursor:pointer;
+    }
+    @keyframes pulse{
+      from{transform:scale(1)}
+      to{transform:scale(1.025)}
+    }
+    @media (max-width:360px){
+      .time{font-size:44px}
+      h1{font-size:24px}
+      .content{padding:20px}
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="card">
+      <div class="top">
+        <div class="badge">⏰ 카톡 알람 링크</div>
+        <h1 id="titleText">알람 저장</h1>
+        <p class="subtitle">시간은 이미 설정되어 있습니다. 저장만 눌러주세요.</p>
+      </div>
+
+      <div class="content">
+        <div class="alarm-box">
+          <div class="label">설정된 알람 시간</div>
+          <div class="time" id="timeText">--:--</div>
+          <div class="date-note" id="dateNote">오늘 알람</div>
+        </div>
+
+        <div class="device" id="deviceBox">
+          <div class="icon">📱</div>
+          <div id="deviceGuide">
+            기기를 확인하고 있습니다.
+          </div>
+        </div>
+
+        <button class="btn" id="saveBtn">알람 저장</button>
+        <button class="btn secondary" id="testBtn">테스트 알림</button>
+
+        <div class="status" id="statusBox"></div>
+
+        <div class="foot">
+          ※ 웹 알람 특성상 알람이 울리려면 이 화면이 열려 있어야 합니다.<br>
+          ※ 아이폰은 자동 소리 재생 제한이 있어 저장 버튼을 꼭 눌러야 합니다.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="ring" id="ringLayer">
+    <div class="ring-card">
+      <div class="ring-emoji">🔔</div>
+      <div class="ring-title" id="ringTitle">알람 시간입니다</div>
+      <div class="ring-time" id="ringTime">--:--</div>
+      <button class="stop" id="stopBtn">알람 끄기</button>
+    </div>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  const params = new URLSearchParams(location.search);
+  const alarmTime = normalizeTime(params.get("time") || "04:30");
+  const alarmTitle = decodeTitle(params.get("title") || "알람");
+  const repeat = (params.get("repeat") || "once").toLowerCase(); // once, daily
+  const soundParam = (params.get("sound") || "basic").toLowerCase();
+
+  const $ = (id) => document.getElementById(id);
+
+  const titleText = $("titleText");
+  const timeText = $("timeText");
+  const dateNote = $("dateNote");
+  const deviceGuide = $("deviceGuide");
+  const saveBtn = $("saveBtn");
+  const testBtn = $("testBtn");
+  const statusBox = $("statusBox");
+  const ringLayer = $("ringLayer");
+  const ringTitle = $("ringTitle");
+  const ringTime = $("ringTime");
+  const stopBtn = $("stopBtn");
+
+  let alarmTimer = null;
+  let ringTimer = null;
+  let audioCtx = null;
+  let wakeLock = null;
+  let alarmSaved = false;
+
+  const device = detectDevice();
+
+  titleText.textContent = alarmTitle;
+  document.title = alarmTitle + " - 알람 저장";
+  timeText.textContent = alarmTime;
+  ringTitle.textContent = alarmTitle;
+  ringTime.textContent = alarmTime;
+
+  updateDateNote();
+  renderDeviceGuide();
+
+  saveBtn.addEventListener("click", saveAlarm);
+  testBtn.addEventListener("click", () => fireAlarm(true));
+  stopBtn.addEventListener("click", stopAlarm);
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && alarmSaved) {
+      scheduleAlarm();
+    }
+  });
+
+  window.addEventListener("beforeunload", function(e){
+    if(alarmSaved){
+      e.preventDefault();
+      e.returnValue = "";
+    }
+  });
+
+  function normalizeTime(value){
+    const m = String(value).trim().match(/^(\d{1,2}):(\d{1,2})$/);
+    if(!m) return "09:00";
+    let h = Math.max(0, Math.min(23, parseInt(m[1],10)));
+    let min = Math.max(0, Math.min(59, parseInt(m[2],10)));
+    return String(h).padStart(2,"0") + ":" + String(min).padStart(2,"0");
+  }
+
+  function decodeTitle(value){
+    try {
+      return decodeURIComponent(String(value).replace(/\+/g, " ")).trim() || "알람";
+    } catch(e){
+      return String(value || "알람").trim() || "알람";
+    }
+  }
+
+  function detectDevice(){
+    const ua = navigator.userAgent.toLowerCase();
+    const isKakao = ua.includes("kakaotalk");
+    const isAndroid = ua.includes("android");
+    const isIOS = /iphone|ipad|ipod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    const isSamsung = ua.includes("samsungbrowser");
+    const isPC = !isAndroid && !isIOS;
+
+    return { ua, isKakao, isAndroid, isIOS, isSamsung, isPC };
+  }
+
+  function renderDeviceGuide(){
+    if(device.isAndroid){
+      deviceGuide.innerHTML = `
+        <strong>Android / 갤럭시 기기</strong><br>
+        저장 버튼을 누르면 알림 권한을 확인하고, 지정 시간에 알람음·진동·브라우저 알림을 실행합니다.
+        ${device.isKakao ? "<br><strong>카톡 안에서 열렸습니다.</strong> 가능하면 우측 상단 메뉴에서 외부 브라우저로 열면 더 안정적입니다." : ""}
+      `;
+    } else if(device.isIOS){
+      deviceGuide.innerHTML = `
+        <strong>iPhone / iPad 기기</strong><br>
+        저장 버튼을 누른 뒤 이 화면을 닫지 말고 유지해 주세요. iOS 정책상 화면이 완전히 닫히면 알람음이 제한될 수 있습니다.
+        ${device.isKakao ? "<br><strong>카톡 안에서 열렸습니다.</strong> Safari로 열면 더 안정적입니다." : ""}
+      `;
+    } else {
+      deviceGuide.innerHTML = `
+        <strong>PC / 기타 브라우저</strong><br>
+        저장 버튼을 누르면 지정 시간에 화면 알림과 알람음이 실행됩니다.
+      `;
+    }
+  }
+
+  function getTargetDate(){
+    const [h,m] = alarmTime.split(":").map(Number);
+    const now = new Date();
+    const target = new Date();
+    target.setHours(h,m,0,0);
+
+    // 이미 지난 시간이면 다음 날로 예약
+    if(target.getTime() <= now.getTime()){
+      target.setDate(target.getDate() + 1);
+    }
+    return target;
+  }
+
+  function updateDateNote(){
+    const target = getTargetDate();
+    const now = new Date();
+    const isToday = target.toDateString() === now.toDateString();
+    const label = isToday ? "오늘 알람" : "내일 알람";
+    const detail = target.getFullYear() + "." +
+      String(target.getMonth()+1).padStart(2,"0") + "." +
+      String(target.getDate()).padStart(2,"0");
+    dateNote.textContent = label + " · " + detail;
+  }
+
+  async function saveAlarm(){
+    alarmSaved = true;
+    await unlockAudio();
+    await requestNotificationPermission();
+    await requestWakeLock();
+
+    scheduleAlarm();
+
+    const target = getTargetDate();
+    const minuteText = target.toLocaleString("ko-KR", {
+      month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit",
+      hour12:false
+    });
+
+    setStatus("success", `
+      <strong>알람이 저장되었습니다.</strong><br>
+      예정 시간: ${minuteText}<br>
+      이 화면을 닫지 말고 유지해 주세요.
+    `);
+
+    saveBtn.textContent = "알람 저장됨";
+  }
+
+  function scheduleAlarm(){
+    clearTimeout(alarmTimer);
+    updateDateNote();
+
+    const target = getTargetDate();
+    const delay = Math.max(1000, target.getTime() - Date.now());
+
+    alarmTimer = setTimeout(() => {
+      fireAlarm(false);
+
+      if(repeat === "daily"){
+        setTimeout(scheduleAlarm, 1000);
+      } else {
+        alarmSaved = false;
+        saveBtn.textContent = "알람 저장";
+      }
+    }, delay);
+  }
+
+  async function requestNotificationPermission(){
+    if(!("Notification" in window)) return false;
+    if(Notification.permission === "granted") return true;
+    if(Notification.permission !== "denied"){
+      try {
+        const result = await Notification.requestPermission();
+        return result === "granted";
+      } catch(e){
+        return false;
+      }
+    }
+    return false;
+  }
+
+  async function requestWakeLock(){
+    if(!("wakeLock" in navigator)) return;
+    try{
+      wakeLock = await navigator.wakeLock.request("screen");
+      wakeLock.addEventListener("release", () => {});
+    }catch(e){}
+  }
+
+  async function unlockAudio(){
+    try{
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      if(audioCtx.state === "suspended") await audioCtx.resume();
+
+      // 짧은 무음에 가까운 비프를 재생해 사용자 제스처로 오디오 잠금 해제
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      gain.gain.value = 0.001;
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.03);
+    }catch(e){}
+  }
+
+  function fireAlarm(isTest){
+    ringLayer.classList.add("show");
+    ringTitle.textContent = isTest ? "테스트 알림입니다" : alarmTitle;
+    ringTime.textContent = alarmTime;
+
+    if("Notification" in window && Notification.permission === "granted"){
+      try{
+        new Notification(isTest ? "테스트 알림" : alarmTitle, {
+          body: isTest ? "알림이 정상 작동합니다." : alarmTime + " 알람 시간입니다.",
+          tag: "web-alarm-" + alarmTime,
+          renotify: true
+        });
+      }catch(e){}
+    }
+
+    if(navigator.vibrate){
+      try{
+        navigator.vibrate([500,200,500,200,800]);
+      }catch(e){}
+    }
+
+    startBeepLoop();
+    setStatus("warn", isTest ? "테스트 알림을 실행했습니다." : "<strong>알람 시간입니다.</strong> 알람을 끄려면 아래 버튼을 눌러주세요.");
+  }
+
+  function startBeepLoop(){
+    stopBeepLoop();
+    playBeep();
+    ringTimer = setInterval(playBeep, 1300);
+  }
+
+  function stopBeepLoop(){
+    if(ringTimer){
+      clearInterval(ringTimer);
+      ringTimer = null;
+    }
+  }
+
+  function playBeep(){
+    try{
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      if(audioCtx.state === "suspended") audioCtx.resume();
+
+      const now = audioCtx.currentTime;
+      const frequencies = soundParam === "soft" ? [660, 880] : [880, 1046, 880];
+
+      frequencies.forEach((freq, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.0001, now + idx*0.18);
+        gain.gain.exponentialRampToValueAtTime(0.25, now + idx*0.18 + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + idx*0.18 + 0.16);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now + idx*0.18);
+        osc.stop(now + idx*0.18 + 0.17);
+      });
+    }catch(e){}
+  }
+
+  function stopAlarm(){
+    ringLayer.classList.remove("show");
+    stopBeepLoop();
+    if(navigator.vibrate){
+      try{ navigator.vibrate(0); }catch(e){}
+    }
+    setStatus("success", "알람을 종료했습니다.");
+  }
+
+  function setStatus(type, html){
+    statusBox.className = "status show " + (type || "");
+    statusBox.innerHTML = html;
+  }
+})();
+</script>
+</body>
+</html>
