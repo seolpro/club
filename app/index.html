@@ -262,7 +262,7 @@
   "use strict";
 
   const params = new URLSearchParams(location.search);
-  const alarmTime = normalizeTime(params.get("time") || "08:38");
+  const alarmTime = normalizeTime(params.get("time") || "08:45");
   const alarmTitle = decodeTitle(params.get("title") || "알람");
   const repeat = (params.get("repeat") || "once").toLowerCase(); // once, daily
   const soundParam = (params.get("sound") || "basic").toLowerCase();
