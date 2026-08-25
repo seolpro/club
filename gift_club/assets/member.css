@@ -1,0 +1,900 @@
+/* =========================================================
+   gift_club 회원 제출화면 전용 UI
+   기존 assets/style.css 위에 추가 적용
+   관리자 화면에는 영향을 주지 않습니다.
+========================================================= */
+
+.member-page {
+    min-height: 100vh;
+    margin: 0;
+    color: #17223b;
+    background:
+        radial-gradient(circle at 10% 0%, rgba(127, 119, 255, .18), transparent 26rem),
+        radial-gradient(circle at 100% 18%, rgba(255, 170, 198, .18), transparent 23rem),
+        linear-gradient(180deg, #f8f9ff 0%, #f4f7fb 48%, #f7f8fc 100%);
+}
+
+.member-page *,
+.member-page *::before,
+.member-page *::after {
+    box-sizing: border-box;
+}
+
+.member-wrap {
+    width: min(900px, calc(100% - 28px));
+    margin: 0 auto;
+    padding: 26px 0 34px;
+}
+
+
+/* HERO -------------------------------------------------- */
+
+.member-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 26px 28px 28px;
+    margin-bottom: 18px;
+    border: 1px solid rgba(255,255,255,.9);
+    border-radius: 28px;
+    background:
+        linear-gradient(135deg, rgba(255,255,255,.96), rgba(248,246,255,.92));
+    box-shadow:
+        0 18px 50px rgba(49, 58, 103, .10),
+        inset 0 1px 0 rgba(255,255,255,.95);
+}
+
+.hero-glow {
+    position: absolute;
+    border-radius: 999px;
+    filter: blur(1px);
+    pointer-events: none;
+}
+
+.hero-glow-a {
+    width: 180px;
+    height: 180px;
+    right: -56px;
+    top: -64px;
+    background: rgba(121, 103, 255, .12);
+}
+
+.hero-glow-b {
+    width: 150px;
+    height: 150px;
+    left: -72px;
+    bottom: -80px;
+    background: rgba(255, 162, 191, .15);
+}
+
+.hero-top,
+.hero-main,
+.hero-points {
+    position: relative;
+    z-index: 1;
+}
+
+.hero-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 22px;
+}
+
+.season-chip,
+.secure-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 34px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.season-chip {
+    color: #66540d;
+    background: #fff6c9;
+    border: 1px solid #f5e494;
+}
+
+.secure-chip {
+    color: #3c4a78;
+    background: #eef2ff;
+    border: 1px solid #dfe5ff;
+}
+
+.hero-main {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.gift-visual {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex: 0 0 116px;
+    width: 116px;
+    height: 116px;
+    border-radius: 34px;
+    background:
+        linear-gradient(145deg, #f0edff, #fff0f5);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.95),
+        0 14px 32px rgba(104, 87, 219, .14);
+    transform: rotate(-2deg);
+}
+
+.gift-main {
+    font-size: 58px;
+    line-height: 1;
+    filter: drop-shadow(0 7px 10px rgba(110,80,80,.14));
+}
+
+.spark {
+    position: absolute;
+    font-size: 18px;
+    animation: giftSpark 3.5s ease-in-out infinite;
+}
+
+.spark-1 {
+    top: 12px;
+    right: 10px;
+}
+
+.spark-2 {
+    left: 8px;
+    top: 28px;
+    animation-delay: .7s;
+}
+
+.spark-3 {
+    right: 16px;
+    bottom: 14px;
+    animation-delay: 1.4s;
+}
+
+@keyframes giftSpark {
+    0%, 100% { transform: scale(.85) rotate(-5deg); opacity: .65; }
+    50% { transform: scale(1.12) rotate(8deg); opacity: 1; }
+}
+
+.hero-copy {
+    min-width: 0;
+}
+
+.hero-copy .eyebrow {
+    display: block;
+    margin-bottom: 7px;
+    color: #6d63d8;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: .04em;
+}
+
+.hero-copy h1 {
+    margin: 0;
+    color: #17223b;
+    font-size: clamp(27px, 4vw, 40px);
+    line-height: 1.2;
+    letter-spacing: -.045em;
+}
+
+.hero-copy p {
+    margin: 10px 0 0;
+    color: #67718b;
+    font-size: 15px;
+    line-height: 1.72;
+}
+
+.hero-points {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.hero-points > div {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 12px 14px;
+    border: 1px solid #edf0f8;
+    border-radius: 18px;
+    background: rgba(255,255,255,.76);
+}
+
+.point-icon {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    border-radius: 11px;
+    background: #f5f5ff;
+    font-size: 17px;
+}
+
+.hero-points b,
+.hero-points small {
+    display: block;
+}
+
+.hero-points b {
+    color: #303a57;
+    font-size: 13px;
+}
+
+.hero-points small {
+    margin-top: 2px;
+    color: #8a92a8;
+    font-size: 11px;
+}
+
+
+/* CARD -------------------------------------------------- */
+
+.member-card {
+    padding: 28px;
+    border: 1px solid #eef0f7;
+    border-radius: 28px;
+    background: rgba(255,255,255,.96);
+    box-shadow: 0 18px 48px rgba(42, 52, 88, .09);
+}
+
+.modern-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.step-label {
+    display: inline-block;
+    margin-bottom: 6px;
+    color: #7268e7;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .12em;
+}
+
+.modern-head h2 {
+    margin: 0;
+    color: #202b46;
+    font-size: 22px;
+    letter-spacing: -.035em;
+}
+
+.modern-head p {
+    margin: 7px 0 0;
+    color: #7b849c;
+    font-size: 14px;
+}
+
+.final-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    padding: 9px 12px;
+    color: #5e58b3;
+    font-size: 12px;
+    font-weight: 900;
+    border: 1px solid #dedaff;
+    border-radius: 999px;
+    background: #f4f2ff;
+}
+
+
+/* FORM -------------------------------------------------- */
+
+.cute-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 15px;
+}
+
+.field-card {
+    display: block;
+    min-width: 0;
+    padding: 16px;
+    border: 1px solid #e7eaf3;
+    border-radius: 20px;
+    background: #fbfcff;
+    transition:
+        transform .16s ease,
+        border-color .16s ease,
+        box-shadow .16s ease,
+        background .16s ease;
+}
+
+.field-card:focus-within {
+    transform: translateY(-1px);
+    border-color: #afa8ff;
+    background: #fff;
+    box-shadow: 0 8px 22px rgba(100, 89, 210, .10);
+}
+
+.field-card.span-2 {
+    grid-column: 1 / -1;
+}
+
+.field-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 11px;
+}
+
+.field-title > span:nth-child(2) {
+    min-width: 0;
+    flex: 1;
+}
+
+.field-title b,
+.field-title small {
+    display: block;
+}
+
+.field-title b {
+    color: #27324d;
+    font-size: 14px;
+}
+
+.field-title small {
+    margin-top: 2px;
+    color: #9299aa;
+    font-size: 11px;
+}
+
+.field-title em {
+    align-self: flex-start;
+    color: #ff667d;
+    font-style: normal;
+    font-size: 15px;
+    font-weight: 900;
+}
+
+.field-icon {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    border-radius: 13px;
+    font-size: 18px;
+}
+
+.field-icon.purple { background: #efecff; }
+.field-icon.blue   { background: #eaf3ff; }
+.field-icon.green  { background: #eafaf3; }
+.field-icon.yellow { background: #fff6d9; }
+.field-icon.pink   { background: #fff0f4; }
+.field-icon.orange { background: #fff1e7; }
+
+.field-card input,
+.field-card select,
+.field-card textarea {
+    width: 100%;
+    margin: 0;
+    padding: 13px 14px;
+    color: #202b46;
+    font: inherit;
+    font-size: 15px;
+    outline: none;
+    border: 1px solid #dfe3ed;
+    border-radius: 14px;
+    background: #fff;
+    transition:
+        border-color .16s ease,
+        box-shadow .16s ease;
+}
+
+.field-card select {
+    min-height: 49px;
+    cursor: pointer;
+}
+
+.field-card textarea {
+    resize: vertical;
+    min-height: 108px;
+    line-height: 1.6;
+}
+
+.field-card input::placeholder,
+.field-card textarea::placeholder {
+    color: #b1b7c6;
+}
+
+.field-card input:focus,
+.field-card select:focus,
+.field-card textarea:focus {
+    border-color: #8f85f3;
+    box-shadow: 0 0 0 4px rgba(119, 105, 229, .09);
+}
+
+.comment-card {
+    position: relative;
+}
+
+.counter {
+    display: block;
+    margin-top: 8px;
+    color: #9ba2b3;
+    font-size: 11px;
+    text-align: right;
+}
+
+.counter b {
+    color: #6b62ce;
+}
+
+
+/* PRIVACY / CHECK -------------------------------------- */
+
+.smart-privacy {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    margin-top: 18px;
+    padding: 16px 18px;
+    border: 1px solid #dce8fb;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #f5f9ff, #f8fbff);
+}
+
+.privacy-icon {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    border-radius: 12px;
+    background: #e7f1ff;
+    font-size: 18px;
+}
+
+.smart-privacy b {
+    display: block;
+    margin-bottom: 4px;
+    color: #38516f;
+    font-size: 13px;
+}
+
+.smart-privacy p {
+    margin: 0;
+    color: #6e7d93;
+    font-size: 12px;
+    line-height: 1.65;
+}
+
+.cute-check {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin: 17px 0;
+    padding: 15px 16px;
+    cursor: pointer;
+    border: 1px solid #ececf3;
+    border-radius: 16px;
+    background: #fcfcfe;
+    color: #596176;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.cute-check input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.check-ui {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    border: 2px solid #cbd0dd;
+    border-radius: 8px;
+    background: #fff;
+    transition: all .16s ease;
+}
+
+.cute-check input:checked + .check-ui {
+    border-color: #756ae1;
+    background: #756ae1;
+}
+
+.cute-check input:checked + .check-ui::after {
+    content: "";
+    position: absolute;
+    left: 7px;
+    top: 3px;
+    width: 6px;
+    height: 11px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.cute-check:has(input:checked) {
+    border-color: #ddd9ff;
+    background: #f7f5ff;
+}
+
+
+/* BUTTON ------------------------------------------------ */
+
+.cute-submit {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 58px;
+    border: 0 !important;
+    border-radius: 18px !important;
+    background:
+        linear-gradient(135deg, #6e63de 0%, #6358d4 52%, #5a50ca 100%) !important;
+    box-shadow: 0 12px 28px rgba(91, 79, 200, .28);
+    font-weight: 900 !important;
+    letter-spacing: -.01em;
+    transition:
+        transform .16s ease,
+        box-shadow .16s ease !important;
+}
+
+.cute-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 34px rgba(91, 79, 200, .34);
+}
+
+.submit-arrow {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.18);
+    font-size: 17px;
+}
+
+.submit-note {
+    margin: 12px 0 0;
+    color: #8c93a5;
+    font-size: 11px;
+    line-height: 1.6;
+    text-align: center;
+}
+
+
+/* STATE ------------------------------------------------- */
+
+.state-card {
+    text-align: center;
+    padding: 46px 24px;
+}
+
+.state-emoji {
+    margin-bottom: 12px;
+    font-size: 52px;
+}
+
+.state-card h2 {
+    margin: 0 0 8px;
+    color: #27324d;
+}
+
+.state-card p {
+    margin: 0;
+    color: #7d8599;
+    line-height: 1.65;
+}
+
+
+/* FOOTER ------------------------------------------------ */
+
+.member-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 6px 2px;
+    color: #9a9faf;
+    font-size: 11px;
+}
+
+.member-footer a {
+    color: #8b90a0;
+    text-decoration: none;
+}
+
+.member-footer a:hover {
+    color: #6258ca;
+}
+
+
+/* MODAL ------------------------------------------------- */
+
+.member-modal {
+    padding: 18px;
+    backdrop-filter: blur(7px);
+}
+
+.modern-modal {
+    position: relative;
+    overflow: visible;
+    width: min(520px, 100%);
+    border: 1px solid rgba(255,255,255,.92);
+    border-radius: 26px !important;
+    box-shadow: 0 28px 70px rgba(28, 34, 60, .24) !important;
+}
+
+.modal-character {
+    position: absolute;
+    top: -27px;
+    left: 28px;
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    border: 5px solid #fff;
+    border-radius: 19px;
+    background: linear-gradient(145deg, #f0edff, #fff1f5);
+    font-size: 30px;
+    box-shadow: 0 9px 24px rgba(66, 53, 150, .15);
+    transform: rotate(-5deg);
+}
+
+.modern-modal .modal-head {
+    padding-top: 12px;
+}
+
+.modern-modal .modal-head h3 {
+    margin: 0;
+    color: #222d48;
+    font-size: 21px;
+}
+
+.modal-desc {
+    margin: 10px 0 16px !important;
+    color: #7c8498 !important;
+    font-size: 13px !important;
+    line-height: 1.65;
+}
+
+.confirm-list {
+    overflow: hidden;
+    margin: 0;
+    border: 1px solid #e8eaf2;
+    border-radius: 17px;
+    background: #fbfcff;
+}
+
+.confirm-list > div,
+.confirm-list dt,
+.confirm-list dd {
+    box-sizing: border-box;
+}
+
+.final-btn {
+    background: linear-gradient(135deg, #6e63de, #5b51ca) !important;
+}
+
+
+/* MOBILE ------------------------------------------------ */
+
+@media (max-width: 680px) {
+
+    .member-wrap {
+        width: min(100% - 20px, 900px);
+        padding-top: 12px;
+    }
+
+    .member-hero {
+        padding: 18px 17px 20px;
+        border-radius: 23px;
+    }
+
+    .hero-top {
+        margin-bottom: 17px;
+    }
+
+    .season-chip,
+    .secure-chip {
+        min-height: 30px;
+        padding: 6px 9px;
+        font-size: 11px;
+    }
+
+    .hero-main {
+        align-items: flex-start;
+        gap: 14px;
+    }
+
+    .gift-visual {
+        flex-basis: 76px;
+        width: 76px;
+        height: 76px;
+        border-radius: 23px;
+    }
+
+    .gift-main {
+        font-size: 40px;
+    }
+
+    .spark {
+        font-size: 12px;
+    }
+
+    .hero-copy h1 {
+        font-size: 24px;
+    }
+
+    .hero-copy p {
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .hero-points {
+        gap: 7px;
+        margin-top: 18px;
+    }
+
+    .hero-points > div {
+        display: block;
+        padding: 10px 7px;
+        text-align: center;
+    }
+
+    .point-icon {
+        margin: 0 auto 6px;
+        width: 31px;
+        height: 31px;
+    }
+
+    .hero-points b {
+        font-size: 11px;
+    }
+
+    .hero-points small {
+        font-size: 9px;
+    }
+
+    .member-card {
+        padding: 19px 15px;
+        border-radius: 23px;
+    }
+
+    .modern-head {
+        display: block;
+        margin-bottom: 17px;
+    }
+
+    .modern-head h2 {
+        font-size: 19px;
+    }
+
+    .final-badge {
+        margin-top: 11px;
+    }
+
+    .cute-form-grid {
+        grid-template-columns: 1fr;
+        gap: 11px;
+    }
+
+    .field-card,
+    .field-card.span-2 {
+        grid-column: auto;
+    }
+
+    .field-card {
+        padding: 13px;
+        border-radius: 17px;
+    }
+
+    .field-icon {
+        width: 34px;
+        height: 34px;
+        flex-basis: 34px;
+        border-radius: 11px;
+        font-size: 16px;
+    }
+
+    .field-title {
+        margin-bottom: 9px;
+    }
+
+    .field-card input,
+    .field-card select,
+    .field-card textarea {
+    resize: vertical;
+    min-height: 0;
+    line-height: 1.6;
+}
+
+    .smart-privacy {
+        padding: 14px;
+        border-radius: 16px;
+    }
+
+    .cute-check {
+        align-items: flex-start;
+        padding: 14px;
+    }
+
+    .cute-submit {
+        min-height: 56px;
+    }
+
+    .member-footer {
+        padding-left: 3px;
+        padding-right: 3px;
+    }
+
+    .modern-modal {
+        padding: 22px 18px 18px !important;
+        border-radius: 23px !important;
+    }
+
+    .modal-character {
+        left: 18px;
+        width: 52px;
+        height: 52px;
+        font-size: 27px;
+    }
+
+    .modern-modal .modal-head {
+        padding-top: 14px;
+    }
+
+    .modern-modal .modal-head h3 {
+        font-size: 19px;
+        padding-right: 24px;
+    }
+
+    .modal-actions {
+        gap: 8px;
+    }
+
+    .modal-actions .btn {
+        min-height: 48px;
+        padding-left: 12px;
+        padding-right: 12px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 390px) {
+    .secure-chip {
+        display: none;
+    }
+
+    .gift-visual {
+        flex-basis: 68px;
+        width: 68px;
+        height: 68px;
+    }
+
+    .gift-main {
+        font-size: 36px;
+    }
+
+    .hero-copy h1 {
+        font-size: 22px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .spark,
+    .cute-submit,
+    .field-card {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+

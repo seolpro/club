@@ -1,0 +1,10 @@
+<?php
+
+declare(strict_types=1); require_once dirname(__DIR__).'/config.php'; admin_required();
+$pdo=db();
+$total=(int)$pdo->query("SELECT COUNT(*) FROM gift_submissions")->fetchColumn();
+$clubs=(int)$pdo->query("SELECT COUNT(*) FROM gift_clubs WHERE is_active=1")->fetchColumn();
+$today=(int)$pdo->query("SELECT COUNT(*) FROM gift_submissions WHERE DATE(submitted_at)=CURDATE()")->fetchColumn();
+$recent=$pdo->query("SELECT s.*,c.name club_name FROM gift_submissions s JOIN gift_clubs c ON c.id=s.club_id ORDER BY s.submitted_at DESC LIMIT 8")->fetchAll();
+?>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>관리자 대시보드</title><link rel="stylesheet" href="../assets/style.css"></head><body class="admin-body"><?php include __DIR__.'/_nav.php'; ?><main class="admin-wrap"><div class="page-head"><div><span class="eyebrow">관리자</span><h1>대시보드</h1></div><div class="muted"><?=e((string)($_SESSION['gift_admin_name']??'관리자'))?>님</div></div><section class="stats"><div class="stat"><span>최종 제출</span><strong><?=number_format($total)?></strong><small>명</small></div><div class="stat"><span>활성 동아리</span><strong><?=number_format($clubs)?></strong><small>개</small></div><div class="stat"><span>오늘 제출</span><strong><?=number_format($today)?></strong><small>건</small></div></section><section class="card"><div class="section-head"><div><h2>최근 제출</h2><p>최근 8건을 표시합니다.</p></div><a class="btn small" href="submissions.php">전체보기</a></div><div class="table-wrap"><table><thead><tr><th>동아리</th><th>성명</th><th>연락처</th><th>은행</th><th>계좌번호</th><th>제출일시</th></tr></thead><tbody><?php foreach($recent as $r):?><tr><td><?=e($r['club_name'])?></td><td><b><?=e($r['member_name'])?></b></td><td><?=e($r['phone'])?></td><td><?=e($r['bank_name'])?></td><td><?=e(mask_account($r['account_no']))?></td><td><?=e($r['submitted_at'])?></td></tr><?php endforeach;?><?php if(!$recent):?><tr><td colspan="6" class="empty">아직 제출내역이 없습니다.</td></tr><?php endif;?></tbody></table></div></section></main></body></html>

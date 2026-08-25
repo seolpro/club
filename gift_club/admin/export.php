@@ -1,0 +1,5 @@
+<?php
+
+declare(strict_types=1); require_once dirname(__DIR__).'/config.php'; admin_required(); $pdo=db();
+$clubId=(int)($_GET['club_id']??0);$q=trim((string)($_GET['q']??''));$where=[];$params=[];if($clubId){$where[]='s.club_id=?';$params[]=$clubId;}if($q!==''){$where[]='(s.member_name LIKE ? OR s.phone LIKE ? OR s.bank_name LIKE ?)';$like='%'.$q.'%';array_push($params,$like,$like,$like);} $sql="SELECT c.name club_name,s.member_name,s.phone,s.bank_name,s.account_no,s.comment,s.submitted_at FROM gift_submissions s JOIN gift_clubs c ON c.id=s.club_id".($where?' WHERE '.implode(' AND ',$where):'')." ORDER BY c.sort_order,c.name,s.member_name";$st=$pdo->prepare($sql);$st->execute($params);
+$filename='gift_club_'.date('Ymd_His').'.csv';header('Content-Type: text/csv; charset=UTF-8');header('Content-Disposition: attachment; filename="'.$filename.'"');echo "\xEF\xBB\xBF";$out=fopen('php://output','w');fputcsv($out,['동아리','성명','연락처','은행명','계좌번호','기타코멘트','최종제출일시']);while($r=$st->fetch()){fputcsv($out,[$r['club_name'],$r['member_name'],$r['phone'],$r['bank_name'],"\t".$r['account_no'],$r['comment'],$r['submitted_at']]);}fclose($out);exit;
