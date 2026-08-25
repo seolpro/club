@@ -897,4 +897,7 @@
         transition: none !important;
     }
 }
-
+#comment {
+    height: 62px !important;
+    min-height: 62px !important;
+}
