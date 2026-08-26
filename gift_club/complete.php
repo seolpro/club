@@ -49,6 +49,43 @@ body{margin:0;min-height:100vh;overflow-x:hidden;color:#252d48;background:radial
 @keyframes fall{0%{opacity:0;transform:translateY(-25px) rotate(0)}10%{opacity:.9}50%{transform:translate(25px,155px) rotate(160deg)}100%{opacity:0;transform:translate(-18px,340px) rotate(330deg)}}
 @keyframes up{from{opacity:0;transform:translateY(17px)}to{opacity:1;transform:none}}
 @media(max-width:560px){.done-wrap{padding-top:9px}.festival{min-height:265px;border-radius:24px}.moon{width:100px;height:100px}.moon:after{font-size:43px}.rabbit{top:104px}.result{padding:18px 15px;border-radius:22px}.row{grid-template-columns:88px 1fr;padding:12px}.actions{grid-template-columns:1fr}}
+.payment-date{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin:0 0 18px;
+    padding:14px 16px;
+    border-radius:16px;
+    background:linear-gradient(135deg,#fff8df,#fff3c4);
+    border:1px solid #f4dfa0;
+}
+
+.payment-icon{
+    display:grid;
+    place-items:center;
+    width:42px;
+    height:42px;
+    flex:0 0 42px;
+    border-radius:13px;
+    background:#fff;
+    font-size:22px;
+}
+
+.payment-date small{
+    display:block;
+    margin-bottom:2px;
+    color:#8c7330;
+    font-size:11px;
+    font-weight:800;
+}
+
+.payment-date strong{
+    display:block;
+    color:#5f4915;
+    font-size:18px;
+    font-weight:900;
+    letter-spacing:-.03em;
+}
 </style>
 </head>
 <body>
@@ -69,6 +106,14 @@ body{margin:0;min-height:100vh;overflow-x:hidden;color:#252d48;background:radial
     <div class="ok">✅</div>
     <div><h2>계좌정보 제출이 완료되었습니다</h2><p><?=$replaced?'기존 제출내용은 새 정보로 변경되었습니다.':'입력하신 정보가 정상적으로 접수되었습니다.'?></p></div>
   </div>
+
+  <div class="payment-date">
+    <span class="payment-icon">💰</span>
+    <div>
+        <small>추석선물 입금 예정일</small>
+        <strong>9월 17일(목)</strong>
+    </div>
+</div>
 
   <dl class="info">
     <div class="row"><dt>🎯 동아리</dt><dd><?=e($club)?></dd></div>
