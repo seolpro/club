@@ -2,375 +2,918 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#174f3f">
   <title>🚩산행(트래킹) 참가 안내</title>
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
   <style>
-    /* 기존 스타일 그대로 사용 가능 (필요한 부분만 가져옴) */
-    .form-label { width: 120px; }
-    .form-inline .form-control, .form-inline select { flex: 1; }
-    #entryTableWrapper {
-      max-height: 2500px;
-      overflow: hidden;
-      opacity: 0;
-      transition: opacity 0.5s ease-in-out;
-      display: none;
+    :root{
+      --forest:#174f3f;
+      --forest-dark:#103b30;
+      --forest-soft:#edf7f3;
+      --lime:#dff3bc;
+      --ink:#17201c;
+      --muted:#67736d;
+      --line:#e5ebe8;
+      --surface:#ffffff;
+      --bg:#f4f7f5;
+      --warning:#fff7df;
+      --shadow:0 12px 34px rgba(20,55,43,.10);
+      --radius:22px;
     }
-    #entryTableWrapper.show {
-      display: block;
-      opacity: 1;
+
+    *{box-sizing:border-box}
+
+    html{scroll-behavior:smooth}
+
+    body{
+      margin:0;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(223,243,188,.55), transparent 24rem),
+        linear-gradient(180deg,#f7faf8 0%,#f3f6f4 100%);
+      font-family:
+        Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Noto Sans KR", Roboto, Arial, sans-serif;
+      word-break:keep-all;
+      -webkit-font-smoothing:antialiased;
     }
-    #entryList td {
-      font-weight: normal;
-      font-size: 0.9rem;
+
+    .page-shell{
+      width:min(100%, 920px);
+      margin:0 auto;
+      padding:12px 12px 56px;
     }
+
+    /* HERO / CAROUSEL */
+    .hero{
+      position:relative;
+      overflow:hidden;
+      border-radius:26px;
+      box-shadow:0 16px 42px rgba(15,52,40,.18);
+      background:#dfe7e2;
+    }
+
+    .hero .carousel-inner,
+    .hero .carousel-item{
+      height:clamp(240px, 55vw, 440px);
+    }
+
+    .hero .carousel-item img{
+      width:100%;
+      height:100%;
+      display:block;
+      object-fit:cover;
+      object-position:center;
+    }
+
+    .hero::after{
+      content:"";
+      pointer-events:none;
+      position:absolute;
+      inset:0;
+      z-index:1;
+      background:linear-gradient(180deg,rgba(0,0,0,.02) 45%,rgba(0,0,0,.34) 100%);
+    }
+
+    .hero .carousel-indicators,
+    .hero .carousel-control-prev,
+    .hero .carousel-control-next{
+      z-index:3;
+    }
+
+    .hero .carousel-indicators [data-bs-target]{
+      width:7px;
+      height:7px;
+      border:0;
+      border-radius:50%;
+      margin:0 5px;
+      opacity:.55;
+    }
+
+    .hero .carousel-indicators .active{
+      width:22px;
+      border-radius:10px;
+      opacity:1;
+    }
+
+    .hero-badge{
+      position:absolute;
+      left:18px;
+      bottom:18px;
+      z-index:2;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:9px 13px;
+      color:#fff;
+      background:rgba(16,59,48,.78);
+      border:1px solid rgba(255,255,255,.26);
+      backdrop-filter:blur(10px);
+      border-radius:999px;
+      font-weight:800;
+      font-size:.86rem;
+      box-shadow:0 8px 24px rgba(0,0,0,.16);
+    }
+
+    /* EVENT INFO */
+    .event-card{
+      margin-top:14px;
+      padding:22px;
+      border:1px solid rgba(229,235,232,.9);
+      border-radius:var(--radius);
+      background:rgba(255,255,255,.95);
+      box-shadow:var(--shadow);
+    }
+
+    .event-kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      padding:7px 11px;
+      margin-bottom:10px;
+      border-radius:999px;
+      color:var(--forest-dark);
+      background:var(--forest-soft);
+      font-size:.78rem;
+      font-weight:800;
+    }
+
+    .event-title{
+      margin:0;
+      color:#12271f;
+      font-size:clamp(1.32rem,4.8vw,1.9rem);
+      font-weight:900;
+      letter-spacing:-.035em;
+    }
+
+    .event-desc{
+      margin:11px 0 17px;
+      color:var(--muted);
+      font-size:.94rem;
+      line-height:1.72;
+    }
+
+    .summary-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+      margin:16px 0;
+    }
+
+    .summary-item{
+      min-height:82px;
+      padding:13px 14px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#fbfcfb;
+    }
+
+    .summary-label{
+      display:block;
+      margin-bottom:4px;
+      color:var(--muted);
+      font-size:.76rem;
+      font-weight:700;
+    }
+
+    .summary-value{
+      display:block;
+      color:#1b2c25;
+      font-size:.94rem;
+      font-weight:850;
+      line-height:1.45;
+    }
+
+    .course-grid{
+      display:grid;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .course-card{
+      padding:15px;
+      border:1px solid #dce8e2;
+      border-radius:17px;
+      background:linear-gradient(145deg,#fbfdfc,#f3f8f5);
+    }
+
+    .course-head{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:5px;
+      color:var(--forest-dark);
+      font-weight:900;
+    }
+
+    .course-card p{
+      margin:0;
+      color:#55645d;
+      font-size:.88rem;
+      line-height:1.55;
+    }
+
+    .notice-strip{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      margin-top:13px;
+      padding:12px 13px;
+      border-radius:15px;
+      background:var(--warning);
+      color:#6c5420;
+      font-size:.86rem;
+      line-height:1.55;
+    }
+
+    /* FORM */
+    .section-title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin:26px 2px 11px;
+    }
+
+    .section-title h2{
+      margin:0;
+      font-size:1.08rem;
+      font-weight:900;
+      letter-spacing:-.02em;
+    }
+
+    .section-title span{
+      color:var(--muted);
+      font-size:.75rem;
+    }
+
+    .form-card{
+      padding:18px;
+      border:1px solid rgba(229,235,232,.95);
+      border-radius:var(--radius);
+      background:rgba(255,255,255,.98);
+      box-shadow:var(--shadow);
+    }
+
+    .field{
+      margin-bottom:15px;
+    }
+
+    .field:last-of-type{margin-bottom:17px}
+
+    .form-label{
+      width:auto;
+      display:block;
+      margin:0 0 7px;
+      color:#34443d;
+      font-size:.86rem;
+      font-weight:800;
+    }
+
+    .form-control,
+    .form-select{
+      min-height:50px;
+      padding:.75rem .9rem;
+      border:1px solid #dbe4df;
+      border-radius:14px;
+      background:#fbfcfb;
+      color:#1e2b25;
+      font-size:.95rem;
+      box-shadow:none!important;
+      transition:border-color .18s ease, background .18s ease, box-shadow .18s ease;
+    }
+
+    .form-control:focus,
+    .form-select:focus{
+      border-color:#4d8b74;
+      background:#fff;
+      box-shadow:0 0 0 .22rem rgba(45,117,89,.10)!important;
+    }
+
+    .form-control::placeholder{
+      color:#a1aaa5;
+    }
+
+    #memberNamesGroup{
+      align-items:stretch!important;
+      flex-direction:column;
+    }
+
+    #memberNamesGroup .form-label{
+      width:auto;
+    }
+
+    .course-select-wrap{
+      position:relative;
+      margin-bottom:15px;
+      padding:13px;
+      border:1px solid #dce8e2;
+      border-radius:17px;
+      background:var(--forest-soft);
+    }
+
+    .course-select-wrap .form-label{
+      color:var(--forest-dark);
+    }
+
+    #course{
+      background-color:#fff;
+      font-weight:700;
+    }
+
+    .submit-btn{
+      min-height:54px;
+      border:0;
+      border-radius:15px;
+      background:linear-gradient(135deg,#1b684f,#124a3b);
+      color:#fff;
+      font-weight:900;
+      letter-spacing:-.01em;
+      box-shadow:0 10px 20px rgba(18,74,59,.22);
+      transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+    }
+
+    .submit-btn:hover{
+      color:#fff;
+      transform:translateY(-1px);
+      box-shadow:0 13px 24px rgba(18,74,59,.27);
+    }
+
+    .submit-btn:disabled{
+      opacity:.65;
+      transform:none;
+    }
+
+    /* STATUS */
+    .change-guide{
+      margin:14px 0 10px;
+      padding:13px 14px;
+      border:1px solid #dfe8e4;
+      border-radius:16px;
+      color:#48564f;
+      background:#fff;
+      font-size:.85rem;
+      line-height:1.55;
+      box-shadow:0 7px 20px rgba(22,57,45,.05);
+    }
+
+    .status-toggle{
+      min-height:48px;
+      border:1px solid #a9c8bb;
+      border-radius:14px;
+      color:var(--forest-dark);
+      background:#f6fbf8;
+      font-weight:850;
+    }
+
+    .status-toggle:hover{
+      border-color:#6ca48e;
+      color:var(--forest-dark);
+      background:#ebf6f1;
+    }
+
+    .entries-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-top:22px;
+    }
+
+    .entries-head h6{
+      margin:0;
+      font-size:.96rem;
+      font-weight:900;
+    }
+
+    #totalCount{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:5px 9px;
+      border-radius:999px;
+      background:var(--forest-soft);
+      color:var(--forest-dark)!important;
+      font-size:.76rem!important;
+      font-weight:850;
+      white-space:nowrap;
+    }
+
+    #entryTableWrapper{
+      max-height:2500px;
+      overflow:hidden;
+      opacity:0;
+      transition:opacity .4s ease-in-out;
+      display:none;
+      margin-top:11px;
+      padding:13px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      box-shadow:0 10px 26px rgba(23,62,48,.07);
+    }
+
+    #entryTableWrapper.show{
+      display:block;
+      opacity:1;
+    }
+
+    #entryTableWrapper .table{
+      margin-bottom:0;
+      border-color:#e6ece9;
+      overflow:hidden;
+      border-radius:14px;
+    }
+
+    #entryTableWrapper .table thead th{
+      border-color:#284e40;
+      background:#214f3e;
+      color:#fff;
+      font-size:.78rem;
+      font-weight:800;
+      vertical-align:middle;
+      white-space:nowrap;
+    }
+
+    #entryList td{
+      font-weight:500;
+      font-size:.82rem;
+      vertical-align:middle;
+    }
+
+    #entryList .btn-warning{
+      border:0;
+      border-radius:10px;
+      background:#fff1cf;
+      color:#a46800;
+    }
+
+    /* MODAL */
+    .modal-content{
+      overflow:hidden;
+      border:0;
+      border-radius:22px;
+      box-shadow:0 25px 60px rgba(0,0,0,.22);
+    }
+
+    .modal-header{
+      padding:17px 18px;
+      border:0;
+      background:var(--forest)!important;
+    }
+
+    .modal-title{
+      font-size:1rem;
+      font-weight:900;
+    }
+
+    .modal-body{padding:18px}
+
+    .modal-footer{
+      padding:0 18px 18px;
+      border:0;
+    }
+
+    #reasonForm .btn{
+      min-height:49px;
+      display:flex;
+      align-items:center;
+      border-radius:13px;
+    }
+
+    #confirmDelete{
+      min-height:50px;
+      border:0;
+      border-radius:14px;
+      background:#174f3f;
+      color:#fff;
+    }
+
+    #reasonPreview{
+      min-height:24px;
+      padding:8px 10px;
+      border-radius:10px;
+      background:#f5f7f6;
+    }
+
     .preview-btn{
-    display:inline-block;
-    background:#ff0000;
-    color:#fff;
-    text-decoration:none;
-    padding:10px 22px;
-    border-radius:50px;
-    font-weight:700;
-    box-shadow:0 4px 12px rgba(0,0,0,.15);
-    transition:.25s;
-    text-align:center;
-}
-.preview-btn:hover{
-    background:#d80000;
-    transform:translateY(-2px);
-    color:#fff;
-}
-.preview-btn small{
-    font-weight:400;
-    opacity:.9;
-}
+      display:inline-block;
+      padding:10px 22px;
+      border-radius:50px;
+      background:#ff0000;
+      color:#fff;
+      text-decoration:none;
+      text-align:center;
+      font-weight:700;
+      box-shadow:0 4px 12px rgba(0,0,0,.15);
+      transition:.25s;
+    }
+
+    .preview-btn:hover{
+      background:#d80000;
+      transform:translateY(-2px);
+      color:#fff;
+    }
+
+    .preview-btn small{
+      font-weight:400;
+      opacity:.9;
+    }
+
+    @media (min-width:768px){
+      .page-shell{padding:22px 22px 70px}
+      .event-card{padding:28px}
+      .summary-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+      .course-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .form-card{padding:25px}
+      .form-card .field.inline-desktop{
+        display:grid;
+        grid-template-columns:145px minmax(0,1fr);
+        align-items:center;
+        gap:13px;
+      }
+      .form-card .field.inline-desktop .form-label{
+        margin:0;
+      }
+      #memberNamesGroup{
+        display:grid;
+        grid-template-columns:145px minmax(0,1fr);
+        align-items:center!important;
+        gap:13px;
+      }
+      #memberNamesGroup .form-label{margin:0}
+    }
+
+    @media (max-width:575.98px){
+      .page-shell{padding:10px 10px 44px}
+      .hero{border-radius:20px}
+      .hero .carousel-inner,
+      .hero .carousel-item{height:260px}
+      .hero-badge{left:13px;bottom:13px;font-size:.78rem}
+      .event-card{padding:18px 16px;border-radius:19px}
+      .summary-grid{gap:8px}
+      .summary-item{min-height:78px;padding:11px}
+      .summary-value{font-size:.86rem}
+      .form-card{padding:16px 14px;border-radius:19px}
+      .form-control,.form-select{font-size:16px} /* iOS 자동 확대 방지 */
+      #entryTableWrapper{padding:9px}
+      #entryTableWrapper .table{table-layout:fixed}
+      #entryTableWrapper .table th:nth-child(1){width:28%}
+      #entryTableWrapper .table th:nth-child(2){width:16%}
+      #entryTableWrapper .table th:nth-child(3){width:40%}
+      #entryTableWrapper .table th:nth-child(4){width:16%}
+      #entryList td{padding:.6rem .3rem;font-size:.75rem;word-break:break-word}
+      .entries-head{align-items:flex-start;flex-direction:column}
+      .carousel-control-prev,.carousel-control-next{width:12%}
+    }
+
+    @media (prefers-reduced-motion:reduce){
+      *,*::before,*::after{
+        scroll-behavior:auto!important;
+        transition:none!important;
+        animation:none!important;
+      }
+    }
   </style>
 </head>
-<body class="bg-light">
 
-<div class="container py-3">
+<body>
+  <main class="page-shell">
 
-<body class="bg-light">
-<!-- <div class="mb-4 position-relative" style="height: 400px; overflow: hidden;">
-  <img id="randomImage" class="position-absolute w-90 h-90 object-fit-cover fade-image" src="" alt="랜덤 산 이미지" />
-</div> -->
-<!-- 이미지 슬라이드 -->
-<div id="mainCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
-  <!-- 슬라이드 인디케이터 (동그라미) -->
-  <div class="carousel-indicators">
-    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
-    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="1"></button>
-    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="2"></button>
-    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="3"></button>
-    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="4"></button>
-    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="5"></button>
-  </div>
+    <!-- 상단 이미지 슬라이드 -->
+    <section class="hero">
+      <div id="mainCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4500">
+        <div class="carousel-indicators">
+          <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="1번 이미지"></button>
+          <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="1" aria-label="2번 이미지"></button>
+          <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="2" aria-label="3번 이미지"></button>
+          <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="3" aria-label="4번 이미지"></button>
+          <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="4" aria-label="5번 이미지"></button>
+        </div>
 
-  <!-- 슬라이드 이미지 영역 -->
-  <div class="carousel-inner rounded shadow">
-    <div class="carousel-item active">
-      <img src="https://wimg.mk.co.kr/news/cms/202510/22/news-p.v1.20251022.760afd18d9fe4d4b8e8492e1f5961694_P1.jpg" class="d-block w-100" alt="슬라이드1">
-    </div>
-    <!-- <div class="carousel-item">
-      <img src="https://www.google.com/url?sa=i&url=http%3A%2F%2Fweekly.chosun.com%2Fnews%2FarticleView.html%3Fidxno%3D22877&psig=AOvVaw0ENe_7axsCPFAHgBbKAQr5&ust=1756168981269000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCLCf0-zcpI8DFQAAAAAdAAAAABAY" class="d-block w-100" alt="슬라이드2">
-    </div> -->
-    <div class="carousel-item">
-      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqdZPl3ZAAXeYf-8caGMgFEi_2Ymp_jTgmEEYx2ZL83wlQWSowRvB_6GKu&s=10" class="d-block w-100" alt="슬라이드3">
-    </div>
-    <div class="carousel-item">
-      <img src="https://cdn.vdcm.co.kr/news/photo/202008/7123_22176_3310.jpg" class="d-block w-100" alt="슬라이드4">
-    </div>
-    <div class="carousel-item">
-      <img src="https://cdn.imweb.me/upload/S201712205a3a0910b89f5/9ff34ac6f34bc.jpg" class="d-block w-100" alt="슬라이드5">
-    </div>
-    <div class="carousel-item">
-      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgKmPmwXy599f20GR1nsrGydRPVITk1OcG2O2YZizU2KTSyFZSLjdmEuPj&s=10" class="d-block w-100" alt="슬라이드6">
-    </div>
-  </div>
+        <div class="carousel-inner">
+          <div class="carousel-item active">
+            <img src="https://wimg.mk.co.kr/news/cms/202510/22/news-p.v1.20251022.760afd18d9fe4d4b8e8492e1f5961694_P1.jpg" alt="오대산 풍경 1">
+          </div>
+          <div class="carousel-item">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqdZPl3ZAAXeYf-8caGMgFEi_2Ymp_jTgmEEYx2ZL83wlQWSowRvB_6GKu&s=10" alt="오대산 풍경 2">
+          </div>
+          <div class="carousel-item">
+            <img src="https://cdn.vdcm.co.kr/news/photo/202008/7123_22176_3310.jpg" alt="오대산 풍경 3">
+          </div>
+          <div class="carousel-item">
+            <img src="https://cdn.imweb.me/upload/S201712205a3a0910b89f5/9ff34ac6f34bc.jpg" alt="오대산 풍경 4">
+          </div>
+          <div class="carousel-item">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgKmPmwXy599f20GR1nsrGydRPVITk1OcG2O2YZizU2KTSyFZSLjdmEuPj&s=10" alt="오대산 풍경 5">
+          </div>
+        </div>
 
-  <!-- 좌우 이동 버튼 -->
-  <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel" data-bs-slide="prev">
-    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">이전</span>
-  </button>
-  <button class="carousel-control-next" type="button" data-bs-target="#mainCarousel" data-bs-slide="next">
-    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">다음</span>
-  </button>
-</div>
-<div class="container py-3">
-  <h5><b>📢9월 오대산 비로봉 & 선재길 트래킹</b>
-</h5><br>
-<p>
-   9월에는 당초 예정된 월류봉 트래킹코스가 햇볕 노출이 심한 구간이라, 무더위를 피해 오대산 선재길 및 비로봉 코스로 변경 진행합니다. 아래 일정 등을 보시고 신청해 주세요. <br><br>
-    📅 일시: 2026. 9. 12(토) 6시 ~ 19시<br>
-    🏕 장소 : 오대산 비로봉산행 또는 선재길 트래킹<br> 
-       - A 코스(비로봉): 상원사(874M) ~ 비로봉 (1,563M 원점회귀 왕복 약 7KM, 4시간 소요, 난이도 중상)<br>
-       - B 코스(선재길): 월정사(일주문) ~ 상원사 (평길,약간오르막 약 10KM, 약 4시간소요, 난이도: 하)<br>
-        📌 오대산 선재길은 평지또는 완만한 오르막으로 누구나 쉽게 트래킹을 즐길 수 있습니다.<br> 
-       <br>     
-
-    💳 참가비: 회원 2만원 / 비회원 4만원 <br>
-        [교통비, 아침간단식, 하산식(점심)포함]<br>
-        
-
-    📅신청기간:   ~ 9.6(일)까지 <br>
-    🌧️우천시 취소 또는 장소를 변경하여 진행 될 수 있습니다. 
-    <br>
-   <!-- <a href="https://youtu.be/h1YwLtTQaqk?si=pAaHCeaWSsEBSlXF"
-   target="_blank"
-   class="preview-btn">
-   ▶️ 자월도 미리보기<br>
-   <small>유튜버 슬기로운 캠핑생활</small>
-</a> -->
-</p>  
-
-  <h5 class="text-center mb-3">⛰ 참가 신청서</h5>
-  <div class="card p-4 shadow">
-    <div class="mb-2 d-flex align-items-center form-inline">
-      <label class="form-label">👤 성명*</label>
-      <input type="text" class="form-control" id="name">
-    </div>
-
-    <div class="mb-2 d-flex align-items-center form-inline">
-      <label class="form-label">📱 연락처*</label>
-      <input type="tel" class="form-control" id="contact" placeholder="숫자만 입력" required>
-    </div>
-
-    <div class="mb-2 d-flex align-items-center form-inline">
-      <label class="form-label">👥 참가인원*</label>
-      <select class="form-select" id="participants" required>
-        <option value="">✔선택</option>
-        <option value="1">1명</option>
-        <option value="2">2명</option>
-        <option value="3">3명</option>
-        <option value="4">4명</option>
-        <option value="5">5명</option>
-      </select>
-    </div>
-
-    <div class="mb-3 align-items-center">
-      <label class="form-label" style="min-width: 250px;">✨참가인원중 비회원은?</label>
-      <select class="form-select" id="nonMembers">
-        <option value="">✔선택</option>
-        <option value="0">0명</option>
-        <option value="1">1명</option>
-        <option value="2">2명</option>
-        <option value="3">3명</option>
-        <option value="4">4명</option>
-        <option value="5">5명</option>
-      </select>
-    </div>
-
-    <div class="mb-2 d-flex align-items-center form-inline" id="memberNamesGroup" style="display: none;">
-      <label class="form-label">👬 동반회원</label>
-      <input type="text" class="form-control" id="memberNames" placeholder="동반회원(쉼표로 구분)">
-    </div>
-
-    <select class="form-select" id="course">
-  <option value="">코스를 선택하세요</option>
-  <option value="A 코스[상원사~비로봉(정상)]">
-  A 코스[상원사~비로봉(정상)]
-  </option>
-  <option value="B 코스[선재길 / 월정사~상원사]">
-  B 코스[선재길 / 월정사~상원사]
-  </option>
-</select>
-
-<!-- <div class="mb-3">
-  <label class="form-label">단일 코스(구곡담계곡 트래킹)</label>
-  <input type="text" class="form-control"
-         value="단일 코스[구곡담 계곡 트래킹]"
-         readonly>
-  <input type="hidden" id="course" name="course"
-         value="A코스">
-</div> -->
-
-<input type="hidden" id="courseHidden" name="course">
-
-<script>
-document.getElementById('course').addEventListener('change', function () {
-  document.getElementById('courseHidden').value = this.value;
-});
-</script>
-
-    <div class="mb-3 align-items-center">
-      <label class="form-label">🗨️기타 코멘트</label>
-      <input type="text" class="form-control" placeholder="선택 사항입니다." id="comment">
-    </div>
-    <button class="btn btn-primary w-100" onclick="submitForm()">📥 신청하기</button>
-  </div>
-
-  <br>
-  <span class="mt-3"><mark>
-    💬취소 또는 변경(취소 후 재신청)은 아래
-    <button class="btn btn-outline-primary btn-sm" onclick="alert('🤷‍♂️신청내역 ⬇⬇아래  버튼을 터치해 주세요')">🔎신청현황보기</button>
-    에서 진행해 주세요.
-  </mark></span>
-
-  <br><br>
-
-  <button id="toggleEntryListBtn" class="btn btn-outline-primary">🔎신청현황 보기</button>
-  <div class="d-flex justify-content-between align-items-center mt-4">
-    <h6 class="mb-0">📋 신청 내역(*신청역순)</h6>
-    <span id="totalCount" class="text-primary" style="font-size: medium;"></span>
-  </div>
-  <hr>
-  <div id="entryTableWrapper" style="display: none;">
-    <div class="mb-3">
-      <input type="text" id="searchInput" class="form-control" placeholder="🔍 이름으로 검색 (*키워드 일부입력 검색가능)">
-    </div>
-
-    <table class="table table-bordered text-center mt-2">
-      <thead class="table-dark">
-        <tr>
-          <th>성명</th>
-          <th>인원</th>
-          <th>코스</th>
-          <th>취소하기</th>
-        </tr>
-      </thead>
-      <tbody id="entryList"></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- 삭제 사유 선택 모달 (기존 그대로) -->
-<div class="modal fade" id="reasonModal" tabindex="-1" aria-labelledby="reasonModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header bg-info text-white">
-        <h5 class="modal-title" id="reasonModalLabel">📝 취소 사유를 선택해 주세요</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+        <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">이전</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#mainCarousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">다음</span>
+        </button>
       </div>
 
-      <div class="modal-body">
-        <form id="reasonForm" class="d-grid gap-2">
-          <div class="form-check p-0">
-            <input class="btn-check" type="radio" name="deleteReason" id="reason1" value="잘못 신청함" autocomplete="off" required>
-            <label class="btn btn-outline-danger w-100 text-start fw-bold" for="reason1">❌ 잘못 신청함</label>
-          </div>
+      <div class="hero-badge">🥾 9월 정기 산행 · Odaesan Trekking</div>
+    </section>
 
-          <div class="form-check p-0">
-            <input class="btn-check" type="radio" name="deleteReason" id="reason2" value="인원 변경" autocomplete="off">
-            <label class="btn btn-outline-warning w-100 text-start fw-bold" for="reason2">🤵 인원 변경</label>
-          </div>
+    <!-- 산행 안내 -->
+    <section class="event-card">
+      <span class="event-kicker">🌲 산악회 정기 트래킹(하이킹)</span>
+      <h1 class="event-title">⛰️ 9월 오대산 비로봉(트래킹) & 선재길(하이킹)</h1>
 
-          <div class="form-check p-0">
-            <input class="btn-check" type="radio" name="deleteReason" id="reason3" value="개인 사정" autocomplete="off">
-            <label class="btn btn-outline-secondary w-100 text-start fw-bold" for="reason3">🤷‍♀️ 개인 사정</label>
-          </div>
+      <p class="event-desc">
+        9월에는 당초 예정된 월류봉 하이킹코스가 햇볕 노출이 심한 구간이라,
+        무더위를 피해 <b>오대산 선재길 및 비로봉 코스</b>로 변경 진행합니다.
+        아래 일정과 코스를 확인하신 후 신청해 주세요.
+      </p>
 
-          <div class="form-check p-0">
-            <input class="btn-check" type="radio" name="deleteReason" id="reason4" value="기타" autocomplete="off">
-            <label class="btn btn-outline-primary w-100 text-start fw-bold" for="reason4">💬 기타</label>
-          </div>
-
-          <!-- ✅ 선택 표시 영역(추가) -->
-          <div id="reasonPreview" class="mt-2 small text-muted"></div>
-        </form>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <span class="summary-label">📅 일시</span>
+          <span class="summary-value">2026. 9. 12(토)<br>06:00 ~ 19:00</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">📍 장소</span>
+          <span class="summary-value">오대산<br>비로봉 · 선재길</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">💳 참가비</span>
+          <span class="summary-value">회원 2만원<br>비회원 4만원</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">📝 신청기간</span>
+          <span class="summary-value">~ 9. 6(일)<br>까지</span>
+        </div>
       </div>
 
-      <div class="modal-footer">
-        <!-- ✅ type="button" 꼭 권장 (원치않는 submit 방지) -->
-        <button id="confirmDelete" type="button" class="btn btn-info w-100 fw-bold">✔ 취소 신청하기</button>
+      <div class="course-grid">
+        <div class="course-card">
+          <div class="course-head">🥾 A 코스 · 비로봉</div>
+          <p>
+            상원사(874m) → 비로봉(1,563m) → 상원사<br>
+            왕복 약 7km · 약 4시간 · <b>난이도 중상</b>
+          </p>
+        </div>
+
+        <div class="course-card">
+          <div class="course-head">🌿 B 코스 · 선재길</div>
+          <p>
+            월정사(일주문) → 상원사<br>
+            약 10km · 약 4시간 · <b>난이도 하</b><br>
+            평지와 완만한 오르막 중심으로 누구나 편하게 즐길 수 있습니다.
+          </p>
+        </div>
+      </div>
+
+      <div class="notice-strip">
+        <span>🍱</span>
+        <div>참가비에는 <b>교통비, 아침 간단식, 하산식(점심)</b>이 포함됩니다.</div>
+      </div>
+      <div class="notice-strip">
+        <span>🌧️</span>
+        <div>우천 시 산행이 취소되거나 안전을 고려해 장소가 변경될 수 있습니다.</div>
+      </div>
+    </section>
+
+    <!-- 신청서 -->
+    <div class="section-title">
+      <h2>📝 참가 신청서</h2>
+      <span>* 필수 입력</span>
+    </div>
+
+    <section class="form-card">
+      <div class="field inline-desktop">
+        <label class="form-label" for="name">👤 성명 *</label>
+        <input type="text" class="form-control" id="name" placeholder="성명을 입력해 주세요" autocomplete="name">
+      </div>
+
+      <div class="field inline-desktop">
+        <label class="form-label" for="contact">📱 연락처 *</label>
+        <input type="tel" class="form-control" id="contact" placeholder="01012345678 (숫자만)" inputmode="numeric" autocomplete="tel" required>
+      </div>
+
+      <div class="field inline-desktop">
+        <label class="form-label" for="participants">👥 참가인원 *</label>
+        <select class="form-select" id="participants" required>
+          <option value="">참가인원을 선택하세요</option>
+          <option value="1">1명</option>
+          <option value="2">2명</option>
+          <option value="3">3명</option>
+          <option value="4">4명</option>
+          <option value="5">5명</option>
+        </select>
+      </div>
+
+      <div class="field inline-desktop">
+        <label class="form-label" for="nonMembers">✨ 비회원 인원</label>
+        <select class="form-select" id="nonMembers">
+          <option value="">비회원 인원을 선택하세요</option>
+          <option value="0">0명</option>
+          <option value="1">1명</option>
+          <option value="2">2명</option>
+          <option value="3">3명</option>
+          <option value="4">4명</option>
+          <option value="5">5명</option>
+        </select>
+      </div>
+
+      <div class="field" id="memberNamesGroup" style="display:none;">
+        <label class="form-label" for="memberNames">👬 동반회원</label>
+        <input type="text" class="form-control" id="memberNames" placeholder="동반회원 이름을 쉼표로 구분해 입력">
+      </div>
+
+      <div class="course-select-wrap">
+        <label class="form-label" for="course">🗺️ 산행 코스 *</label>
+        <select class="form-select" id="course">
+          <option value="">코스를 선택하세요</option>
+          <option value="A 코스[상원사~비로봉(정상)]">A 코스(트래킹)  · 상원사 ~ 비로봉(정상)</option>
+          <option value="B 코스[선재길 / 월정사~상원사]">B 코스(하이킹) · 선재길 / 월정사 ~ 상원사</option>
+        </select>
+      </div>
+
+      <input type="hidden" id="courseHidden" name="course">
+
+      <div class="field">
+        <label class="form-label" for="comment">💬 기타 코멘트</label>
+        <input type="text" class="form-control" placeholder="선택 사항입니다." id="comment">
+      </div>
+
+      <button class="btn submit-btn w-100" onclick="submitForm()">📥 참가 신청하기</button>
+    </section>
+
+    <div class="change-guide">
+      🔄 신청내용을 변경하려면 기존 신청을 취소한 후 다시 신청해 주세요.
+      아래 <b>신청현황 보기</b>에서 취소할 수 있습니다.
+    </div>
+
+    <button id="toggleEntryListBtn" class="btn status-toggle w-100">🔎 신청현황 보기</button>
+
+    <div class="entries-head">
+      <h6>📋 신청 내역 <span class="text-secondary fw-normal">· 신청 역순</span></h6>
+      <span id="totalCount"></span>
+    </div>
+
+    <div id="entryTableWrapper" style="display:none;">
+      <div class="mb-3">
+        <input type="text" id="searchInput" class="form-control" placeholder="🔍 이름으로 검색">
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-bordered text-center align-middle">
+          <thead>
+            <tr>
+              <th>성명</th>
+              <th>인원</th>
+              <th>코스</th>
+              <th>취소</th>
+            </tr>
+          </thead>
+          <tbody id="entryList"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- 취소 사유 선택 모달 -->
+  <div class="modal fade" id="reasonModal" tabindex="-1" aria-labelledby="reasonModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header text-white">
+          <h5 class="modal-title" id="reasonModalLabel">📝 취소 사유를 선택해 주세요</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="닫기"></button>
+        </div>
+
+        <div class="modal-body">
+          <form id="reasonForm" class="d-grid gap-2">
+            <div class="form-check p-0">
+              <input class="btn-check" type="radio" name="deleteReason" id="reason1" value="잘못 신청함" autocomplete="off" required>
+              <label class="btn btn-outline-danger w-100 text-start fw-bold" for="reason1">❌ 잘못 신청함</label>
+            </div>
+
+            <div class="form-check p-0">
+              <input class="btn-check" type="radio" name="deleteReason" id="reason2" value="인원 변경" autocomplete="off">
+              <label class="btn btn-outline-warning w-100 text-start fw-bold" for="reason2">🤵 인원 변경</label>
+            </div>
+
+            <div class="form-check p-0">
+              <input class="btn-check" type="radio" name="deleteReason" id="reason3" value="개인 사정" autocomplete="off">
+              <label class="btn btn-outline-secondary w-100 text-start fw-bold" for="reason3">🤷‍♀️ 개인 사정</label>
+            </div>
+
+            <div class="form-check p-0">
+              <input class="btn-check" type="radio" name="deleteReason" id="reason4" value="기타" autocomplete="off">
+              <label class="btn btn-outline-primary w-100 text-start fw-bold" for="reason4">💬 기타</label>
+            </div>
+
+            <div id="reasonPreview" class="mt-2 small text-muted"></div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button id="confirmDelete" type="button" class="btn w-100 fw-bold">✔ 취소 신청하기</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<script>
-  const API_URL = 'apply_api.php';   // 같은 폴더에 있을 경우
+  <script>
+    document.getElementById('course').addEventListener('change', function () {
+      document.getElementById('courseHidden').value = this.value;
+    });
 
-  const MAX_CAPACITY = 40;
-  let allData = [];
-  let deleteData = {};   // { id, name }
+    const API_URL = 'apply_api.php';
 
-  // 동반회원 입력 조건 로직 (기존과 동일)
-  const participantsSelect = document.getElementById("participants");
-  const nonMembersSelect = document.getElementById("nonMembers");
-  const memberNamesGroup = document.getElementById("memberNamesGroup");
-  const memberNamesInput = document.getElementById("memberNames");
+    const MAX_CAPACITY = 40;
+    let allData = [];
+    let deleteData = {};
 
-  function checkMemberNameRequirement() {
-    const participants = parseInt(participantsSelect.value) || 0;
-    const nonMembers = parseInt(nonMembersSelect.value) || 0;
+    const participantsSelect = document.getElementById("participants");
+    const nonMembersSelect = document.getElementById("nonMembers");
+    const memberNamesGroup = document.getElementById("memberNamesGroup");
+    const memberNamesInput = document.getElementById("memberNames");
 
-    if (!participants && !nonMembers) {
-      memberNamesGroup.style.display = "none";
-      memberNamesInput.removeAttribute("required");
-      memberNamesInput.value = '';
-      return;
-    }
-    const diff = participants - nonMembers;
-    if (diff >= 2) {
-      alert("👬 동반회원을 입력해 주세요.");
-      memberNamesGroup.style.display = "flex";
-      memberNamesInput.setAttribute("required", "required");
-    } else {
-      memberNamesGroup.style.display = "none";
-      memberNamesInput.removeAttribute("required");
-      memberNamesInput.value = '';
-    }
-  }
-  nonMembersSelect.addEventListener("change", checkMemberNameRequirement);
+    function checkMemberNameRequirement() {
+      const participants = parseInt(participantsSelect.value) || 0;
+      const nonMembers = parseInt(nonMembersSelect.value) || 0;
 
-  // 신청 제출
-  function submitForm() {
-    const submitBtn = document.querySelector('button.btn-primary');
-    submitBtn.disabled = true;
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '🔄 제출중...';
+      if (!participants && !nonMembers) {
+        memberNamesGroup.style.display = "none";
+        memberNamesInput.removeAttribute("required");
+        memberNamesInput.value = '';
+        return;
+      }
 
-    const COURSE_NAME = '';
+      const diff = participants - nonMembers;
 
-   const data = {
-  action: 'register',
-  name: document.getElementById("name").value.trim(),
-  contact: document.getElementById("contact").value.trim(),
-  participants: document.getElementById("participants").value,
-  nonMembers: document.getElementById("nonMembers").value || '0',
-  memberNames: document.getElementById("memberNames").value.trim(),
-  course: document.getElementById("courseHidden")?.value || COURSE_NAME,
-  comment: document.getElementById("comment").value.trim()
-};
-     // 코스 선택이 필요한 경우
-    /* if (!data.name || !data.contact || !data.participants || !data.course) {
-      alert("🤷‍♂️필수 항목(*)을 모두 입력해 주세요.");
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = originalText;
-      return;
-    } */
-    // 코스 선택이 없는 경우 
-    if (!data.name || !data.contact || !data.participants) {
-      alert("🤷‍♂️필수 항목(*)을 모두 입력해 주세요.");
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = originalText;
-      return;
+      if (diff >= 2) {
+        alert("👬 동반회원을 입력해 주세요.");
+        memberNamesGroup.style.display = "flex";
+        memberNamesInput.setAttribute("required", "required");
+      } else {
+        memberNamesGroup.style.display = "none";
+        memberNamesInput.removeAttribute("required");
+        memberNamesInput.value = '';
+      }
     }
 
-    if (!/^\d{11}$/.test(data.contact)) {
-      alert("📱 연락처는 11자리여야 합니다. 확인해 주세요.");
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = originalText;
-      return;
-    }
+    nonMembersSelect.addEventListener("change", checkMemberNameRequirement);
 
-    const total = parseInt(data.participants);
-    const nonMembers = parseInt(data.nonMembers);
-    const memberCount = total - nonMembers;
-    if (memberCount >= 2 && !data.memberNames) {
-      alert("👥 참가인원 중 동반회원이 있으시네요.\n동반회원을 입력해 주세요.");
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = originalText;
-      return;
-    }
+    function submitForm() {
+      const submitBtn = document.querySelector('.submit-btn');
+      submitBtn.disabled = true;
+      const originalText = submitBtn.innerHTML;
+      submitBtn.innerHTML = '🔄 제출중...';
 
-    const confirmMsg = `
+      const COURSE_NAME = '';
+
+      const data = {
+        action: 'register',
+        name: document.getElementById("name").value.trim(),
+        contact: document.getElementById("contact").value.trim(),
+        participants: document.getElementById("participants").value,
+        nonMembers: document.getElementById("nonMembers").value || '0',
+        memberNames: document.getElementById("memberNames").value.trim(),
+        course: document.getElementById("courseHidden")?.value || COURSE_NAME,
+        comment: document.getElementById("comment").value.trim()
+      };
+
+      if (!data.name || !data.contact || !data.participants) {
+        alert("🤷‍♂️필수 항목(*)을 모두 입력해 주세요.");
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+        return;
+      }
+
+      if (!/^\d{11}$/.test(data.contact)) {
+        alert("📱 연락처는 11자리여야 합니다. 확인해 주세요.");
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+        return;
+      }
+
+      const total = parseInt(data.participants);
+      const nonMembers = parseInt(data.nonMembers);
+      const memberCount = total - nonMembers;
+
+      if (memberCount >= 2 && !data.memberNames) {
+        alert("👥 참가인원 중 동반회원이 있으시네요.\n동반회원을 입력해 주세요.");
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+        return;
+      }
+
+      const confirmMsg = `
 ✅ 신청 내역을 확인해 주세요:
 
 성  명: ${data.name}
@@ -381,225 +924,236 @@ document.getElementById('course').addEventListener('change', function () {
 선택코스: ${data.course}
 
 이대로 제출할까요?
-    `;
-    if (!confirm(confirmMsg)) {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = originalText;
-      return;
-    }
-
-    if (navigator.vibrate) navigator.vibrate(100);
-
-    fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    })
-    .then(res => res.json())
-    .then(res => {
-      if (!res.ok) throw new Error(res.msg || '신청 실패');
-      alert("✅ 신청이 완료되었습니다!\n" + (res.isWaiting ? '현재 정원이 넘어 대기접수로 등록되었습니다.' : '정상 접수되었습니다.'));
-      // 폼 초기화
-      document.getElementById("name").value = '';
-      document.getElementById("contact").value = '';
-      document.getElementById("participants").value = '';
-      document.getElementById("nonMembers").value = '';
-      document.getElementById("memberNames").value = '';
-      document.getElementById("comment").value = '';
-
-      loadEntries();
-    })
-    .catch(err => {
-      alert("❌ 신청 실패: " + err.message);
-    })
-    .finally(() => {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = originalText;
-    });
-  }
-
-  // 삭제 버튼 클릭
- const reasonForm = document.getElementById('reasonForm');
-const reasonPreview = document.getElementById('reasonPreview');
-const reasonModalEl = document.getElementById('reasonModal');
-const reasonTitleEl = document.getElementById('reasonModalLabel');
-
-function getSelectedReason() {
-  const checked = reasonForm.querySelector('input[name="deleteReason"]:checked');
-  return checked ? checked.value : '';
-}
-
-// ✅ 라디오 선택할 때마다 표시
-reasonForm.addEventListener('change', (e) => {
-  if (e.target.name !== 'deleteReason') return;
-
-  const reason = getSelectedReason();
-  reasonPreview.innerHTML = reason ? `선택한 사유: <b>${reason}</b>` : '';
-  // (선택사항) 제목에도 반영
-  reasonTitleEl.textContent = reason ? `📝 취소 사유: ${reason}` : '📝 취소 사유를 선택해 주세요';
-});
-
-// ✅ 모달 열릴 때 초기화(이전 선택 잔상 제거)
-reasonModalEl.addEventListener('show.bs.modal', () => {
-  reasonForm.reset();
-  reasonPreview.textContent = '';
-  reasonTitleEl.textContent = '📝 취소 사유를 선택해 주세요';
-});
-
-
-  function deleteEntry(id, name) {
-    const cleanName = name.replace(/\(대기\)/g, '').trim();
-    if (!confirm(`${cleanName}님의 신청을 삭제 하시겠습니까? 삭제 => 확인`)) return;
-
-    const inputName = prompt("🤷‍♂️ 취소(삭제)를 위해 기존에 입력한 이름 그대로 입력해 주세요:");
-    if (!inputName || inputName.trim() !== cleanName) {
-      alert("⚠삭제취소. 이름이 미입력되었거나 일치하지 않습니다.");
-      return;
-    }
-
-    deleteData = { id, name: cleanName };
-    const modal = new bootstrap.Modal(document.getElementById('reasonModal'));
-    modal.show();
-  }
-
-  document.getElementById("confirmDelete").addEventListener("click", function (event) {
-    const form = document.getElementById("reasonForm");
-    const reason = form.deleteReason.value;
-
-    if (!reason) {
-      alert("🤷‍♀️취소 사유를 선택해 주세요.");
-      return;
-    }
-
-    const { id, name } = deleteData;
-
-    const btn = event.target;
-    const originalText = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = '🔄 취소 신청중...';
-
-    fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "delete", id, reason })
-    })
-    .then(res => res.json())
-    .then(res => {
-      if (!res.ok) throw new Error(res.msg || '삭제 실패');
-
-      const modal = bootstrap.Modal.getInstance(document.getElementById('reasonModal'));
-      modal.hide();
-
-      setTimeout(() => {
-        alert("✅ 취소(삭제)되었습니다.\n다시 신청해 주세요.");
-        loadEntries();
-      }, 300);
-    })
-    .catch(err => {
-      alert("❌ 삭제 실패: " + err.message);
-    })
-    .finally(() => {
-      btn.disabled = false;
-      btn.innerHTML = originalText;
-    });
-  });
-
-  // 리스트 불러오기
-  function loadEntries() {
-    fetch(API_URL)
-      .then(res => res.json())
-      .then(data => {
-        allData = data || [];
-        renderTable(allData);
-      })
-      .catch(err => {
-        console.error(err);
-        alert("❌ 신청내역을 불러오는 데 실패했습니다.");
-      });
-  }
-
-  function renderTable(data) {
-    const tbody = document.getElementById("entryList");
-    const totalCountEl = document.getElementById("totalCount");
-    tbody.innerHTML = '';
-
-    let totalParticipants = 0;
-    let accumulated = 0;
-
-    const markedData = data.map(row => {
-      const participants = Number(row.participants);
-      const validParticipants = isNaN(participants) ? 0 : participants;
-
-      const isWaiting = accumulated >= MAX_CAPACITY;
-      accumulated += validParticipants;
-
-      return { ...row, validParticipants, isWaiting };
-    });
-
-    markedData.reverse().forEach(row => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${row.name}${row.isWaiting ? ' <span class="text-danger fw-bold">(대기)</span>' : ''}</td>
-        <td>${row.validParticipants}</td>
-        <td>${row.course}</td>
-        <td>
-          <button class="btn btn-sm btn-warning" style="box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);" onclick="deleteEntry(${row.id}, '${row.name}')">
-            ⛔
-          </button>
-        </td>
       `;
 
-      if (row.isWaiting) {
-        tr.querySelectorAll('td').forEach(td => {
-          td.style.backgroundColor = '#fff4cc';
-          td.style.color = '#6b4700';
-        });
+      if (!confirm(confirmMsg)) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+        return;
       }
 
-      tbody.appendChild(tr);
-      totalParticipants += row.validParticipants;
+      if (navigator.vibrate) navigator.vibrate(100);
+
+      fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error(res.msg || '신청 실패');
+
+        alert(
+          "✅ 신청이 완료되었습니다!\n" +
+          (res.isWaiting ? '현재 정원이 넘어 대기접수로 등록되었습니다.' : '정상 접수되었습니다.')
+        );
+
+        document.getElementById("name").value = '';
+        document.getElementById("contact").value = '';
+        document.getElementById("participants").value = '';
+        document.getElementById("nonMembers").value = '';
+        document.getElementById("memberNames").value = '';
+        document.getElementById("course").value = '';
+        document.getElementById("courseHidden").value = '';
+        document.getElementById("comment").value = '';
+        memberNamesGroup.style.display = "none";
+
+        loadEntries();
+      })
+      .catch(err => {
+        alert("❌ 신청 실패: " + err.message);
+      })
+      .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      });
+    }
+
+    const reasonForm = document.getElementById('reasonForm');
+    const reasonPreview = document.getElementById('reasonPreview');
+    const reasonModalEl = document.getElementById('reasonModal');
+    const reasonTitleEl = document.getElementById('reasonModalLabel');
+
+    function getSelectedReason() {
+      const checked = reasonForm.querySelector('input[name="deleteReason"]:checked');
+      return checked ? checked.value : '';
+    }
+
+    reasonForm.addEventListener('change', (e) => {
+      if (e.target.name !== 'deleteReason') return;
+
+      const reason = getSelectedReason();
+      reasonPreview.innerHTML = reason ? `선택한 사유: <b>${reason}</b>` : '';
+      reasonTitleEl.textContent = reason ? `📝 취소 사유: ${reason}` : '📝 취소 사유를 선택해 주세요';
     });
 
-    totalCountEl.textContent = `| 👥총 신청 인원: ${totalParticipants}명 |`;
-  }
+    reasonModalEl.addEventListener('show.bs.modal', () => {
+      reasonForm.reset();
+      reasonPreview.textContent = '';
+      reasonTitleEl.textContent = '📝 취소 사유를 선택해 주세요';
+    });
 
-  // 검색
-  document.getElementById("searchInput").addEventListener("input", function () {
-    const keyword = this.value.trim().toLowerCase();
-    const filtered = allData.filter(row =>
-      row.name.toLowerCase().includes(keyword)
-    );
-    renderTable(filtered);
-  });
+    function deleteEntry(id, name) {
+      const cleanName = name.replace(/\(대기\)/g, '').trim();
 
-  // 신청현황 토글
-  document.getElementById("toggleEntryListBtn").addEventListener("click", function () {
-    const wrapper = document.getElementById("entryTableWrapper");
-    const totalCount = document.getElementById("totalCount");
-    const isVisible = wrapper.classList.contains("show");
+      if (!confirm(`${cleanName}님의 신청을 삭제 하시겠습니까? 삭제 => 확인`)) return;
 
-    if (isVisible) {
-      wrapper.classList.remove("show");
-      setTimeout(() => { wrapper.style.display = "none"; }, 500);
-      this.textContent = "🔎신청현황 보기";
-    } else {
-      wrapper.style.display = "block";
-      setTimeout(() => {
-        wrapper.classList.add("show");
-        totalCount.style.display = "inline";
-      }, 10);
-      this.textContent = "🔼 신청현황 닫기";
+      const inputName = prompt("🤷‍♂️ 취소(삭제)를 위해 기존에 입력한 이름 그대로 입력해 주세요:");
 
-      setTimeout(() => {
-        wrapper.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 600);
+      if (!inputName || inputName.trim() !== cleanName) {
+        alert("⚠삭제취소. 이름이 미입력되었거나 일치하지 않습니다.");
+        return;
+      }
+
+      deleteData = { id, name: cleanName };
+
+      const modal = new bootstrap.Modal(document.getElementById('reasonModal'));
+      modal.show();
     }
-  });
 
-  // 페이지 로드 시 자동 호출
-  document.addEventListener("DOMContentLoaded", function () {
-    loadEntries();
-  });
-</script>
+    document.getElementById("confirmDelete").addEventListener("click", function (event) {
+      const form = document.getElementById("reasonForm");
+      const reason = form.deleteReason.value;
+
+      if (!reason) {
+        alert("🤷‍♀️취소 사유를 선택해 주세요.");
+        return;
+      }
+
+      const { id, name } = deleteData;
+
+      const btn = event.target;
+      const originalText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '🔄 취소 신청중...';
+
+      fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "delete", id, reason })
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error(res.msg || '삭제 실패');
+
+        const modal = bootstrap.Modal.getInstance(document.getElementById('reasonModal'));
+        modal.hide();
+
+        setTimeout(() => {
+          alert("✅ 취소(삭제)되었습니다.\n다시 신청해 주세요.");
+          loadEntries();
+        }, 300);
+      })
+      .catch(err => {
+        alert("❌ 삭제 실패: " + err.message);
+      })
+      .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      });
+    });
+
+    function loadEntries() {
+      fetch(API_URL)
+        .then(res => res.json())
+        .then(data => {
+          allData = data || [];
+          renderTable(allData);
+        })
+        .catch(err => {
+          console.error(err);
+          alert("❌ 신청내역을 불러오는 데 실패했습니다.");
+        });
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById("entryList");
+      const totalCountEl = document.getElementById("totalCount");
+
+      tbody.innerHTML = '';
+
+      let totalParticipants = 0;
+      let accumulated = 0;
+
+      const markedData = data.map(row => {
+        const participants = Number(row.participants);
+        const validParticipants = isNaN(participants) ? 0 : participants;
+
+        const isWaiting = accumulated >= MAX_CAPACITY;
+        accumulated += validParticipants;
+
+        return { ...row, validParticipants, isWaiting };
+      });
+
+      markedData.reverse().forEach(row => {
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+          <td>${row.name}${row.isWaiting ? ' <span class="text-danger fw-bold">(대기)</span>' : ''}</td>
+          <td>${row.validParticipants}</td>
+          <td>${row.course}</td>
+          <td>
+            <button class="btn btn-sm btn-warning"
+                    style="box-shadow:1px 1px 3px rgba(0,0,0,.14);"
+                    onclick="deleteEntry(${row.id}, '${row.name}')"
+                    aria-label="${row.name} 신청 취소">
+              ⛔
+            </button>
+          </td>
+        `;
+
+        if (row.isWaiting) {
+          tr.querySelectorAll('td').forEach(td => {
+            td.style.backgroundColor = '#fff4cc';
+            td.style.color = '#6b4700';
+          });
+        }
+
+        tbody.appendChild(tr);
+        totalParticipants += row.validParticipants;
+      });
+
+      totalCountEl.textContent = `👥 총 ${totalParticipants}명`;
+    }
+
+    document.getElementById("searchInput").addEventListener("input", function () {
+      const keyword = this.value.trim().toLowerCase();
+
+      const filtered = allData.filter(row =>
+        row.name.toLowerCase().includes(keyword)
+      );
+
+      renderTable(filtered);
+    });
+
+    document.getElementById("toggleEntryListBtn").addEventListener("click", function () {
+      const wrapper = document.getElementById("entryTableWrapper");
+      const totalCount = document.getElementById("totalCount");
+      const isVisible = wrapper.classList.contains("show");
+
+      if (isVisible) {
+        wrapper.classList.remove("show");
+        setTimeout(() => { wrapper.style.display = "none"; }, 400);
+        this.textContent = "🔎 신청현황 보기";
+      } else {
+        wrapper.style.display = "block";
+
+        setTimeout(() => {
+          wrapper.classList.add("show");
+          totalCount.style.display = "inline-flex";
+        }, 10);
+
+        this.textContent = "🔼 신청현황 닫기";
+
+        setTimeout(() => {
+          wrapper.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 500);
+      }
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+      loadEntries();
+    });
+  </script>
 </body>
 </html>
