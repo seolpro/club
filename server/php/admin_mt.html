@@ -575,16 +575,46 @@
       tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted py-4">급여공제 자료가 없습니다.</td></tr>';
     }
 
-    payrollRows.forEach((row, idx) => {
+    const memberTypeOrder = {
+      '산악회': 1,
+      '산악회+문화탐방': 2,
+      '문화탐방+산악회': 2,
+      '문화탐방': 3,
+      '비회원': 4,
+      '': 9
+    };
+
+    const sortedRows = payrollRows
+      .map((row, originalIndex) => ({ row, originalIndex }))
+      .sort((a, b) => {
+        const at = String(a.row.memberType || '');
+        const bt = String(b.row.memberType || '');
+
+        const ao = memberTypeOrder.hasOwnProperty(at) ? memberTypeOrder[at] : 8;
+        const bo = memberTypeOrder.hasOwnProperty(bt) ? memberTypeOrder[bt] : 8;
+
+        if (ao !== bo) return ao - bo;
+
+        // 같은 회원구분 안에서는 성명 가나다순
+        const nameCompare = String(a.row.name || '').localeCompare(
+          String(b.row.name || ''),
+          'ko'
+        );
+        if (nameCompare !== 0) return nameCompare;
+
+        return a.originalIndex - b.originalIndex;
+      });
+
+    sortedRows.forEach(({ row, originalIndex }, idx) => {
       totalPeople += Number(row.participants ?? row.people ?? 0);
-      totalAmount += row.amount;
-      if (!row.matched) unmatched++;
+      totalAmount += Number(row.amount) || 0;
+      if (!row.matched && row.rowType !== '비회원') unmatched++;
 
       const contact = normalizePhone(row.contact).replace(/(\d{3})(\d{3,4})(\d{4})/, '$1-$2-$3');
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td class="text-center">${row.no}</td>
+        <td class="text-center">${idx + 1}</td>
         <td class="text-center fw-bold">${escapeHtml(row.name)}</td>
         <td class="text-center">${escapeHtml(row.memberType || '-')}</td>
         <td class="text-center">${escapeHtml(row.employeeNo || '-')}</td>
@@ -598,7 +628,7 @@
         </td>
         <td class="text-center">
           <button type="button" class="btn btn-outline-secondary btn-sm"
-            onclick="editPayrollAmount(${idx})">✏ 인원/금액 수정</button>
+            onclick="editPayrollAmount(${originalIndex})">✏ 인원/금액 수정</button>
         </td>
       `;
       tbody.appendChild(tr);
@@ -709,7 +739,25 @@
     const header = ['장소/행사명','회원','회원구분','사번','연락처','참석인원','회원(명)','비회원(명)','참가금(급여공제)','조회상태'];
     const lines = [header.map(csvCell).join(',')];
 
-    payrollRows.forEach(r => {
+    const csvRows = [...payrollRows].sort((a, b) => {
+      const order = {
+        '산악회': 1,
+        '산악회+문화탐방': 2,
+        '문화탐방+산악회': 2,
+        '문화탐방': 3,
+        '비회원': 4,
+        '': 9
+      };
+      const ao = Object.prototype.hasOwnProperty.call(order, String(a.memberType || ''))
+        ? order[String(a.memberType || '')] : 8;
+      const bo = Object.prototype.hasOwnProperty.call(order, String(b.memberType || ''))
+        ? order[String(b.memberType || '')] : 8;
+
+      if (ao !== bo) return ao - bo;
+      return String(a.name || '').localeCompare(String(b.name || ''), 'ko');
+    });
+
+    csvRows.forEach(r => {
       lines.push([
         place,
         r.name,
