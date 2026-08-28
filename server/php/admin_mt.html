@@ -134,6 +134,45 @@
     </div>
   </div>
 
+   <!-- 관리자 수동 등록 -->
+  <div class="card shadow-sm mb-5">
+    <div class="card-header">
+      ✏ 관리자 수동 등록
+    </div>
+    <div class="card-body">
+      <div class="row g-2">
+        <div class="col-6">
+          <label class="form-label">성명*</label>
+          <input type="text" class="form-control" id="a_name">
+        </div>
+        <div class="col-6">
+          <label class="form-label">연락처*(11자리)</label>
+          <input type="tel" class="form-control" id="a_contact" placeholder="01012345678">
+        </div>
+        <div class="col-4">
+          <label class="form-label">인원*</label>
+          <input type="number" class="form-control" id="a_participants" min="1" max="10">
+        </div>
+        <div class="col-4">
+          <label class="form-label">비회원</label>
+          <input type="number" class="form-control" id="a_nonMembers" min="0" max="10" value="0">
+        </div>
+        <div class="col-4">
+          <label class="form-label">코스</label>
+          <input type="text" class="form-control" id="a_course" value="코스를 입력하세요">
+        </div>
+        <div class="col-12">
+          <label class="form-label">동반회원 (쉼표로 구분)</label>
+          <input type="text" class="form-control" id="a_memberNames" placeholder="예: 홍길동,김신협">
+        </div>
+        <div class="col-12">
+          <label class="form-label">비고(코멘트)</label>
+          <input type="text" class="form-control" id="a_comment" placeholder="선택 사항">
+        </div>
+      </div>
+      <button class="btn btn-outline-primary w-100 mt-3" id="adminAddBtn">📥 수동 등록</button>
+    </div>
+  </div>
 
   <!-- 급여공제 자료 -->
   <div class="card payroll-card shadow-sm mb-4">
@@ -258,45 +297,7 @@
   </div>
 
 
-  <!-- 관리자 수동 등록 -->
-  <div class="card shadow-sm mb-5">
-    <div class="card-header">
-      ✏ 관리자 수동 등록
-    </div>
-    <div class="card-body">
-      <div class="row g-2">
-        <div class="col-6">
-          <label class="form-label">성명*</label>
-          <input type="text" class="form-control" id="a_name">
-        </div>
-        <div class="col-6">
-          <label class="form-label">연락처*(11자리)</label>
-          <input type="tel" class="form-control" id="a_contact" placeholder="01012345678">
-        </div>
-        <div class="col-4">
-          <label class="form-label">인원*</label>
-          <input type="number" class="form-control" id="a_participants" min="1" max="10">
-        </div>
-        <div class="col-4">
-          <label class="form-label">비회원</label>
-          <input type="number" class="form-control" id="a_nonMembers" min="0" max="10" value="0">
-        </div>
-        <div class="col-4">
-          <label class="form-label">코스</label>
-          <input type="text" class="form-control" id="a_course" value="코스를 입력하세요">
-        </div>
-        <div class="col-12">
-          <label class="form-label">동반회원 (쉼표로 구분)</label>
-          <input type="text" class="form-control" id="a_memberNames" placeholder="예: 홍길동,김신협">
-        </div>
-        <div class="col-12">
-          <label class="form-label">비고(코멘트)</label>
-          <input type="text" class="form-control" id="a_comment" placeholder="선택 사항">
-        </div>
-      </div>
-      <button class="btn btn-outline-primary w-100 mt-3" id="adminAddBtn">📥 수동 등록</button>
-    </div>
-  </div>
+ 
 </div>
 
 <script>
