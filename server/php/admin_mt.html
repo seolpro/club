@@ -22,6 +22,33 @@
     .sms-btn {
       white-space: nowrap;
     }
+
+    .payroll-card {
+      border: 0;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .payroll-card .card-header {
+      background: linear-gradient(135deg, #173a63, #245b91);
+      color: #fff;
+    }
+    .payroll-summary {
+      background: #f8fbff;
+      border: 1px solid #dbe9f6;
+      border-radius: 12px;
+      padding: 12px;
+      height: 100%;
+    }
+    .payroll-summary .value {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #173a63;
+    }
+    .member-match-ok { color: #198754; font-weight: 700; }
+    .member-match-fail { color: #dc3545; font-weight: 700; }
+    .payroll-table-wrap { max-height: 60vh; overflow: auto; }
+    .money { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
   </style>
 </head>
 <body>
@@ -93,6 +120,99 @@
       </table>
     </div>
   </div>
+
+
+  <!-- 급여공제 자료 -->
+  <div class="card payroll-card shadow-sm mb-4">
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <div>
+        <div class="fw-bold">💳 급여공제 자료</div>
+        <small class="opacity-75">신청자 성명 + 연락처로 mt_members와 cul_members를 함께 조회하여 사번과 공제액을 산출합니다.</small>
+      </div>
+      <button type="button" class="btn btn-light btn-sm" id="payrollRefreshBtn">↻ 자료 생성</button>
+    </div>
+
+    <div class="card-body">
+      <div class="row g-2 mb-3">
+        <div class="col-md-4">
+          <label class="form-label fw-bold">장소 / 행사명</label>
+          <input type="text" class="form-control" id="payrollPlace" placeholder="예: 속리산 문장대 산행">
+        </div>
+        <div class="col-6 col-md-3">
+          <label class="form-label fw-bold">회원 회비(1인)</label>
+          <div class="input-group">
+            <input type="number" class="form-control" id="memberFee" min="0" step="1000" value="30000">
+            <span class="input-group-text">원</span>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <label class="form-label fw-bold">비회원 회비(1인)</label>
+          <div class="input-group">
+            <input type="number" class="form-control" id="nonMemberFee" min="0" step="1000" value="50000">
+            <span class="input-group-text">원</span>
+          </div>
+        </div>
+        <div class="col-md-2 d-grid align-items-end">
+          <button type="button" class="btn btn-success" id="payrollCsvBtn">⬇ CSV</button>
+        </div>
+      </div>
+
+      <div class="row g-2 mb-3">
+        <div class="col-6 col-md-3">
+          <div class="payroll-summary">
+            <div class="small text-muted">공제 대상</div>
+            <div class="value" id="payStatCount">0명</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="payroll-summary">
+            <div class="small text-muted">총 참석인원</div>
+            <div class="value" id="payStatPeople">0명</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="payroll-summary">
+            <div class="small text-muted">회원 조회 실패</div>
+            <div class="value" id="payStatUnmatched">0건</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="payroll-summary">
+            <div class="small text-muted">총 급여공제액</div>
+            <div class="value" id="payStatAmount">0원</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-info py-2 small mb-3">
+        계산식: <strong>(참석인원 - 비회원) × 회원회비 + 비회원 × 비회원회비</strong><br>
+        ※ 신청자 본인은 회원으로 간주하며, 사번은 <code>mt_members</code> 또는 <code>cul_members</code>에서 신청자 성명과 연락처가 모두 일치할 때 표시됩니다.
+      </div>
+
+      <div class="payroll-table-wrap border rounded">
+        <table class="table table-sm table-hover align-middle mb-0">
+          <thead class="table-light text-center sticky-top">
+            <tr>
+              <th>번호</th>
+              <th>회원</th>
+              <th>회원구분</th>
+              <th>사번</th>
+              <th>연락처</th>
+              <th>참석인원</th>
+              <th>회원(명)</th>
+              <th>비회원(명)</th>
+              <th>참가금(급여공제)</th>
+              <th>조회상태</th>
+            </tr>
+          </thead>
+          <tbody id="payrollList">
+            <tr><td colspan="10" class="text-center text-muted py-4">“자료 생성”을 눌러 주세요.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
 
   <!-- 관리자 수동 등록 -->
   <div class="card shadow-sm mb-5">
@@ -301,7 +421,188 @@
     });
   });
 
-  // 삭제
+
+  // ===== 급여공제 자료 =====
+  let payrollRows = [];
+
+  function fmtMoney(v) {
+    return (Number(v) || 0).toLocaleString('ko-KR') + '원';
+  }
+
+  function normalizePhone(v) {
+    return String(v || '').replace(/\D/g, '');
+  }
+
+  function escapeHtml(v) {
+    return String(v ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  async function buildPayrollData() {
+    const memberFee = Math.max(0, Number(document.getElementById('memberFee').value) || 0);
+    const nonMemberFee = Math.max(0, Number(document.getElementById('nonMemberFee').value) || 0);
+
+    const entries = allData
+      .filter(row => !(row.calcWaiting || row.isWaiting))
+      .map(row => ({
+        id: row.id,
+        name: row.name || '',
+        contact: normalizePhone(row.contact || ''),
+        participants: Number(row.participants) || 0,
+        nonMembers: Number(row.nonMembers) || 0
+      }));
+
+    if (!entries.length) {
+      payrollRows = [];
+      renderPayrollTable();
+      return;
+    }
+
+    const btn = document.getElementById('payrollRefreshBtn');
+    const old = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '조회 중...';
+
+    try {
+      const res = await fetch('payroll_api.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'match_members', entries })
+      });
+      const json = await res.json();
+      if (!res.ok || !json.ok) throw new Error(json.message || '회원 조회 실패');
+
+      const matchedMap = new Map(
+        (json.rows || []).map(r => [String(r.id), r])
+      );
+
+      payrollRows = entries.map((entry, idx) => {
+        const match = matchedMap.get(String(entry.id)) || {};
+        const memberCount = Math.max(0, entry.participants - entry.nonMembers);
+        const amount = memberCount * memberFee + entry.nonMembers * nonMemberFee;
+
+        return {
+          no: idx + 1,
+          ...entry,
+          memberCount,
+          amount,
+          employeeNo: match.employeeNo || '',
+          memberType: match.memberType || '',
+          matched: !!match.matched,
+          matchMessage: match.message || (match.matched ? '일치' : '미등록')
+        };
+      });
+
+      localStorage.setItem('mt_payroll_place', document.getElementById('payrollPlace').value || '');
+      localStorage.setItem('mt_member_fee', String(memberFee));
+      localStorage.setItem('mt_nonmember_fee', String(nonMemberFee));
+
+      renderPayrollTable();
+    } catch (e) {
+      alert('❌ 급여공제 자료 생성 실패: ' + e.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = old;
+    }
+  }
+
+  function renderPayrollTable() {
+    const tbody = document.getElementById('payrollList');
+    tbody.innerHTML = '';
+
+    let totalPeople = 0;
+    let unmatched = 0;
+    let totalAmount = 0;
+
+    if (!payrollRows.length) {
+      tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted py-4">급여공제 자료가 없습니다.</td></tr>';
+    }
+
+    payrollRows.forEach(row => {
+      totalPeople += row.participants;
+      totalAmount += row.amount;
+      if (!row.matched) unmatched++;
+
+      const contact = normalizePhone(row.contact).replace(/(\d{3})(\d{3,4})(\d{4})/, '$1-$2-$3');
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="text-center">${row.no}</td>
+        <td class="text-center fw-bold">${escapeHtml(row.name)}</td>
+        <td class="text-center">${escapeHtml(row.memberType || '-')}</td>
+        <td class="text-center">${escapeHtml(row.employeeNo || '-')}</td>
+        <td class="text-center">${escapeHtml(contact)}</td>
+        <td class="text-center">${row.participants}</td>
+        <td class="text-center">${row.memberCount}</td>
+        <td class="text-center">${row.nonMembers}</td>
+        <td class="money fw-bold">${fmtMoney(row.amount)}</td>
+        <td class="text-center ${row.matched ? 'member-match-ok' : 'member-match-fail'}">
+          ${row.matched ? '● 일치' : '● ' + escapeHtml(row.matchMessage)}
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('payStatCount').textContent = payrollRows.length + '명';
+    document.getElementById('payStatPeople').textContent = totalPeople + '명';
+    document.getElementById('payStatUnmatched').textContent = unmatched + '건';
+    document.getElementById('payStatAmount').textContent = fmtMoney(totalAmount);
+  }
+
+  function csvCell(v) {
+    const s = String(v ?? '');
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+
+  function downloadPayrollCsv() {
+    if (!payrollRows.length) {
+      alert('먼저 급여공제 자료를 생성해 주세요.');
+      return;
+    }
+
+    const place = document.getElementById('payrollPlace').value.trim();
+    const header = ['장소/행사명','회원','회원구분','사번','연락처','참석인원','회원(명)','비회원(명)','참가금(급여공제)','조회상태'];
+    const lines = [header.map(csvCell).join(',')];
+
+    payrollRows.forEach(r => {
+      lines.push([
+        place,
+        r.name,
+        r.memberType || '',
+        r.employeeNo || '',
+        normalizePhone(r.contact),
+        r.participants,
+        r.memberCount,
+        r.nonMembers,
+        r.amount,
+        r.matched ? '일치' : r.matchMessage
+      ].map(csvCell).join(','));
+    });
+
+    const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `산악회_급여공제_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  document.getElementById('payrollRefreshBtn').addEventListener('click', buildPayrollData);
+  document.getElementById('payrollCsvBtn').addEventListener('click', downloadPayrollCsv);
+
+  ['memberFee', 'nonMemberFee'].forEach(id => {
+    document.getElementById(id).addEventListener('change', () => {
+      if (payrollRows.length) buildPayrollData();
+    });
+  });
+
+
+    // 삭제
   function adminDelete(id, name) {
     if (!confirm(`정말로 [${name}] 신청을 삭제하시겠습니까?`)) return;
 
@@ -361,6 +662,9 @@
 
   // 초기 로딩
   document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('payrollPlace').value = localStorage.getItem('mt_payroll_place') || '';
+    document.getElementById('memberFee').value = localStorage.getItem('mt_member_fee') || '30000';
+    document.getElementById('nonMemberFee').value = localStorage.getItem('mt_nonmember_fee') || '50000';
     loadAdminEntries();
   });
 </script>
