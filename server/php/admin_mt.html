@@ -246,7 +246,7 @@
               <th>비회원(명)</th>
               <th>참가금(급여공제)</th>
               <th>조회상태</th>
-              <th>수정</th>
+              <th>인원/금액 수정</th>
             </tr>
           </thead>
           <tbody id="payrollList">
@@ -598,7 +598,7 @@
         </td>
         <td class="text-center">
           <button type="button" class="btn btn-outline-secondary btn-sm"
-            onclick="editPayrollAmount(${idx})">✏ 수정</button>
+            onclick="editPayrollAmount(${idx})">✏ 인원/금액 수정</button>
         </td>
       `;
       tbody.appendChild(tr);
@@ -624,30 +624,69 @@
     const row = payrollRows[index];
     if (!row) return;
 
-    const current = Number(row.amount) || 0;
     const label = row.name || '대상자';
-    const input = prompt(
-      `${label}님의 급여공제 금액을 수정합니다.\n현재 금액: ${current.toLocaleString('ko-KR')}원\n\n새 금액을 숫자로 입력하세요.`,
-      String(current)
+
+    const currentAmount = Number(row.amount) || 0;
+    const currentParticipants = Number(row.participants ?? row.people ?? 1) || 1;
+    const currentMemberCount = Number(
+      row.memberCount ?? (row.rowType === '비회원' ? 0 : 1)
+    ) || 0;
+
+    const pInput = prompt(
+      `${label}님의 참석인원을 수정합니다.\n현재 참석인원: ${currentParticipants}명\n\n새 참석인원을 입력하세요.`,
+      String(currentParticipants)
     );
+    if (pInput === null) return;
 
-    if (input === null) return;
+    const participants = Number(String(pInput).replace(/[^0-9]/g, ''));
+    if (!Number.isFinite(participants) || participants < 1) {
+      alert('참석인원은 1명 이상으로 입력해 주세요.');
+      return;
+    }
 
-    const cleaned = String(input).replace(/[^\d]/g, '');
-    const newAmount = Number(cleaned);
+    const mInput = prompt(
+      `${label}님의 회원 인원을 수정합니다.\n현재 회원: ${currentMemberCount}명\n\n새 회원 인원을 입력하세요.`,
+      String(Math.min(currentMemberCount, participants))
+    );
+    if (mInput === null) return;
 
-    if (!Number.isFinite(newAmount) || newAmount < 0) {
+    const memberCount = Number(String(mInput).replace(/[^0-9]/g, ''));
+    if (!Number.isFinite(memberCount) || memberCount < 0 || memberCount > participants) {
+      alert('회원 인원은 0명 이상, 참석인원 이하로 입력해 주세요.');
+      return;
+    }
+
+    const nonMembers = participants - memberCount;
+
+    const aInput = prompt(
+      `${label}님의 급여공제 금액을 수정합니다.\n\n` +
+      `참석인원: ${participants}명\n` +
+      `회원: ${memberCount}명\n` +
+      `비회원: ${nonMembers}명\n` +
+      `현재 금액: ${currentAmount.toLocaleString('ko-KR')}원\n\n` +
+      `새 급여공제 금액을 입력하세요.`,
+      String(currentAmount)
+    );
+    if (aInput === null) return;
+
+    const amount = Number(String(aInput).replace(/[^0-9]/g, ''));
+    if (!Number.isFinite(amount) || amount < 0) {
       alert('올바른 금액을 입력해 주세요.');
       return;
     }
 
-    row.amount = newAmount;
+    row.participants = participants;
+    row.people = participants;
+    row.memberCount = memberCount;
+    row.nonMembers = nonMembers;
+    row.amount = amount;
     row.manualAmountEdited = true;
 
-    // 상태는 회원조회 상태를 유지하되 수동금액 수정 표시
-    const oldStatus = String(row.status || row.matchMessage || (row.matched ? '일치' : ''));
-    if (!oldStatus.includes('금액수정')) {
-      row.status = oldStatus ? oldStatus + ' / 금액수정' : '금액수정';
+    const oldStatus = String(
+      row.status || row.matchMessage || (row.matched ? '일치' : '')
+    );
+    if (!oldStatus.includes('수정')) {
+      row.status = oldStatus ? oldStatus + ' / 수정' : '수정';
     }
 
     renderPayrollTable();
