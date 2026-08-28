@@ -49,6 +49,19 @@
     .payroll-table-wrap { max-height: 60vh; overflow: auto; }
     .money { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
 
+  
+    .manual-companion-box{
+      border:1px solid #dfe7ef;border-radius:14px;background:#fff;padding:14px;
+    }
+    .manual-result-list{max-height:240px;overflow:auto;}
+    .status-normal{color:#198754;font-weight:800;}
+    .status-nonmember{color:#fd7e14;font-weight:800;}
+    .status-duplicate{color:#dc3545;font-weight:800;}
+    .status-manual{color:#0d6efd;font-weight:800;}
+    .status-missing{color:#6c757d;font-weight:700;}
+
+  
+    .status-edited{color:#0d6efd;font-weight:800;}
   </style>
 </head>
 <body>
@@ -189,6 +202,36 @@
         ※ 신청자 본인은 회원으로 간주하며, 사번은 <code>mt_members</code> 또는 <code>cul_members</code>에서 신청자 성명과 연락처가 모두 일치할 때 표시됩니다.
       </div>
 
+      
+      <div class="manual-companion-box mb-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+          <div>
+            <div class="fw-bold">➕ 동반회원 수동 급여공제 추가</div>
+            <div class="small text-muted">회원명을 입력하여 mt_members / cul_members에서 조회 후, 참가비를 직접 입력해 추가합니다.</div>
+          </div>
+        </div>
+
+        <div class="row g-2 align-items-end">
+          <div class="col-md-5">
+            <label class="form-label">회원명</label>
+            <input type="text" class="form-control" id="manualMemberName" placeholder="예: 김유경">
+          </div>
+          <div class="col-md-3 d-grid">
+            <button type="button" class="btn btn-outline-primary" id="manualLookupBtn">🔎 회원조회</button>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">참가비</label>
+            <div class="input-group">
+              <input type="number" class="form-control" id="manualFee" min="0" step="1000" placeholder="예: 30000">
+              <span class="input-group-text">원</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="manualLookupStatus" class="small mt-2 text-muted"></div>
+        <div id="manualLookupResults" class="manual-result-list mt-2"></div>
+      </div>
+
       <div class="payroll-table-wrap border rounded">
         <table class="table table-sm table-hover align-middle mb-0">
           <thead class="table-light text-center sticky-top">
@@ -203,10 +246,11 @@
               <th>비회원(명)</th>
               <th>참가금(급여공제)</th>
               <th>조회상태</th>
+              <th>수정</th>
             </tr>
           </thead>
           <tbody id="payrollList">
-            <tr><td colspan="10" class="text-center text-muted py-4">“자료 생성”을 눌러 주세요.</td></tr>
+            <tr><td colspan="11" class="text-center text-muted py-4">“자료 생성”을 눌러 주세요.</td></tr>
           </tbody>
         </table>
       </div>
@@ -510,6 +554,15 @@
     }
   }
 
+  function getStatusClass(row) {
+    const s = String(row.status || row.matchMessage || '');
+    if (s.includes('수동등록')) return 'status-manual';
+    if (s.includes('비회원')) return 'status-nonmember';
+    if (s.includes('동명이인') || s.includes('중복')) return 'status-duplicate';
+    if (s.includes('없음') || s.includes('확인')) return 'status-missing';
+    return 'status-normal';
+  }
+
   function renderPayrollTable() {
     const tbody = document.getElementById('payrollList');
     tbody.innerHTML = '';
@@ -522,8 +575,8 @@
       tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted py-4">급여공제 자료가 없습니다.</td></tr>';
     }
 
-    payrollRows.forEach(row => {
-      totalPeople += row.participants;
+    payrollRows.forEach((row, idx) => {
+      totalPeople += Number(row.participants ?? row.people ?? 0);
       totalAmount += row.amount;
       if (!row.matched) unmatched++;
 
@@ -536,22 +589,71 @@
         <td class="text-center">${escapeHtml(row.memberType || '-')}</td>
         <td class="text-center">${escapeHtml(row.employeeNo || '-')}</td>
         <td class="text-center">${escapeHtml(contact)}</td>
-        <td class="text-center">${row.participants}</td>
-        <td class="text-center">${row.memberCount}</td>
-        <td class="text-center">${row.nonMembers}</td>
+        <td class="text-center">${row.participants ?? row.people ?? 1}</td>
+        <td class="text-center">${row.memberCount ?? (row.rowType === '비회원' ? 0 : 1)}</td>
+        <td class="text-center">${row.nonMembers ?? (row.rowType === '비회원' ? (row.people ?? 1) : 0)}</td>
         <td class="money fw-bold">${fmtMoney(row.amount)}</td>
-        <td class="text-center ${row.matched ? 'member-match-ok' : 'member-match-fail'}">
-          ${row.matched ? '● 일치' : '● ' + escapeHtml(row.matchMessage)}
+        <td class="text-center ${getPayrollStatusClass(row)}">
+          ● ${escapeHtml(row.status || row.matchMessage || (row.matched ? '일치' : '회원정보 없음'))}
+        </td>
+        <td class="text-center">
+          <button type="button" class="btn btn-outline-secondary btn-sm"
+            onclick="editPayrollAmount(${idx})">✏ 수정</button>
         </td>
       `;
       tbody.appendChild(tr);
     });
 
-    document.getElementById('payStatCount').textContent = payrollRows.length + '명';
+    document.getElementById('payStatCount').textContent = payrollRows.filter(r => r.rowType !== '비회원').length + '명';
     document.getElementById('payStatPeople').textContent = totalPeople + '명';
     document.getElementById('payStatUnmatched').textContent = unmatched + '건';
     document.getElementById('payStatAmount').textContent = fmtMoney(totalAmount);
   }
+
+
+  function getPayrollStatusClass(row) {
+    const s = String(row.status || row.matchMessage || '');
+    if (s.includes('수동')) return 'status-manual';
+    if (s.includes('비회원')) return 'status-nonmember';
+    if (s.includes('동명이인') || s.includes('중복')) return 'status-duplicate';
+    if (s.includes('없음') || s.includes('확인')) return 'status-missing';
+    return 'status-normal';
+  }
+
+  function editPayrollAmount(index) {
+    const row = payrollRows[index];
+    if (!row) return;
+
+    const current = Number(row.amount) || 0;
+    const label = row.name || '대상자';
+    const input = prompt(
+      `${label}님의 급여공제 금액을 수정합니다.\n현재 금액: ${current.toLocaleString('ko-KR')}원\n\n새 금액을 숫자로 입력하세요.`,
+      String(current)
+    );
+
+    if (input === null) return;
+
+    const cleaned = String(input).replace(/[^\d]/g, '');
+    const newAmount = Number(cleaned);
+
+    if (!Number.isFinite(newAmount) || newAmount < 0) {
+      alert('올바른 금액을 입력해 주세요.');
+      return;
+    }
+
+    row.amount = newAmount;
+    row.manualAmountEdited = true;
+
+    // 상태는 회원조회 상태를 유지하되 수동금액 수정 표시
+    const oldStatus = String(row.status || row.matchMessage || (row.matched ? '일치' : ''));
+    if (!oldStatus.includes('금액수정')) {
+      row.status = oldStatus ? oldStatus + ' / 금액수정' : '금액수정';
+    }
+
+    renderPayrollTable();
+  }
+
+  window.editPayrollAmount = editPayrollAmount;
 
   function csvCell(v) {
     const s = String(v ?? '');
@@ -575,9 +677,9 @@
         r.memberType || '',
         r.employeeNo || '',
         normalizePhone(r.contact),
-        r.participants,
-        r.memberCount,
-        r.nonMembers,
+        (r.participants ?? r.people ?? 1),
+        (r.memberCount ?? (r.rowType === '비회원' ? 0 : 1)),
+        (r.nonMembers ?? (r.rowType === '비회원' ? (r.people ?? 1) : 0)),
         r.amount,
         r.matched ? '일치' : r.matchMessage
       ].map(csvCell).join(','));
@@ -592,12 +694,120 @@
     URL.revokeObjectURL(url);
   }
 
+
+  // ===== 동반회원 수동 조회/추가 =====
+  async function lookupManualMember() {
+    const name = document.getElementById('manualMemberName').value.trim();
+    const resultBox = document.getElementById('manualLookupResults');
+    const statusBox = document.getElementById('manualLookupStatus');
+
+    if (!name) {
+      alert('조회할 회원명을 입력해 주세요.');
+      return;
+    }
+
+    resultBox.innerHTML = '';
+    statusBox.textContent = '조회 중...';
+
+    try {
+      const res = await fetch('manual_member_lookup.php?name=' + encodeURIComponent(name), { cache: 'no-store' });
+      const raw = await res.text();
+      let data;
+
+      try {
+        data = JSON.parse(raw);
+      } catch (e) {
+        throw new Error(
+          '회원조회 API가 JSON이 아닌 응답을 반환했습니다.' +
+          (raw ? '\n\n응답내용:\n' + raw.substring(0, 1000) : '\n\n응답내용이 비어 있습니다.')
+        );
+      }
+
+      if (!res.ok || !data.ok) {
+        throw new Error(
+          (data.message || '회원조회 실패') +
+          (data.detail ? '\n\n상세: ' + data.detail : '')
+        );
+      }
+
+      const rows = Array.isArray(data.rows) ? data.rows : [];
+      if (!rows.length) {
+        statusBox.innerHTML = '<span class="status-missing">회원정보 없음</span>';
+        resultBox.innerHTML = '';
+        return;
+      }
+
+      statusBox.innerHTML = rows.length > 1
+        ? '<span class="status-duplicate">동명이인 또는 복수 회원 조회됨 - 추가할 회원을 선택하세요.</span>'
+        : '<span class="status-normal">회원 1명 조회됨</span>';
+
+      resultBox.innerHTML = rows.map((r, i) => `
+        <div class="border rounded p-2 mb-2">
+          <div class="row g-2 align-items-center">
+            <div class="col-md-2"><strong>${escapeHtml(r.name || '')}</strong></div>
+            <div class="col-md-2">사번: ${escapeHtml(r.employee_id || '-')}</div>
+            <div class="col-md-3">부서: ${escapeHtml(r.department || '-')}</div>
+            <div class="col-md-2">${escapeHtml(r.member_type || '-')}</div>
+            <div class="col-md-3 d-grid">
+              <button type="button" class="btn btn-sm btn-primary"
+                onclick='addManualCompanion(${JSON.stringify(r)})'>급여공제에 추가</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    } catch (e) {
+      statusBox.innerHTML = '<span class="status-missing">조회 실패</span>';
+      resultBox.innerHTML = '';
+      alert('회원조회 실패: ' + e.message);
+    }
+  }
+
+  function addManualCompanion(member) {
+    const fee = Math.max(0, Number(document.getElementById('manualFee').value) || 0);
+    if (fee <= 0) {
+      alert('참가비를 입력해 주세요.');
+      return;
+    }
+
+    if (!Array.isArray(payrollRows)) payrollRows = [];
+
+    payrollRows.push({
+      no: payrollRows.length + 1,
+      rowType: '동반회원',
+      name: member.name || '',
+      contact: member.contact || '',
+      participants: 1,
+      memberCount: 1,
+      nonMembers: 0,
+      people: 1,
+      amount: fee,
+      employeeNo: member.employee_id || '',
+      memberType: member.member_type || '',
+      matched: true,
+      status: '수동등록'
+    });
+
+    renderPayrollTable();
+
+    document.getElementById('manualMemberName').value = '';
+    document.getElementById('manualLookupResults').innerHTML = '';
+    document.getElementById('manualLookupStatus').innerHTML =
+      '<span class="status-manual">급여공제 자료에 추가되었습니다.</span>';
+  }
+
+  document.getElementById('manualLookupBtn').addEventListener('click', lookupManualMember);
+  document.getElementById('manualMemberName').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') lookupManualMember();
+  });
+  window.addManualCompanion = addManualCompanion;
+
   document.getElementById('payrollRefreshBtn').addEventListener('click', buildPayrollData);
   document.getElementById('payrollCsvBtn').addEventListener('click', downloadPayrollCsv);
 
   ['memberFee', 'nonMemberFee'].forEach(id => {
     document.getElementById(id).addEventListener('change', () => {
-      if (payrollRows.length) buildPayrollData();
+      // 회비 기준값만 변경합니다.
+      // 이미 수동 수정한 급여공제액을 보호하기 위해 자동 재생성하지 않습니다.
     });
   });
 
