@@ -1,5 +1,7 @@
 <?php
+
 // /www/mt/apply_api.php
+
 require_once __DIR__ . '/config.php';
 
 // 필요시 CORS 열기 (같은 도메인이면 굳이 안 써도 됨)
@@ -15,6 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // JSON 또는 일반 POST 모두 처리
 $raw  = file_get_contents('php://input');
 $data = json_decode($raw, true);
+
 if (!is_array($data)) {
     $data = $_POST;
 }
@@ -24,25 +27,61 @@ if (!is_array($data)) {
  *  - GAS_MAIL_URL 은 config.php 에서 정의
  *  - payload는 JSON으로 보내며, GAS에서는 doPost(e)로 수신
  */
-function notify_via_gas(array $payload): void {
+function notify_via_gas(array $payload): void
+{
     if (!defined('GAS_MAIL_URL') || !GAS_MAIL_URL) {
         return; // 설정이 없으면 그냥 무시
     }
 
     $ch = curl_init(GAS_MAIL_URL);
+
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json; charset=utf-8']);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICODE));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 5); // 5초 이내 응답 없으면 포기
+
     $res = curl_exec($ch);
     curl_close($ch);
+
     // 필요하면 $res 를 로그로 남기도록 확장 가능
+}
+
+/**
+ * ✅ 현재 참가 신청 누적현황 조회
+ */
+function get_mt_summary(PDO $pdo): array
+{
+    $stmt = $pdo->prepare("
+        SELECT
+            COUNT(*) AS total_applications,
+            COALESCE(SUM(participants), 0) AS total_participants,
+            COALESCE(SUM(
+                CASE WHEN is_waiting = 0 THEN participants ELSE 0 END
+            ), 0) AS normal_participants,
+            COALESCE(SUM(
+                CASE WHEN is_waiting = 1 THEN participants ELSE 0 END
+            ), 0) AS waiting_participants
+        FROM " . TABLE_MT . "
+        WHERE deleted_at IS NULL
+    ");
+
+    $stmt->execute();
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    return [
+        'totalApplications'   => (int)($row['total_applications'] ?? 0),
+        'totalParticipants'   => (int)($row['total_participants'] ?? 0),
+        'normalParticipants'  => (int)($row['normal_participants'] ?? 0),
+        'waitingParticipants' => (int)($row['waiting_participants'] ?? 0),
+        'maxCapacity'         => (int)MAX_CAPACITY,
+    ];
 }
 
 $method = $_SERVER['REQUEST_METHOD'];
 
 try {
+
     $pdo = get_pdo();
 
     /* ------------------------------------------------------------------
@@ -50,6 +89,7 @@ try {
      *    GET /apply_api.php
      * -----------------------------------------------------------------*/
     if ($method === 'GET') {
+
         $stmt = $pdo->prepare("
             SELECT
               id,
@@ -66,13 +106,14 @@ try {
             WHERE deleted_at IS NULL
             ORDER BY created_at ASC
         ");
+
         $stmt->execute();
         $rows = $stmt->fetchAll();
 
         $entryList = array_map(function ($row) {
             return [
                 'id'           => (int)$row['id'],
-                'time'         => $row['created_at'],          // 접수 시각
+                'time'         => $row['created_at'],
                 'name'         => $row['name'],
                 'contact'      => $row['contact'],
                 'participants' => (int)$row['participants'],
@@ -98,16 +139,17 @@ try {
 
     /* ------------------------------------------------------------------
      * 2-1) 신청 등록 (사용자 + 관리자 수동등록)
-     *     action = register
+     *      action = register
      * -----------------------------------------------------------------*/
     if ($action === 'register') {
-        $name         = trim($data['name']        ?? '');
-        $contact      = trim($data['contact']     ?? '');
+
+        $name         = trim($data['name'] ?? '');
+        $contact      = trim($data['contact'] ?? '');
         $participants = (int)($data['participants'] ?? 0);
-        $nonMembers   = (int)($data['nonMembers']   ?? 0);
+        $nonMembers   = (int)($data['nonMembers'] ?? 0);
         $memberNames  = trim($data['memberNames'] ?? '');
-        $course       = trim($data['course']      ?? '');
-        $comment      = trim($data['comment']     ?? '');
+        $course       = trim($data['course'] ?? '');
+        $comment      = trim($data['comment'] ?? '');
 
         // 필수값 검증
         if ($name === '' || $contact === '' || $participants <= 0 || $course === '') {
@@ -125,6 +167,7 @@ try {
             FROM " . TABLE_MT . "
             WHERE deleted_at IS NULL
         ");
+
         $stmt->execute();
         $currentTotal = (int)$stmt->fetchColumn();
 
@@ -139,34 +182,39 @@ try {
             (created_at, name, contact, participants, non_members, member_names, course, comment, is_waiting)
             VALUES (:created_at, :name, :contact, :participants, :non_members, :member_names, :course, :comment, :is_waiting)
         ");
+
         $stmt->execute([
-            ':created_at'  => $createdAt,
-            ':name'        => $name,
-            ':contact'     => $contact,
-            ':participants'=> $participants,
-            ':non_members' => $nonMembers,
-            ':member_names'=> $memberNames ?: null,
-            ':course'      => $course ?: null,
-            ':comment'     => $comment ?: null,
-            ':is_waiting'  => $isWaiting,
+            ':created_at'   => $createdAt,
+            ':name'         => $name,
+            ':contact'      => $contact,
+            ':participants' => $participants,
+            ':non_members'  => $nonMembers,
+            ':member_names' => $memberNames ?: null,
+            ':course'       => $course ?: null,
+            ':comment'      => $comment ?: null,
+            ':is_waiting'   => $isWaiting,
         ]);
 
         $insertId   = (int)$pdo->lastInsertId();
         $statusText = $isWaiting ? '대기접수' : '정상접수';
 
+        // ✅ 등록 후 최신 누적 신청현황
+        $summary = get_mt_summary($pdo);
+
         // ✅ GAS로 메일 알림 요청
         notify_via_gas([
-            'type'        => 'register',
-            'id'          => $insertId,
-            'name'        => $name,
-            'contact'     => $contact,
-            'participants'=> $participants,
-            'nonMembers'  => $nonMembers,
-            'memberNames' => $memberNames,
-            'course'      => $course,
-            'comment'     => $comment,
-            'status'      => $statusText,
-            'createdAt'   => $createdAt,
+            'type'         => 'register',
+            'id'           => $insertId,
+            'name'         => $name,
+            'contact'      => $contact,
+            'participants' => $participants,
+            'nonMembers'   => $nonMembers,
+            'memberNames'  => $memberNames,
+            'course'       => $course,
+            'comment'      => $comment,
+            'status'       => $statusText,
+            'createdAt'    => $createdAt,
+            'summary'      => $summary,
         ]);
 
         json_response([
@@ -179,17 +227,19 @@ try {
 
     /* ------------------------------------------------------------------
      * 2-2) 신청 삭제 (사용자 취소 + 관리자 삭제)
-     *     action = delete
-     *     - 우선 id 기준으로 삭제
-     *     - id가 없을 경우(구 버전 호환) time + name 으로 찾기
+     *      action = delete
+     *      - 우선 id 기준으로 삭제
+     *      - id가 없을 경우(구 버전 호환) time + name 으로 찾기
      * -----------------------------------------------------------------*/
     if ($action === 'delete') {
+
         $id     = isset($data['id']) ? (int)$data['id'] : 0;
         $reason = trim($data['reason'] ?? '');
 
         $row = null;
 
         if ($id > 0) {
+
             // id로 찾기
             $stmt = $pdo->prepare("
                 SELECT id, name, contact, participants, created_at
@@ -197,9 +247,12 @@ try {
                 WHERE id = :id AND deleted_at IS NULL
                 LIMIT 1
             ");
+
             $stmt->execute([':id' => $id]);
             $row = $stmt->fetch();
+
         } else {
+
             // 구 버전 호환: time + name 으로 찾기
             $name = trim($data['name'] ?? '');
             $time = trim($data['time'] ?? '');
@@ -211,13 +264,17 @@ try {
             $stmt = $pdo->prepare("
                 SELECT id, name, contact, participants, created_at
                 FROM " . TABLE_MT . "
-                WHERE name = :name AND created_at = :created_at AND deleted_at IS NULL
+                WHERE name = :name
+                  AND created_at = :created_at
+                  AND deleted_at IS NULL
                 LIMIT 1
             ");
+
             $stmt->execute([
                 ':name'       => $name,
                 ':created_at' => $time,
             ]);
+
             $row = $stmt->fetch();
         }
 
@@ -228,23 +285,30 @@ try {
         // 논리 삭제 처리
         $stmt = $pdo->prepare("
             UPDATE " . TABLE_MT . "
-            SET deleted_at = NOW(), delete_reason = :reason
-            WHERE id = :id AND deleted_at IS NULL
+            SET deleted_at = NOW(),
+                delete_reason = :reason
+            WHERE id = :id
+              AND deleted_at IS NULL
         ");
+
         $stmt->execute([
             ':reason' => $reason ?: null,
             ':id'     => $row['id'],
         ]);
 
+        // ✅ 삭제 후 최신 누적 신청현황
+        $summary = get_mt_summary($pdo);
+
         // ✅ GAS로 삭제 알림 요청
         notify_via_gas([
-            'type'        => 'delete',
-            'id'          => (int)$row['id'],
-            'name'        => $row['name'],
-            'contact'     => $row['contact'],
-            'participants'=> (int)$row['participants'],
-            'createdAt'   => $row['created_at'],
-            'reason'      => $reason,
+            'type'         => 'delete',
+            'id'           => (int)$row['id'],
+            'name'         => $row['name'],
+            'contact'      => $row['contact'],
+            'participants' => (int)$row['participants'],
+            'createdAt'    => $row['created_at'],
+            'reason'       => $reason,
+            'summary'      => $summary,
         ]);
 
         json_response(['ok' => true, 'msg' => '삭제가 완료되었습니다.']);
@@ -256,5 +320,9 @@ try {
     json_response(['ok' => false, 'msg' => '알 수 없는 action입니다.'], 400);
 
 } catch (Exception $e) {
-    json_response(['ok' => false, 'msg' => '서버 오류: ' . $e->getMessage()], 500);
+
+    json_response([
+        'ok'  => false,
+        'msg' => '서버 오류: ' . $e->getMessage()
+    ], 500);
 }
