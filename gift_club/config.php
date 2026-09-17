@@ -135,3 +135,15 @@ function is_installed(): bool
         return false;
     }
 }
+
+// ==============================
+// Bizppurio 문자발송
+// ==============================
+define('PPURIO_ACCOUNT', 'aj9770');
+define('PPURIO_AUTH_KEY', '08868d27d42a13b10954f7c9705063152e03d948b824bf336ff611be225957b9');
+define('PPURIO_SMS_FROM', '01071186639');
+
+// ==============================
+// 계좌 제출 마감일
+// ==============================
+define('GIFT_ACCOUNT_SUBMIT_DEADLINE', '2026-09-18 23:59');

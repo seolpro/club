@@ -7,6 +7,36 @@ admin_required();
 
 $pdo = db();
 
+$flash = $_SESSION['gift_sms_flash'] ?? null;
+unset($_SESSION['gift_sms_flash']);
+
+/**
+ * 계좌 제출 대상/제외 및 LMS 발송이력을 읽습니다.
+ * 테이블이 아직 설치되지 않은 경우 install SQL 실행 안내를 보여주기 위해 예외를 그대로 전달합니다.
+ */
+function loadSmsMeta(PDO $pdo): array
+{
+    $rows = $pdo->query("
+        SELECT source_key, member_id, is_target, last_sent_at, send_count, last_result
+        FROM gift_account_sms_targets
+    ")->fetchAll(PDO::FETCH_ASSOC);
+
+    $map = [];
+    foreach ($rows as $r) {
+        $map[(string)$r['source_key'] . ':' . (int)$r['member_id']] = $r;
+    }
+    return $map;
+}
+
+$smsMeta = [];
+$smsTableReady = true;
+try {
+    $smsMeta = loadSmsMeta($pdo);
+} catch (Throwable $e) {
+    $smsTableReady = false;
+}
+
+
 $source = (string)($_GET['source'] ?? 'all');
 $status = (string)($_GET['status'] ?? 'all');
 $q = trim((string)($_GET['q'] ?? ''));
@@ -161,16 +191,33 @@ try {
     exit('회원 제출현황을 불러오는 중 오류가 발생했습니다: ' . e($e->getMessage()));
 }
 
+
+foreach ($allRows as &$row) {
+    $metaKey = (string)$row['source_key'] . ':' . (int)$row['member_id'];
+    $meta = $smsMeta[$metaKey] ?? null;
+
+    // 별도 저장값이 없으면 기본적으로 제출대상입니다.
+    $row['is_target'] = $meta ? (int)$meta['is_target'] : 1;
+    $row['sms_last_sent_at'] = $meta['last_sent_at'] ?? null;
+    $row['sms_send_count'] = (int)($meta['send_count'] ?? 0);
+    $row['sms_last_result'] = $meta['last_result'] ?? null;
+}
+unset($row);
+
 $stats = [
     'total' => count($allRows),
     'submitted' => 0,
     'missing' => 0,
     'check' => 0,
+    'target_missing' => 0,
 ];
 
 foreach ($allRows as $row) {
     if (isset($stats[$row['submit_status']])) {
         $stats[$row['submit_status']]++;
+    }
+    if ($row['submit_status'] === 'missing' && (int)$row['is_target'] === 1) {
+        $stats['target_missing']++;
     }
 }
 
@@ -222,7 +269,7 @@ function statusLabel(string $status): string
     <title>회원 제출현황</title>
     <link rel="stylesheet" href="../assets/style.css">
     <style>
-        .status-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin-bottom:20px}
+        .status-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:13px;margin-bottom:20px}
         .status-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px 20px;box-shadow:var(--shadow)}
         .status-card span{display:block;color:var(--muted);font-size:.82rem;font-weight:800;margin-bottom:4px}
         .status-card strong{font-size:1.75rem;letter-spacing:-.03em}
@@ -240,6 +287,18 @@ function statusLabel(string $status): string
         .filter-links{display:flex;gap:7px;flex-wrap:wrap}
         .filter-links a{display:inline-flex;text-decoration:none;padding:8px 11px;border-radius:10px;background:#edf0f5;color:#48546a;font-size:.83rem;font-weight:800}
         .filter-links a.active{background:var(--primary);color:#fff}
+        .sms-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0;padding:12px 14px;background:#f7f9fc;border:1px solid var(--line);border-radius:13px}
+        .sms-toolbar .selected-count{font-weight:900;color:var(--primary)}
+        .sms-state{font-size:.78rem;line-height:1.45;white-space:nowrap}
+        .sms-state .sent{font-weight:800;color:#16734b}
+        .sms-state .never{color:var(--muted)}
+        .target-toggle{display:inline-flex;align-items:center;gap:5px;font-size:.78rem;font-weight:800;white-space:nowrap}
+        .target-toggle input,.sms-check,.check-all{width:17px;height:17px;accent-color:var(--primary)}
+        .flash{margin:0 0 16px;padding:12px 14px;border-radius:12px;font-weight:800}
+        .flash.ok{background:#e8f7ef;color:#16734b;border:1px solid #bfe7d1}
+        .flash.err{background:#fff0f0;color:#a63e48;border:1px solid #f0c6ca}
+        tr.target-excluded{opacity:.58;background:#fafafa}
+
         @media(max-width:900px){.status-grid{grid-template-columns:repeat(2,1fr)}}
         @media(max-width:600px){.status-grid{grid-template-columns:1fr 1fr}.status-card{padding:15px}.status-card strong{font-size:1.45rem}}
     </style>
@@ -249,6 +308,17 @@ function statusLabel(string $status): string
 <?php include __DIR__ . '/_nav.php'; ?>
 
 <main class="admin-wrap wide">
+    <?php if ($flash): ?>
+        <div class="flash <?= !empty($flash['ok']) ? 'ok' : 'err' ?>">
+            <?= e((string)($flash['message'] ?? '')) ?>
+        </div>
+    <?php endif; ?>
+
+    <?php if (!$smsTableReady): ?>
+        <div class="flash err">
+            문자발송 관리 테이블이 없습니다. 먼저 <b>install_gift_account_sms.sql</b>을 phpMyAdmin에서 실행해 주세요.
+        </div>
+    <?php endif; ?>
     <div class="page-head">
         <div>
             <span class="eyebrow">회원명부 기준</span>
@@ -264,6 +334,7 @@ function statusLabel(string $status): string
         <div class="status-card wait"><span>⏳ 미제출</span><strong><?= number_format($stats['missing']) ?></strong><small>명</small></div>
         <div class="status-card warn"><span>⚠️ 확인필요</span><strong><?= number_format($stats['check']) ?></strong><small>명</small></div>
         <div class="status-card rate"><span>📊 제출률</span><strong><?= e(number_format($stats['rate'], 1)) ?>%</strong><small>정확히 매칭된 기준</small></div>
+        <div class="status-card wait"><span>📨 발송대상 미제출</span><strong><?= number_format($stats['target_missing']) ?></strong><small>명</small></div>
     </section>
 
     <section class="card">
@@ -301,17 +372,45 @@ function statusLabel(string $status): string
             <a class="<?= $status === 'check' ? 'active' : '' ?>" href="?<?= e(http_build_query(['source'=>$source,'status'=>'check','q'=>$q])) ?>">⚠️ 확인필요</a>
         </div>
 
+        <form id="smsForm" method="post" action="send_account_reminder.php">
+            <input type="hidden" name="return_query" value="<?= e($queryString) ?>">
+            <div class="sms-toolbar">
+                <label style="display:inline-flex;align-items:center;gap:6px;font-weight:900">
+                    <input type="checkbox" class="check-all" id="checkAll">
+                    전체 선택/해제
+                </label>
+                <span>선택 <span class="selected-count" id="selectedCount">0</span>명</span>
+                <button class="btn small" type="submit" name="action" value="send_selected" id="sendSelected" <?= !$smsTableReady ? 'disabled' : '' ?>>
+                    📨 선택회원 제출안내 문자발송
+                </button>
+                <span class="mini-note">기본 선택: 제출대상인 미제출 회원 · 필요 없는 회원은 대상제외로 저장 가능</span>
+            </div>
+
         <div class="table-wrap">
             <table>
                 <thead>
                 <tr>
-                    <th>동아리</th><th>성명</th><th>회원명부 연락처</th><th>제출상태</th>
-                    <th>은행</th><th>계좌번호</th><th>최종 제출일시</th>
+                    <th style="width:42px">선택</th><th>동아리</th><th>성명</th><th>회원명부 연락처</th><th>제출상태</th>
+                    <th>은행</th><th>계좌번호</th><th>최종 제출일시</th><th>제출대상</th><th>문자안내</th>
                 </tr>
                 </thead>
                 <tbody>
                 <?php foreach ($rows as $row): ?>
-                    <tr>
+                    <tr class="<?= (int)$row['is_target'] === 1 ? '' : 'target-excluded' ?>">
+                        <td>
+                            <?php
+                            $canSend = $row['submit_status'] === 'missing' && (int)$row['is_target'] === 1;
+                            $memberKey = (string)$row['source_key'] . ':' . (int)$row['member_id'];
+                            ?>
+                            <input
+                                type="checkbox"
+                                class="sms-check"
+                                name="members[]"
+                                value="<?= e($memberKey) ?>"
+                                <?= $canSend ? 'checked' : '' ?>
+                                <?= !$canSend ? 'disabled' : '' ?>
+                            >
+                        </td>
                         <td><span class="source-tag"><?= e($row['source_label']) ?></span></td>
                         <td><b><?= e($row['member_name']) ?></b></td>
                         <td class="member-phone"><?= e((string)$row['contact']) ?></td>
@@ -324,16 +423,120 @@ function statusLabel(string $status): string
                         <td><?= $row['submit_status'] === 'submitted' ? e((string)$row['bank_name']) : '<span class="mini-note">-</span>' ?></td>
                         <td class="account"><?= $row['submit_status'] === 'submitted' ? e(mask_account((string)$row['account_no'])) : '<span class="mini-note">-</span>' ?></td>
                         <td><?= $row['submit_status'] === 'submitted' ? e((string)$row['submitted_at']) : '<span class="mini-note">-</span>' ?></td>
+                        <td>
+                            <label class="target-toggle">
+                                <input
+                                    type="checkbox"
+                                    class="target-switch"
+                                    data-source="<?= e((string)$row['source_key']) ?>"
+                                    data-member-id="<?= (int)$row['member_id'] ?>"
+                                    <?= (int)$row['is_target'] === 1 ? 'checked' : '' ?>
+                                    <?= !$smsTableReady ? 'disabled' : '' ?>
+                                >
+                                <span><?= (int)$row['is_target'] === 1 ? '대상' : '제외' ?></span>
+                            </label>
+                        </td>
+                        <td class="sms-state">
+                            <?php if (!empty($row['sms_last_sent_at'])): ?>
+                                <span class="sent">발송 <?= e(date('m.d H:i', strtotime((string)$row['sms_last_sent_at']))) ?></span>
+                                <?php if ((int)$row['sms_send_count'] > 1): ?>
+                                    <br><span class="mini-note"><?= number_format((int)$row['sms_send_count']) ?>회 발송</span>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <span class="never">미발송</span>
+                            <?php endif; ?>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
 
                 <?php if (!$rows): ?>
-                    <tr><td colspan="7" class="empty">조건에 해당하는 회원이 없습니다.</td></tr>
+                    <tr><td colspan="10" class="empty">조건에 해당하는 회원이 없습니다.</td></tr>
                 <?php endif; ?>
                 </tbody>
             </table>
         </div>
+        </form>
     </section>
 </main>
+
+<script>
+(() => {
+    const form = document.getElementById('smsForm');
+    const all = document.getElementById('checkAll');
+    const countEl = document.getElementById('selectedCount');
+    const sendBtn = document.getElementById('sendSelected');
+
+    const enabledChecks = () => [...document.querySelectorAll('.sms-check:not(:disabled)')];
+
+    function updateCount() {
+        const checked = enabledChecks().filter(x => x.checked).length;
+        countEl.textContent = checked;
+        if (all) {
+            const list = enabledChecks();
+            all.checked = list.length > 0 && checked === list.length;
+            all.indeterminate = checked > 0 && checked < list.length;
+        }
+    }
+
+    all?.addEventListener('change', () => {
+        enabledChecks().forEach(x => x.checked = all.checked);
+        updateCount();
+    });
+    document.querySelectorAll('.sms-check').forEach(x => x.addEventListener('change', updateCount));
+
+    form?.addEventListener('submit', (e) => {
+        if (e.submitter?.value !== 'send_selected') return;
+        const n = enabledChecks().filter(x => x.checked).length;
+        if (n < 1) {
+            e.preventDefault();
+            alert('문자를 발송할 회원을 선택해 주세요.');
+            return;
+        }
+        if (!confirm(`선택한 ${n}명에게 계좌 제출 안내 문자를 발송하시겠습니까?`)) {
+            e.preventDefault();
+        }
+    });
+
+    document.querySelectorAll('.target-switch').forEach(sw => {
+        sw.addEventListener('change', async () => {
+            const row = sw.closest('tr');
+            const label = sw.parentElement.querySelector('span');
+            const smsCheck = row.querySelector('.sms-check');
+            sw.disabled = true;
+            try {
+                const body = new URLSearchParams({
+                    source_key: sw.dataset.source,
+                    member_id: sw.dataset.memberId,
+                    is_target: sw.checked ? '1' : '0'
+                });
+                const res = await fetch('toggle_account_target.php', {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'},
+                    body
+                });
+                const data = await res.json();
+                if (!data.ok) throw new Error(data.message || '저장 실패');
+
+                label.textContent = sw.checked ? '대상' : '제외';
+                row.classList.toggle('target-excluded', !sw.checked);
+
+                if (smsCheck) {
+                    const isMissing = row.querySelector('.member-status')?.classList.contains('missing');
+                    smsCheck.disabled = !(sw.checked && isMissing);
+                    smsCheck.checked = !!(sw.checked && isMissing);
+                }
+                updateCount();
+            } catch (err) {
+                sw.checked = !sw.checked;
+                alert(err.message || '제출대상 변경 중 오류가 발생했습니다.');
+            } finally {
+                sw.disabled = false;
+            }
+        });
+    });
+
+    updateCount();
+})();
+</script>
 </body>
 </html>
