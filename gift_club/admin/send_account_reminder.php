@@ -64,6 +64,17 @@ function gift_member_row(PDO $pdo, string $sourceKey, int $memberId): ?array
     ];
 }
 
+// 일괄발송 전체에서 토큰은 1회만 발급하여 재사용합니다.
+try {
+    $batchToken = gift_sms_token();
+} catch (Throwable $e) {
+    $_SESSION['gift_sms_flash'] = ['ok'=>false, 'message'=>'뿌리오 토큰 발급 실패: '.$e->getMessage()];
+    header('Location: '.$returnUrl);
+    exit;
+}
+
+$processedSend = 0;
+
 foreach ($members as $key) {
     if (!preg_match('/^(cul|mt):(\d+)$/', $key, $m)) {
         $skipped++;
@@ -95,13 +106,20 @@ foreach ($members as $key) {
             continue;
         }
 
+        // 첫 발송 이후 각 회원 사이에 0.35초 간격을 두어 순간 요청 집중을 완화합니다.
+        if ($processedSend > 0) {
+            usleep(350000);
+        }
+
         $result = gift_send_account_lms(
+            $batchToken,
             $sourceKey,
             $memberId,
             $member['source_label'],
             $member['name'],
             $member['contact']
         );
+        $processedSend++;
 
         $log = $pdo->prepare("
             INSERT INTO gift_account_sms_logs

@@ -4,6 +4,7 @@ declare(strict_types=1);
 /**
  * gift_club 계좌 제출 안내 LMS
  * Bizppurio /v1/token, /v1/message
+ * 개선: 일괄발송 토큰 재사용 + rate limit 자동 재시도
  */
 
 function gift_sms_require_config(): void
@@ -77,9 +78,7 @@ function gift_sms_ref_key(string $sourceKey, int $memberId): string
 
 function gift_account_deadline(): string
 {
-    return defined('GIFT_ACCOUNT_SUBMIT_DEADLINE')
-        ? trim((string)GIFT_ACCOUNT_SUBMIT_DEADLINE)
-        : '';
+    return defined('GIFT_ACCOUNT_SUBMIT_DEADLINE') ? trim((string)GIFT_ACCOUNT_SUBMIT_DEADLINE) : '';
 }
 
 function gift_account_deadline_label(): string
@@ -87,8 +86,7 @@ function gift_account_deadline_label(): string
     $raw = gift_account_deadline();
     if ($raw === '') return '관리자 안내 기한 내';
     $ts = strtotime($raw);
-    if (!$ts) return $raw;
-    return date('Y.m.d H:i', $ts);
+    return $ts ? date('Y.m.d H:i', $ts) : $raw;
 }
 
 function gift_account_sms_content(string $memberName, string $sourceLabel): string
@@ -102,7 +100,25 @@ function gift_account_sms_content(string $memberName, string $sourceLabel): stri
         . "이미 제출하신 경우 본 문자를 무시해 주세요.";
 }
 
+function gift_sms_is_rate_limited(array $r): bool
+{
+    $j = $r['json'] ?? [];
+    $http = (int)($r['http'] ?? 0);
+    $code = strtolower(trim((string)($j['code'] ?? $j['resultCode'] ?? '')));
+    $desc = strtolower(trim((string)($j['description'] ?? $j['message'] ?? '')));
+
+    return $http === 429
+        || str_contains($desc, 'too many request')
+        || str_contains($desc, 'too many requests')
+        || $code === '429';
+}
+
+/**
+ * $token은 일괄발송 시작 시 1회 발급한 토큰을 전달합니다.
+ * rate limit 시 1초 → 2초 → 4초 대기 후 최대 3회 재시도합니다.
+ */
 function gift_send_account_lms(
+    string $token,
     string $sourceKey,
     int $memberId,
     string $sourceLabel,
@@ -116,7 +132,6 @@ function gift_send_account_lms(
 
     $content = gift_account_sms_content($memberName, $sourceLabel);
     $refKey = gift_sms_ref_key($sourceKey, $memberId);
-    $token = gift_sms_token();
 
     $payload = [
         'account' => (string)PPURIO_ACCOUNT,
@@ -125,10 +140,7 @@ function gift_send_account_lms(
         'from' => gift_sms_from(),
         'duplicateFlag' => 'N',
         'targetCount' => 1,
-        'targets' => [[
-            'to' => $to,
-            'name' => trim($memberName),
-        ]],
+        'targets' => [['to'=>$to, 'name'=>trim($memberName)]],
         'refKey' => $refKey,
         'subject' => '명절선물 계좌정보 제출 안내',
     ];
@@ -136,11 +148,22 @@ function gift_send_account_lms(
     $body = json_encode($payload, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
     if ($body === false) throw new RuntimeException('문자 JSON 생성 실패');
 
-    $r = gift_sms_http(
-        'https://message.ppurio.com/v1/message',
-        ['Authorization: Bearer '.$token, 'Content-Type: application/json; charset=utf-8'],
-        $body
-    );
+    $maxRetry = 3;
+    $attempt = 0;
+
+    while (true) {
+        $r = gift_sms_http(
+            'https://message.ppurio.com/v1/message',
+            ['Authorization: Bearer '.$token, 'Content-Type: application/json; charset=utf-8'],
+            $body
+        );
+
+        if (!gift_sms_is_rate_limited($r) || $attempt >= $maxRetry) break;
+
+        // 1초, 2초, 4초 backoff
+        sleep(2 ** $attempt);
+        $attempt++;
+    }
 
     $j = $r['json'];
     $code = (string)($j['code'] ?? $j['resultCode'] ?? '');
@@ -152,6 +175,7 @@ function gift_send_account_lms(
 
     return [
         'ok'=>$ok, 'http'=>$r['http'], 'code'=>$code, 'description'=>$desc,
-        'request_key'=>$requestKey, 'ref_key'=>$refKey, 'content'=>$content
+        'request_key'=>$requestKey, 'ref_key'=>$refKey, 'content'=>$content,
+        'retry_count'=>$attempt
     ];
 }
